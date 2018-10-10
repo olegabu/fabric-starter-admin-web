@@ -1,0 +1,23 @@
+{
+  "appName": "Fabric Starter",
+  "validate": "validate",
+  "file": "file",
+  "text": "text",
+  "type": "type",
+  "section": "section",
+  "account": "account",
+  "accountList": "Accounts",
+  "storage": "storage",
+  "channelList": "Channels",
+  "enroll": "Enroll",
+  "logout": "Log out",
+  "enrollGreeting": "You're connected to your organization's API server.",
+  "home": "Home",
+  "create": "Create",
+  "save": "Save",
+  "add": "Add",
+  "delete": "Delete",
+  "id": "id",
+  "key": "key",
+  "name": "name"
+}

@@ -1,0 +1,27 @@
+<template>
+  <require from="bootstrap/css/bootstrap.css"></require>
+  <require from="toastr/build/toastr.min.css"></require>
+
+  <nav class="navbar navbar-expand-md navbar-light mb-4" style="background-color: #e3f2fd;">
+    <a class="navbar-brand mb-0 h1 mr-3" href="#/" t="appName"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto ml-auto">
+        <li repeat.for="row of router.navigation" class="nav-item ${row.isActive ? 'active' : ''} text-uppercase font-weight-bold text-center mt-2">
+          <h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>
+        </li>
+      </ul>
+      <h3><a href="#" class="badge badge-light mt-2">${org}</a></h3>
+      <ul class="navbar-nav mt-3 ml-3 mt-md-0">
+        <li><a class="btn btn-sm btn-outline-secondary float-right text-uppercase" href click.delegate="logout()"><span t="logout">logout</span></a></li>
+      </ul>
+    </div>
+  </nav>
+<!-- class="container" -->
+  <main role="main" style="width: 100%; margin: 0 auto; padding-right: 15px; padding-left: 15px;">
+    <router-view></router-view>
+  </main>
+
+</template>
