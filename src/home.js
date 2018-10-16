@@ -28,6 +28,9 @@ export class Home {
   selectedChain = null;
   oneCh = null;
   i = 0;
+  clicked = false;
+
+
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
     this.identityService = identityService;
@@ -48,6 +51,7 @@ export class Home {
     this.subscriberBlock.dispose();
   }
 
+
   queryAll() {
   }
 
@@ -56,13 +60,13 @@ export class Home {
       this.channelList = channels;
     });
   }
-
   addChannel(){
 
   }
 
   queryChaincodes() {
-
+    this.clicked = true;
+    this.targets=[];
     this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });

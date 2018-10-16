@@ -1,0 +1,17 @@
+@keyframes go-left-right {
+  from {
+    right: -80%;
+  }
+  to {
+    right: 0px;
+  }
+}
+
+#block {
+  animation: go-left-right 3s;
+  -webkit-animation: go-left-right 3s;
+  position: relative;
+  border: 2px solid;
+  width: 50px;
+  height: 20px;
+}

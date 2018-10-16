@@ -1,38 +1,58 @@
 <template>
-
+  <require from="css/style.css"></require>
+  <require from="bootstrap/css/bootstrap.css"></require>
   <form>
-    <div class="col-md-5">
-      <div class="d-inline p-2 text-white mr-1" style="background-color: #000000;" repeat.for="o of blocks">
+    <div>
+      <img src="src/images/favicon.png" width="25" height="25" alt="logo">
+      <div class="d-inline p-2 text-white mr-1" id="block" style="background-color: #000000;" repeat.for="o of blocks">
         ${o}
       </div>
     </div>
   </form>
+
 
   <form class="bg-light text-dark my-2">
     <div class="row">
       <div class="col-md-3">
         <h4 t="channelList">channelList</h4>
         <div repeat.for="o of channelList">
-          <label class="btn my-2">
-            <input class="form-check-input" type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
-                   change.delegate="queryChaincodes()">
-            ${o}
-          </label>
+          <!--<label class="btn my-2">-->
+          <!--<input class="form-check-input" type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'-->
+          <!--change.delegate="queryChaincodes()">-->
+          <!--${o}-->
+          <!--</label>-->
+
+          <div class="btn-group btn-group-toggle my-2">
+            <label class="btn text-white" id="rad" style="background-color: #000000;">
+              <input class="form-check-input" type="radio" autocomplete="off" value.bind="o" checked.bind='oneChannel'
+                     change.delegate="queryChaincodes()"> ${o}
+            </label>
+          </div>
+
         </div>
 
         <div class="form-group my-2">
           <input type="text" class="form-control" value.bind="oneCh" placeholder="New Channel">
-          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;" click.trigger="addChannel()">Add Channel
+          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;"
+                  click.trigger="addChannel()">Add Channel
           </button>
         </div>
       </div>
 
       <div class="col-md-3">
         <h4 t="chaincodeList">chaincodeList</h4>
-        <div repeat.for="o of chaincodeList" toggle>
-          <label class="btn my-2"><input class="form-check-input" type="radio" value.bind="o"
-                                         checked.bind='oneChaincode' change.delegate="queryTarg()">${o}</label>
+        <div repeat.for="o of chaincodeList">
+          <!--<label class="btn my-2"><input class="form-check-input" type="radio" value.bind="o"-->
+          <!--checked.bind='oneChaincode' change.delegate="queryTarg()">${o}</label>-->
+
+          <div class="btn-group btn-group-toggle my-2">
+            <label class="btn text-white" style="background-color: #000000">
+              <input type="radio" autocomplete="off" value.bind="o" checked.bind='oneChaincode'
+                     change.delegate="queryTarg()"> ${o}
+            </label>
+          </div>
         </div>
+
 
         <div class="form-group">
           <h4 t="Downloaded Chaincodes">Downloaded Chaincodes</h4>
@@ -45,7 +65,8 @@
               </option>
             </select>
           </label>
-          <button type="submit" class="btn btn-sm text-white" style="background-color: #000000;" click.trigger="addChannelChaincode()">Add Chaincode
+          <button type="submit" class="btn btn-sm text-white" style="background-color: #000000;"
+                  click.trigger="addChannelChaincode()">Add Chaincode
           </button>
         </div>
 
@@ -58,7 +79,8 @@
         </div>
         <div class="form-group my-2">
           <input type="text" class="form-control" value.bind="oneOrg" placeholder="New Organizatoin">
-          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;" click.trigger="addChannelOrg()">Add Organization
+          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;"
+                  click.trigger="addChannelOrg()">Add Organization
           </button>
         </div>
       </div>
@@ -71,8 +93,12 @@
         <input class="form-control" type="text" value.bind="fnc" placeholder="Function, example: put">
         <input class="form-control my-2" type="text" value.bind="args"
                placeholder="Args, example: account 1 {name:&quot;one&quot;}">
-        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getInvoke()">Invoke</button>
-        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getQuery()">Query</button>
+        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;"
+                click.trigger="getInvoke()">Invoke
+        </button>
+        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getQuery()">
+          Query
+        </button>
       </div>
     </div>
   </form>
