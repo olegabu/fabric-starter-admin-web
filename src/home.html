@@ -1,25 +1,36 @@
 <template>
-  <form class="bg-light text-dark">
+
+  <form>
+    <div class="col-md-5">
+      <div class="d-inline p-2 text-white mr-1" style="background-color: #000000;" repeat.for="o of blocks">
+        ${o}
+      </div>
+    </div>
+  </form>
+
+  <form class="bg-light text-dark my-2">
     <div class="row">
+
       <div class="col-md-3">
         <h4 t="channelList">channelList</h4>
-        <div id="test" repeat.for="o of channelList">
-          <label class="btn">
-            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
+        <div repeat.for="o of channelList">
+          <label class="btn my-2">
+            <input class="form-check-input" type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
                    change.delegate="queryChaincodes()">
             ${o}
-            <!--${oneChannel}-->
           </label>
         </div>
       </div>
 
       <div class="col-md-3">
         <h4 t="chaincodeList">chaincodeList</h4>
-        <div repeat.for="o of chaincodeList">
-          <label class="btn "><input type="radio" value.bind="o"
-                                     checked.bind='oneChaincode' change.delegate="queryTarg()">${o}</label>
+        <div repeat.for="o of chaincodeList" toggle>
+          <label class="btn my-2"><input class="form-check-input" type="radio" value.bind="o"
+                                         checked.bind='oneChaincode' change.delegate="queryTarg()">${o}</label>
         </div>
+
         <div class="form-group">
+          <h4 t="Downloaded Chaincodes">Downloaded Chaincodes</h4>
           <label>
             <select class="form-control" value.bind="selectedChain">
               <option model.bind="null">Choose...</option>
@@ -29,49 +40,45 @@
               </option>
             </select>
           </label>
-          <button type="submit" class="btn btn-primary btn-sm" click.trigger="addChannelChaincode()">Add Chaincode
+          <button type="submit" class="btn btn-sm text-white" style="background-color: #000000;" click.trigger="addChannelChaincode()">Add Chaincode
           </button>
         </div>
+
 
         <h4 t="orgList">orgList</h4>
         <div repeat.for="o of orgList">
           <ul class="list-group">
-            <li class="list-group-item">${o}</li>
+            <li class="list-group-item my-2">${o}</li>
           </ul>
         </div>
-        <div class="form-group">
-          <input type="text" class="form-control" value.bind="oneOrg" placeholder="Org">
-          <button type="submit" class="btn btn-primary btn-sm my-2" click.trigger="addChannelOrg()">Add Organization
+        <div class="form-group my-2">
+          <input type="text" class="form-control" value.bind="oneOrg" placeholder="New Organizatoin">
+          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;" click.trigger="addChannelOrg()">Add Organization
           </button>
         </div>
       </div>
 
       <div class="col-md-3">
         <h4 t="Targets">Targets</h4>
+
+
         <div repeat.for="o of targets">
-          <label class="btn"><input type="checkbox" value.bind="o" checked.bind="orgs">${o}</label>
+          <label class="btn my-2"><input type="checkbox" value.bind="o" checked.bind="orgs">${o}</label>
         </div>
-        <input class="form-control" type="text" value.bind="fnc" placeholder="Function: put">
+        <input class="form-control" type="text" value.bind="fnc" placeholder="Function, example: put">
         <input class="form-control my-2" type="text" value.bind="args"
-               placeholder="Args: account 1 {name:&quot;one&quot;}">
-        <button type="submit" class="btn btn-primary my-2" click.trigger="getInvoke()">Invoke</button>
-        <button type="submit" class="btn btn-primary my-2" click.trigger="getQuery()">Query</button>
+               placeholder="Args, example: account 1 {name:&quot;one&quot;}">
+        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getInvoke()">Invoke</button>
+        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getQuery()">Query</button>
       </div>
     </div>
   </form>
 
   <form>
     <p class="lead">Result of query: ${query}</p>
-
     <p class="lead">Result of invoke:</p>
     <p>Txid: ${invoke.txid}</p>
     <p>Block: ${invoke.blockNumber}</p>
-
-    <p class="lead">Last five blocks:</p>
-    <div repeat.for="o of blocks">
-      <span class="border border-primary">${o.bl}</span>
-    </div>
   </form>
-
 </template>
 

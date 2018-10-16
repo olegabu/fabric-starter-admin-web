@@ -17,7 +17,6 @@ export class ChaincodeService {
     this.http = http;
     this.alertService = alertService;
   }
-
   fetch(url, params, method, org, username) {
     log.debug('fetch', params);
     log.debug(JSON.stringify(params));
@@ -95,7 +94,6 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
         const test = j.header;
-        console.log(test);
         resolve(test.number);
       })
         .catch(err => {
@@ -125,9 +123,7 @@ export class ChaincodeService {
 
   getChaincodes(channel, org, username) {
     log.debug(`getChaincodes ${org} ${username}`);
-
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
-
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
         const test = j.chaincodes;
@@ -250,15 +246,16 @@ export class ChaincodeService {
       fcn: func,
       args: args.trim().split(" ")
     };
-    // console.log(params);
     return new Promise((resolve, reject) => {
+      setTimeout(() => {
       this.fetch(url, params, 'post', org, username).then(j => {
-        // console.log(j);
+        console.log(j);
         resolve(j);
       })
         .catch(err => {
           reject(err);
         });
+      }, );
     });
   }
 

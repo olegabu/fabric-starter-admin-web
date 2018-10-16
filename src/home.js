@@ -8,8 +8,6 @@ import {ConfigService} from './services/config-service';
 
 let log = LogManager.getLogger('Home');
 
-$('#test').button('toggle');
-
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService)
 export class Home {
   channelList = [];
@@ -18,8 +16,8 @@ export class Home {
   orgs = [];
   installedChain = [];
   blocks = [];
-  bList = [];
   targets = [];
+  lastBlock = null;
   oneChannel = null;
   oneChaincode = null;
   oneOrg = null;
@@ -28,7 +26,7 @@ export class Home {
   invoke = null;
   query = null;
   selectedChain = null;
-  inf = null;
+  i = 0;
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
     this.identityService = identityService;
@@ -59,22 +57,22 @@ export class Home {
   }
 
   queryChaincodes() {
+
     this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
+    this.queryBlocks();
     this.queryOrgs();
     this.queryAllChain();
-    setTimeout(this.queryBlocks(), 1000);
   }
 
   queryOrgs() {
     this.chaincodeService.getOrgs(this.oneChannel).then(orgs => {
       this.orgList = orgs;
     });
-
   }
 
-  queryTarg(){
+  queryTarg() {
     this.targets = JSON.parse(JSON.stringify(this.orgList));
     let pos = this.targets.indexOf("Orderer");
     this.targets.splice(pos, 1);
@@ -86,20 +84,30 @@ export class Home {
     });
   }
 
+  // updateBlocks() {
+  //   //console.log(this.blocks);
+  //   let bl = this.invoke;
+  //   setTimeout(function () {
+  //     console.log(bl);
+  //   }, 5000);
+  //   this.blocks.splice(0, 1);
+  //   this.blocks.push(this.invoke);
+  // }
+
   queryBlocks() {
+    this.blocks = [];
+    let bl = [];
     this.chaincodeService.getLastBlock(this.oneChannel).then(block => {
-      console.log(block);
       for (let i = block - 5; i < block; i++) {
         if (i < 0)
           continue;
         this.chaincodeService.getBlock(this.oneChannel, i).then(block => {
-          this.bList.push(block);
+          bl.push(block);
         });
       }
+     bl.sort();
     });
-    let bl = this.bList.sort();
-    let ch = this.oneChannel;
-    this.blocks.push({ch, bl});
+    this.blocks = bl;
     console.log(this.blocks);
   }
 
@@ -116,7 +124,7 @@ export class Home {
   //   });
   //   this.queryChaincodes();
   // }
-  //
+
   addChannelOrg() {
     this.chaincodeService.addOrg(this.oneChannel, this.oneOrg);
     this.queryOrgs();
@@ -125,11 +133,11 @@ export class Home {
   getInvoke() {
     this.query = null;
     this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args).then(invoke => {
+      console.log(invoke);
+      this.blocks.splice(0, 1);
+      this.blocks.push(invoke.blockNumber);
       this.invoke = invoke;
     });
-    this.targets.splice(0, 1);
-    //this.queryBlocks();
-
   }
 
   getQuery() {

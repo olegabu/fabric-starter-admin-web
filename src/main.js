@@ -5,9 +5,9 @@ import {Backend, TCustomAttribute} from 'aurelia-i18n';
 // import Backend from 'i18next-xhr-backend';
 
 export function configure(aurelia) {
+
   aurelia.use
   .standardConfiguration()
-
   .plugin('aurelia-i18n', (instance) => {
     let aliases = ['t', 'i18n'];
     // add aliases for 't' attribute
@@ -29,6 +29,7 @@ export function configure(aurelia) {
   })
   .plugin('aurelia-table')
   .plugin('aurelia-validation')
+  .plugin('aurelia-bootstrap', config => config.options.version = 4)
   .feature('resources');
 
   if (environment.debug) {
@@ -48,4 +49,5 @@ export function configure(aurelia) {
       aurelia.setRoot('login');
     }
   });
+
 }

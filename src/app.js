@@ -21,7 +21,6 @@ export class App {
 
   configureRouter(config, router) {
     config.title = this.i18n.tr('appName');
-
     let routes = [
       {route: ['', 'home'], name: 'home', moduleId: './home', nav: true, title: this.i18n.tr('home')}
      ];

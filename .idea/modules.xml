@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/fabric-starter-admin-web.iml" filepath="$PROJECT_DIR$/.idea/fabric-starter-admin-web.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/fabric-starter-web.iml" filepath="$PROJECT_DIR$/.idea/fabric-starter-web.iml" />
     </modules>
   </component>
 </project>
