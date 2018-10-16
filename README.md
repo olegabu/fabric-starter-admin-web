@@ -14,7 +14,7 @@ sudo apt install nodejs npm
 
 Install Aurelia CLI
 ```bash
-npm install aurelia-cli -g
+sudo npm install aurelia-cli -g
 ```
 
 Build
@@ -28,17 +28,6 @@ organizations who will run their REST API servers which will serve this web app.
 
 - org1 [http://localhost:3000](http://localhost:3000)
 - org2 [http://localhost:3001](http://localhost:3001)
-
-## Serve by the API servers
-
-Build to be served by [fabric-starter-rest](https://github.com/olegabu/fabric-starter-rest), 
-assume it's cloned into `../fabric-starter-rest`.
-```bash
-au build --env stage \
-&& cp index.html ../fabric-starter/webapp/ \
-&& cp -r scripts ../fabric-starter/webapp/ \
-&& mkdir -p ../fabric-starter/webapp/src && cp -r src/locales ../fabric-starter/webapp/src
-```
 
 ## Development
 
