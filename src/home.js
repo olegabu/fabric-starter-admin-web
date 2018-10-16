@@ -26,6 +26,7 @@ export class Home {
   invoke = null;
   query = null;
   selectedChain = null;
+  oneCh = null;
   i = 0;
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
@@ -54,6 +55,10 @@ export class Home {
     this.chaincodeService.getChannels().then(channels => {
       this.channelList = channels;
     });
+  }
+
+  addChannel(){
+
   }
 
   queryChaincodes() {
