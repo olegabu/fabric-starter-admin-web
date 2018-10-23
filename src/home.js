@@ -113,7 +113,7 @@ export class Home {
       console.log(invoke);
       if (this.blocks.length > 4)
         this.blocks.splice(0, 1);
-      this.blocks.push(invoke.txid.substring(0,2));
+      this.blocks.push(invoke.txid.substring(0,3));
       this.invoke = invoke;
     });
   }

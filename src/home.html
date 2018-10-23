@@ -10,14 +10,11 @@
     </div>
   </form>
 
-
-
-
   <form class="bg-light text-dark my-2">
+
     <div class="row">
       <div class="col-md-3">
         <h4 t="channelList">channelList</h4>
-
           <div class="btn-group-toggle" data-toggle="buttons" >
             <label class="btn btn-secondary mr-1" repeat.for="o of channelList" click.delegate="queryChaincodes(o)">
               <input class="form-check-input " type="radio" > ${o}
@@ -34,7 +31,6 @@
 
       <div class="col-md-3">
         <h4 t="chaincodeList">chaincodeList</h4>
-
         <div class="btn-group-toggle" data-toggle="buttons" >
           <label class="btn btn-secondary mr-1" repeat.for="o of chaincodeList" click.delegate="queryTarg(o)">
             <input class="form-check-input" type="radio" > ${o}
@@ -57,7 +53,6 @@
           </button>
         </div>
 
-
         <h4 t="orgList">orgList</h4>
         <div repeat.for="o of orgList">
           <ul class="list-group">
@@ -74,9 +69,6 @@
 
       <div class="col-md-3">
         <h4 t="Targets">Targets</h4>
-        <!--<div repeat.for="o of targets">-->
-          <!--<label class="btn my-2"><input type="checkbox" value.bind="o" checked.bind="orgs">${o}</label>-->
-        <!--</div>-->
         <div class="btn-group-toggle" data-toggle="buttons">
           <label class="btn btn-secondary" repeat.for="o of targets">
             <input type="checkbox" checked autocomplete="off"> ${o}

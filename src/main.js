@@ -29,7 +29,6 @@ export function configure(aurelia) {
   })
   .plugin('aurelia-table')
   .plugin('aurelia-validation')
-  .plugin('aurelia-bootstrap', config => config.options.version = 4)
   .feature('resources');
 
   if (environment.debug) {

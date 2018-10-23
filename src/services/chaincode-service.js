@@ -94,7 +94,7 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
         const test = j.data.data[0].payload.header.channel_header.tx_id;
-        resolve(test.substring(0,2));
+        resolve(test.substring(0,3));
       })
         .catch(err => {
           reject(err);
@@ -239,7 +239,7 @@ export class ChaincodeService {
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
-      fcn: func,
+      fcn: func.trim(),
       args: args.trim().split(" ")
     };
     return new Promise((resolve, reject) => {
