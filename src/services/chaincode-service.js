@@ -220,7 +220,6 @@ export class ChaincodeService {
       fcn: func,
       args: json(args.trim().split(" "))
     };
-    // console.log(params.args);
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'get', org, username).then(j => {
         // console.log(j);

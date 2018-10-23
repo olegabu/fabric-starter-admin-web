@@ -13,11 +13,9 @@ export class Home {
   channelList = [];
   chaincodeList = [];
   orgList = [];
-  orgs = [];
   installedChain = [];
   blocks = [];
   targets = [];
-  lastBlock = null;
   oneChannel = null;
   oneChaincode = null;
   oneOrg = null;
@@ -27,15 +25,12 @@ export class Home {
   query = null;
   selectedChain = null;
   oneCh = null;
-  i = 0;
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
     this.configService = configService;
-    this.colors = ['red', 'green', 'blue'];
-    this.selectedColor = 'red';
   }
 
   attached() {
@@ -112,25 +107,6 @@ export class Home {
     console.log(this.blocks);
   }
 
-  // addChannelChaincode() {
-  //   this.chaincodeService.installChaincode(this.oneChannel, this.selectedChain).then(inf => {
-  //     this.inf = inf;
-  //   });
-  //   this.queryChaincodes();
-  // }
-
-  // addChannelChaincode() {
-  //   this.chaincodeService.installChaincode(this.oneChannel, this.selectedChain).then(inf => {
-  //     this.inf = inf;
-  //   });
-  //   this.queryChaincodes();
-  // }
-
-  addChannelOrg() {
-    this.chaincodeService.addOrg(this.oneChannel, this.oneOrg);
-    this.queryOrgs();
-  }
-
   getInvoke() {
     this.query = null;
     this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args).then(invoke => {
@@ -148,6 +124,4 @@ export class Home {
       this.query = query;
     });
   }
-//docker rm -i
-
 }
