@@ -28,15 +28,14 @@ export class Home {
   selectedChain = null;
   oneCh = null;
   i = 0;
-  clicked = false;
-
-
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
     this.configService = configService;
+    this.colors = ['red', 'green', 'blue'];
+    this.selectedColor = 'red';
   }
 
   attached() {
@@ -60,14 +59,15 @@ export class Home {
       this.channelList = channels;
     });
   }
-  addChannel(){
+
+  addChannel() {
 
   }
 
-  queryChaincodes() {
-    this.clicked = true;
-    this.targets=[];
-    this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
+  queryChaincodes(evt) {
+    this.oneChannel = evt;
+    this.targets = [];
+    this.chaincodeService.getChaincodes(evt).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
     this.queryBlocks();
@@ -81,7 +81,8 @@ export class Home {
     });
   }
 
-  queryTarg() {
+  queryTarg(evt) {
+    this.oneChaincode = evt;
     this.targets = JSON.parse(JSON.stringify(this.orgList));
     let pos = this.targets.indexOf("Orderer");
     this.targets.splice(pos, 1);
@@ -93,16 +94,6 @@ export class Home {
     });
   }
 
-  // updateBlocks() {
-  //   //console.log(this.blocks);
-  //   let bl = this.invoke;
-  //   setTimeout(function () {
-  //     console.log(bl);
-  //   }, 5000);
-  //   this.blocks.splice(0, 1);
-  //   this.blocks.push(this.invoke);
-  // }
-
   queryBlocks() {
     this.blocks = [];
     let bl = [];
@@ -112,10 +103,11 @@ export class Home {
           continue;
         this.chaincodeService.getBlock(this.oneChannel, i).then(block => {
           bl.push(block);
+          bl.sort();
         });
       }
-     bl.sort();
     });
+    bl.sort();
     this.blocks = bl;
     console.log(this.blocks);
   }
@@ -143,8 +135,9 @@ export class Home {
     this.query = null;
     this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args).then(invoke => {
       console.log(invoke);
-      this.blocks.splice(0, 1);
-      this.blocks.push(invoke.blockNumber);
+      if (this.blocks.length > 4)
+        this.blocks.splice(0, 1);
+      this.blocks.push(invoke.txid.substring(0,2));
       this.invoke = invoke;
     });
   }
@@ -155,6 +148,6 @@ export class Home {
       this.query = query;
     });
   }
-
+//docker rm -i
 
 }

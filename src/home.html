@@ -11,29 +11,22 @@
   </form>
 
 
+
+
   <form class="bg-light text-dark my-2">
     <div class="row">
       <div class="col-md-3">
         <h4 t="channelList">channelList</h4>
-        <div repeat.for="o of channelList">
-          <!--<label class="btn my-2">-->
-          <!--<input class="form-check-input" type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'-->
-          <!--change.delegate="queryChaincodes()">-->
-          <!--${o}-->
-          <!--</label>-->
 
-          <div class="btn-group btn-group-toggle my-2">
-            <label class="btn text-white" id="rad" style="background-color: #000000;">
-              <input class="form-check-input" type="radio" autocomplete="off" value.bind="o" checked.bind='oneChannel'
-                     change.delegate="queryChaincodes()"> ${o}
+          <div class="btn-group-toggle" data-toggle="buttons" >
+            <label class="btn btn-secondary mr-1" repeat.for="o of channelList" click.delegate="queryChaincodes(o)">
+              <input class="form-check-input " type="radio" > ${o}
             </label>
           </div>
 
-        </div>
-
         <div class="form-group my-2">
           <input type="text" class="form-control" value.bind="oneCh" placeholder="New Channel">
-          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;"
+          <button type="submit" class="btn  text-white"
                   click.trigger="addChannel()">Add Channel
           </button>
         </div>
@@ -41,18 +34,12 @@
 
       <div class="col-md-3">
         <h4 t="chaincodeList">chaincodeList</h4>
-        <div repeat.for="o of chaincodeList">
-          <!--<label class="btn my-2"><input class="form-check-input" type="radio" value.bind="o"-->
-          <!--checked.bind='oneChaincode' change.delegate="queryTarg()">${o}</label>-->
 
-          <div class="btn-group btn-group-toggle my-2">
-            <label class="btn text-white" style="background-color: #000000">
-              <input type="radio" autocomplete="off" value.bind="o" checked.bind='oneChaincode'
-                     change.delegate="queryTarg()"> ${o}
-            </label>
-          </div>
+        <div class="btn-group-toggle" data-toggle="buttons" >
+          <label class="btn btn-secondary mr-1" repeat.for="o of chaincodeList" click.delegate="queryTarg(o)">
+            <input class="form-check-input" type="radio" > ${o}
+          </label>
         </div>
-
 
         <div class="form-group">
           <h4 t="Downloaded Chaincodes">Downloaded Chaincodes</h4>
@@ -65,7 +52,7 @@
               </option>
             </select>
           </label>
-          <button type="submit" class="btn btn-sm text-white" style="background-color: #000000;"
+          <button type="submit" class="btn text-white"
                   click.trigger="addChannelChaincode()">Add Chaincode
           </button>
         </div>
@@ -74,12 +61,12 @@
         <h4 t="orgList">orgList</h4>
         <div repeat.for="o of orgList">
           <ul class="list-group">
-            <li class="list-group-item my-2">${o}</li>
+            <li class="list-group-item ">${o}</li>
           </ul>
         </div>
         <div class="form-group my-2">
           <input type="text" class="form-control" value.bind="oneOrg" placeholder="New Organizatoin">
-          <button type="submit" class="btn btn-sm my-2 text-white" style="background-color: #000000;"
+          <button type="submit" class="btn text-white"
                   click.trigger="addChannelOrg()">Add Organization
           </button>
         </div>
@@ -87,16 +74,22 @@
 
       <div class="col-md-3">
         <h4 t="Targets">Targets</h4>
-        <div repeat.for="o of targets">
-          <label class="btn my-2"><input type="checkbox" value.bind="o" checked.bind="orgs">${o}</label>
+        <!--<div repeat.for="o of targets">-->
+          <!--<label class="btn my-2"><input type="checkbox" value.bind="o" checked.bind="orgs">${o}</label>-->
+        <!--</div>-->
+        <div class="btn-group-toggle" data-toggle="buttons">
+          <label class="btn btn-secondary" repeat.for="o of targets">
+            <input type="checkbox" checked autocomplete="off"> ${o}
+          </label>
         </div>
-        <input class="form-control" type="text" value.bind="fnc" placeholder="Function, example: put">
+
+        <input class="form-control my-2" type="text" value.bind="fnc" placeholder="Function, example: put">
         <input class="form-control my-2" type="text" value.bind="args"
                placeholder="Args, example: account 1 {name:&quot;one&quot;}">
-        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;"
+        <button type="submit" class="btn text-white"
                 click.trigger="getInvoke()">Invoke
         </button>
-        <button type="submit" class="btn my-2 text-white" style="background-color: #000000;" click.trigger="getQuery()">
+        <button type="submit" class="btn text-white" click.trigger="getQuery()">
           Query
         </button>
       </div>
@@ -104,7 +97,8 @@
   </form>
 
   <form>
-    <p class="lead">Result of query: ${query}</p>
+    <p class="lead">Result of query:</p>
+    <p>Output: ${query}</p>
     <p class="lead">Result of invoke:</p>
     <p>Txid: ${invoke.txid}</p>
     <p>Block: ${invoke.blockNumber}</p>

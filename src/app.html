@@ -9,11 +9,14 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto ml-auto">
-        <li repeat.for="row of router.navigation" class="nav-item ${row.isActive ? 'active' : ''} text-uppercase font-weight-bold text-center mt-2">
-          <h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>
-        </li>
-      </ul>
+      <!--<ul class="navbar-nav mr-auto ml-auto">-->
+        <!--<li repeat.for="row of router.navigation" class="nav-item ${row.isActive ? 'active' : ''} text-uppercase font-weight-bold text-center mt-2">-->
+          <!--<h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>-->
+        <!--</li>-->
+      <!--</ul>-->
+      <div class="mr-auto ml-auto">
+      <img src="src/images/logo.png" width="230" height="50" alt="logo">
+      </div>
       <h3><a href="#" class="badge badge-light mt-2">${org}</a></h3>
       <ul class="navbar-nav mt-3 ml-3 mt-md-0">
         <li><a class="btn btn-sm btn-outline-secondary float-right text-uppercase" href click.delegate="logout()"><span t="logout">logout</span></a></li>
