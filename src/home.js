@@ -18,7 +18,8 @@ export class Home {
   targets = [];
   oneChannel = null;
   oneChaincode = null;
-  oneOrg = null;
+  targs = [];
+  newOrg = null;
   fnc = null;
   args = null;
   invoke = null;
@@ -59,28 +60,29 @@ export class Home {
 
   }
 
-  queryChaincodes(evt) {
-    this.oneChannel = evt;
+  queryChaincodes() {
     this.targets = [];
-    this.chaincodeService.getChaincodes(evt).then(chaincodes => {
+    this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
     this.queryBlocks();
     this.queryOrgs();
     this.queryAllChain();
+    this.getPeers()
+  }
+
+  getPeers() {
+    this.chaincodeService.getPeersForOrgOnChannel(this.oneChannel).then(peers => {
+      for (let i = 0; i < peers.length; i++) {
+        this.targets.push(peers[i]);
+      }
+    });
   }
 
   queryOrgs() {
     this.chaincodeService.getOrgs(this.oneChannel).then(orgs => {
       this.orgList = orgs;
     });
-  }
-
-  queryTarg(evt) {
-    this.oneChaincode = evt;
-    this.targets = JSON.parse(JSON.stringify(this.orgList));
-    let pos = this.targets.indexOf("Orderer");
-    this.targets.splice(pos, 1);
   }
 
   queryAllChain() {
@@ -97,31 +99,44 @@ export class Home {
         if (i < 0)
           continue;
         this.chaincodeService.getBlock(this.oneChannel, i).then(block => {
-          bl.push(block);
-          bl.sort();
+          let txid = [];
+          for (let j = 0; j < block.data.data.length; j++) {
+            txid.push(block.data.data[j].payload.header.channel_header.tx_id)
+          }
+          bl.push({blockNumber: block.header.number, txid: txid});
+          bl.sort(function (a, b) {
+            return a.blockNumber - b.blockNumber
+          });
         });
       }
     });
-    bl.sort();
+    bl.sort(function (a, b) {
+      return a.blockNumber - b.blockNumber
+    });
     this.blocks = bl;
-    console.log(this.blocks);
   }
 
   getInvoke() {
     this.query = null;
-    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args).then(invoke => {
-      console.log(invoke);
+    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
       if (this.blocks.length > 4)
         this.blocks.splice(0, 1);
-      this.blocks.push(invoke.txid.substring(0,3));
+      console.log(invoke);
+      this.blocks.push({blockNumber: invoke.blockNumber, txid: invoke._transaction_id});
       this.invoke = invoke;
     });
   }
 
   getQuery() {
     this.invoke = null;
-    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args).then(query => {
+    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args,this.targs).then(query => {
       this.query = query;
     });
   }
 }
+
+// curl -H "Authorization: Bearer $JWT" -H "Content-Type: application/json" http://localhost:4001/channels/common/chaincodes/reference -d '{"fcn":"put","args":["account","1","{name:\"one\"}"],"targets":["peer0.org2.example.com"]}'
+
+// curl -H "Authorization: Bearer $JWT" -H "Content-Type: application/json" http://localhost:4001/channels/common/chaincodes/example02 -d '{"fcn":"move","args":["a","b","1"],"targets":["peer0.org2.example.com"]}'
+
+

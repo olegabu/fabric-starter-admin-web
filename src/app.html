@@ -17,7 +17,7 @@
       <div class="mr-auto ml-auto">
       <img src="src/images/logo.png" width="230" height="50" alt="logo">
       </div>
-      <h3><a href="#" class="badge badge-light mt-2">${org}</a></h3>
+      <h3><a class="badge badge-light mt-2">${org}</a></h3>
       <ul class="navbar-nav mt-3 ml-3 mt-md-0">
         <li><a class="btn btn-sm btn-outline-secondary float-right text-uppercase" href click.delegate="logout()"><span t="logout">logout</span></a></li>
       </ul>
@@ -28,5 +28,8 @@
   <main role="main" style="width: 100%; margin: 0 auto; padding-right: 15px; padding-left: 15px;">
     <router-view></router-view>
   </main>
+  <nav class="navbar fixed-bottom navbar-light" style="background-color: #000000;">
+    <a class="navbar-brand text-white" href="#">Web-admin</a>
+  </nav>
 
 </template>

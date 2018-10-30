@@ -17,6 +17,7 @@ export class ChaincodeService {
     this.http = http;
     this.alertService = alertService;
   }
+
   fetch(url, params, method, org, username) {
     log.debug('fetch', params);
     log.debug(JSON.stringify(params));
@@ -45,7 +46,6 @@ export class ChaincodeService {
           }
         });
       }
-
       promise.then(response => {
         response.json().then(j => {
           log.debug('fetch', j);
@@ -93,8 +93,11 @@ export class ChaincodeService {
 
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
-        const test = j.data.data[0].payload.header.channel_header.tx_id;
-        resolve(test.substring(0,3));
+        // console.log(j);
+        // console.log(j.data);
+        // const test = j.data.data[0].payload.header.channel_header.tx_id;
+        // resolve(test.substring(0,3));
+        resolve(j);
       })
         .catch(err => {
           reject(err);
@@ -109,11 +112,22 @@ export class ChaincodeService {
 
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
-        // console.log(j);
         const channels = j.map(o => {
           return o.channel_id;
         });
         resolve(channels);
+      })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
+  getPeersForOrgOnChannel(channel, org, username) {
+    const url = Config.getUrl(`channels/${channel}/peers`);
+    return new Promise((resolve, reject) => {
+      this.fetch(url, null, 'get', org, username).then(j => {
+        resolve(j);
       })
         .catch(err => {
           reject(err);
@@ -159,7 +173,6 @@ export class ChaincodeService {
   getOrgs(channel, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/orgs`);
-
 
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
@@ -209,29 +222,29 @@ export class ChaincodeService {
   //   });
   // }
 
-  query(channel, chaincode, func, args, org, username) {
+  query(channel, chaincode, func, args, peers, org, username) {
     log.debug(`query channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     //var res = args.trim().split(" ");
-    //console.log(res);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
       fcn: func,
-      args: json(args.trim().split(" "))
+      args: json(args.trim().split(" ")),
+      targets: json(peers)
     };
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'get', org, username).then(j => {
-        // console.log(j);
+        //console.log(j);
         // resolve(JSON.parse(j[0]));
         resolve(j);
       }).catch(err => {
         reject(err);
       });
-    });
+    },setTimeout(4000));
   }
 
-  invoke(channel, chaincode, func, args, org, username) {
+  invoke(channel, chaincode, func, args, peers, org, username) {
     log.debug(`invoke channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
 
     //const peerOrg = org ? org.name : this.identityService.org;
@@ -240,19 +253,19 @@ export class ChaincodeService {
       channelId: channel,
       chaincodeId: chaincode,
       fcn: func.trim(),
-      args: args.trim().split(" ")
+      args: args.trim().split(" "),
+      targets: peers
     };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-      this.fetch(url, params, 'post', org, username).then(j => {
-        console.log(j);
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-      }, );
-    });
+        this.fetch(url, params, 'post', org, username).then(j => {
+          resolve(j);
+        })
+          .catch(err => {
+            reject(err);
+          });
+      },);
+    },setTimeout(4000));
   }
 
 }
