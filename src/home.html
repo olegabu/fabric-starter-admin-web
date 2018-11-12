@@ -8,7 +8,7 @@
     </div>
   </div>
 
-    <div class="row p-2">
+    <div class="row p-1">
       <div class="col-md-4">
         <h4 t="channelList">channelList</h4>
 
@@ -49,7 +49,7 @@
               </option>
             </select>
             <button type="submit" class="btn text-white"
-                    click.trigger="addChannelChaincode()">Add Chaincode
+                    click.trigger="addChaincode()">Add Chaincode
             </button>
           </label>
 
@@ -95,7 +95,6 @@
     <p class="lead">Result of query:</p>
     <p>Output: ${query}</p>
     <p class="lead">Result of invoke:</p>
-    <p>Txid: ${invoke.txid}</p>
-    <p>Block: ${invoke.blockNumber}</p>
+    <p>Txid: ${invoke._transaction_id}</p>
 </template>
 

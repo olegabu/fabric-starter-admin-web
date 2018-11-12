@@ -38,6 +38,7 @@ export class Home {
     this.queryChannels();
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
+      this.updateBlock();
       this.queryAll();
     });
   }
@@ -57,7 +58,13 @@ export class Home {
   }
 
   addChannel() {
+    this.chaincodeService.addChannel(this.oneCh).then(ch => {
+      this.channelList.push(this.oneCh);
+    });
+  }
 
+  addChaincode(){
+    this.chaincodeService.installChaincode(this.oneChannel, this.selectedChain)
   }
 
   queryChaincodes() {
@@ -103,7 +110,7 @@ export class Home {
           for (let j = 0; j < block.data.data.length; j++) {
             txid.push(block.data.data[j].payload.header.channel_header.tx_id)
           }
-          bl.push({blockNumber: block.header.number, txid: txid});
+          bl.push({blockNumber: block.header.number, txid: txid.join('; ')});
           bl.sort(function (a, b) {
             return a.blockNumber - b.blockNumber
           });
@@ -119,24 +126,30 @@ export class Home {
   getInvoke() {
     this.query = null;
     this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
-      if (this.blocks.length > 4)
-        this.blocks.splice(0, 1);
-      console.log(invoke);
-      this.blocks.push({blockNumber: invoke.blockNumber, txid: invoke._transaction_id});
       this.invoke = invoke;
     });
   }
 
   getQuery() {
     this.invoke = null;
-    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args,this.targs).then(query => {
+    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
       this.query = query;
     });
   }
+
+  updateBlock() {
+    if (this.blocks.length > 4)
+      this.blocks.splice(0, 1);
+    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
+      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
+        let txid = [];
+        for (let j = 0; j < block.data.data.length; j++) {
+          txid.push(block.data.data[j].payload.header.channel_header.tx_id)
+        }
+        this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
+      });
+    });
+
+  }
 }
-
-// curl -H "Authorization: Bearer $JWT" -H "Content-Type: application/json" http://localhost:4001/channels/common/chaincodes/reference -d '{"fcn":"put","args":["account","1","{name:\"one\"}"],"targets":["peer0.org2.example.com"]}'
-
-// curl -H "Authorization: Bearer $JWT" -H "Content-Type: application/json" http://localhost:4001/channels/common/chaincodes/example02 -d '{"fcn":"move","args":["a","b","1"],"targets":["peer0.org2.example.com"]}'
-
 
