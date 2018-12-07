@@ -72,6 +72,47 @@ export class ChaincodeService {
     });
   }
 
+  fetchForFile(url, file, method, org, username) {
+    return new Promise((resolve, reject) => {
+      const jwt = IdentityService.getJwt(org, username);
+
+      let promise;
+
+      promise = this.http.fetch(url, {
+        method: method,
+        body: file,
+        headers: {
+          'Authorization': 'Bearer ' + jwt
+        }
+      });
+
+      promise.then(response => {
+        response.json().then(j => {
+          log.debug('fetch', j);
+
+          if (!response.ok) {
+            const msg = `${response.statusText} ${j}`;
+            if (response.status === 401) {
+              this.alertService.info('session expired, logging you out');
+              this.identityService.logout();
+            } else {
+              this.alertService.error(msg);
+            }
+
+            reject(new Error(msg));
+          } else {
+            resolve(j);
+          }
+        });
+
+      }).catch(err => {
+        this.alertService.error(`caught ${err}`);
+        reject(err);
+      });
+    });
+  }
+
+
   getLastBlock(channel, org, username) {
     const url = Config.getUrl(`channels/${channel}`);
     return new Promise((resolve, reject) => {
@@ -175,13 +216,12 @@ export class ChaincodeService {
     });
   }
 
-  addChannel(channel, org, username) {
-    log.debug(`invoke channel=${channel}`);
-
+  addChannel(channelId, org, username) {
+    log.debug(`invoke channel=${channelId}`);
     //const peerOrg = org ? org.name : this.identityService.org;
     const url = Config.getUrl(`channels`);
     const params = {
-      channelId: channel,
+      channelId: channelId,
     };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -194,8 +234,25 @@ export class ChaincodeService {
       },);
     }, setTimeout(4000));
   }
-  //TODO: install and instantiate Chaincodes
-  installChaincode(channel, chaincode, org, username) {
+
+  installChaincode(file, org, username) {
+    const url = Config.getUrl(`chaincodes`);
+
+    return new Promise((resolve, reject) => {
+      this.fetchForFile(url, file, 'post', org, username).then(j => {
+        console.log(j);
+        if (j.startsWith('Error')) {
+          this.alertService.error(j);
+        } else
+          this.alertService.success(j)
+      })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
+  instantiateChaincode(channel, chaincode, args, peers, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
     const params = {
@@ -204,7 +261,9 @@ export class ChaincodeService {
     };
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
-        console.log(j);
+        if (j.badPeers.length > 0) {
+          this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
+        }
         resolve(j);
       })
         .catch(err => {
@@ -212,21 +271,6 @@ export class ChaincodeService {
         });
     });
   }
-
-  // addOrg(channel,newOrg, org, username) {
-  //   const url = Config.getUrl(`channels/${channel}/orgs`);
-  //   const params = {
-  //     address: org,
-  //   };
-  //   return new Promise((resolve, reject) => {
-  //     this.fetch(url, params, 'post', org, username).then(j => {
-  //       resolve(j.transaction);
-  //     })
-  //       .catch(err => {
-  //         reject(err);
-  //       });
-  //   });
-  // }
 
   query(channel, chaincode, func, args, peers, org, username) {
     log.debug(`query channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
@@ -271,5 +315,4 @@ export class ChaincodeService {
       },);
     }, setTimeout(4000));
   }
-
 }

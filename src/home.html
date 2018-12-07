@@ -8,75 +8,84 @@
     </div>
   </div>
 
-    <div class="row p-1">
-      <div class="col-md-4">
-        <h4 t="channelList">channelList</h4>
+  <div class="row p-1">
+    <div class="col-md-4">
+      <h4 t="channelList">channelList</h4>
 
-        <div repeat.for="o of channelList">
-          <label>
-            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
-                   change.delegate="queryChaincodes()">
-            ${o}
-          </label>
-        </div>
-
-        <div class="form-group">
-          <input type="text" class="form-control" value.bind="oneCh" placeholder="New Channel">
-          <button type="submit" class="btn  text-white"
-                  click.trigger="addChannel()">Add Channel
-          </button>
-        </div>
+      <div repeat.for="o of channelList">
+        <label>
+          <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
+                 change.delegate="queryChaincodes() || queryBlocks()">
+          ${o}
+        </label>
       </div>
 
-      <div class="col-md-4">
-        <h4 t="chaincodeList">chaincodeList</h4>
+      <div class="form-group ">
+        <input type="text" class="form-control" value.bind="oneCh" placeholder="New Channel">
+        <button type="submit" class="btn  text-white"
+                click.trigger="addChannel()">Add Channel
+        </button>
+      </div>
+    </div>
 
-        <div repeat.for="o of chaincodeList">
-          <label>
-            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
-            ${o}
-          </label>
-        </div>
+    <div class="col-md-4">
+      <h4 t="chaincodeList">chaincodeList</h4>
 
-        <div class="form-group">
-          <h4 t="Downloaded Chaincodes">Downloaded Chaincodes</h4>
-          <label>
-            <select class="custom-select" value.bind="selectedChain">
-              <option model.bind="null">Choose...</option>
-              <option repeat.for="chain of installedChain"
-                      model.bind="chain">
-                ${chain}
-              </option>
-            </select>
-            <button type="submit" class="btn text-white"
-                    click.trigger="addChaincode()">Add Chaincode
-            </button>
-          </label>
-
-        </div>
-
-        <h4 t="orgList">orgList</h4>
-        <ul>
-          <li repeat.for="o of orgList">${o}</li>
-        </ul>
-        <div class="form-group">
-          <input type="text" class="form-control" value.bind="newOrg" placeholder="New Organizatoin">
-          <button type="submit" class="btn text-white"
-                  click.trigger="addChannelOrg()">Add Organization
-          </button>
-        </div>
+      <div repeat.for="o of chaincodeList">
+        <label>
+          <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
+          ${o}
+        </label>
       </div>
 
-      <div class="col-md-4">
-        <h4 t="Targets">Targets</h4>
+      <div class="form-group ">
+        <h4 t="Upload Chaincode">Upload Chaincode</h4>
+        <form submit.delegate="installChaincode()">
+          <input type="file"
+                 name="ChaincodeFile"
+                 files.bind="file"
+                 multiple>
+          <button type="submit" class="btn text-white">Install Chaincode</button>
+        </form>
+        <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
+        <select class="custom-select my-1" value.bind="selectedChain">
+          <option model.bind="null">Choose chaincode for instantiate</option>
+          <option repeat.for="chain of installedChain"
+                  model.bind="chain">
+            ${chain}
+          </option>
+        </select>
+        <input class="form-control" type="text" value.bind="initArgs"
+               placeholder="Args, example: node 1.0 init a 10 b 5">
 
-        <div repeat.for="o of targets">
-        <label >
+        <button type="submit" class="btn text-white"
+                click.trigger="initChaincode()">Instantiate Chaincode
+        </button>
+
+      </div>
+
+      <h4 t="orgList">orgList</h4>
+      <ul>
+        <li repeat.for="o of orgList">${o}</li>
+      </ul>
+      <div class="form-group">
+        <input type="text" class="form-control" value.bind="newOrg" placeholder="New Organizatoin">
+        <button type="submit" class="btn text-white"
+                click.trigger="addChannelOrg()">Add Organization
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <h4 t="Targets">Targets</h4>
+
+      <div repeat.for="o of targets">
+        <label>
           <input type="checkbox" value.bind="o" checked.bind="targs">
           ${o}
         </label>
-        </div>
-        <div class="form-group">
+      </div>
+      <div class="form-group">
         <input class="form-control my-1" type="text" value.bind="fnc" placeholder="Function, example: put">
 
         <input class="form-control" type="text" value.bind="args"
@@ -88,13 +97,13 @@
         <button type="submit" class="btn text-white" click.trigger="getQuery()">
           Query
         </button>
-        </div>
       </div>
     </div>
-
-    <p class="lead">Result of query:</p>
-    <p>Output: ${query}</p>
-    <p class="lead">Result of invoke:</p>
-    <p>Txid: ${invoke._transaction_id}</p>
+  </div>
+  <p class="lead">Result: </p>
+  <div repeat.for="o of query">
+    ${o}
+  </div>
+  ${invoke._transaction_id}
 </template>
 

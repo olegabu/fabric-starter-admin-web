@@ -23,9 +23,11 @@ export class Home {
   fnc = null;
   args = null;
   invoke = null;
-  query = null;
+  query = [];
   selectedChain = null;
   oneCh = null;
+  file = null;
+  initArgs = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService) {
     this.identityService = identityService;
@@ -39,16 +41,12 @@ export class Home {
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.updateBlock();
-      this.queryAll();
+      this.queryChaincodes()
     });
   }
 
   detached() {
     this.subscriberBlock.dispose();
-  }
-
-
-  queryAll() {
   }
 
   queryChannels() {
@@ -60,21 +58,34 @@ export class Home {
   addChannel() {
     this.chaincodeService.addChannel(this.oneCh).then(ch => {
       this.channelList.push(this.oneCh);
+      this.oneCh = null;
     });
   }
 
-  addChaincode(){
-    this.chaincodeService.installChaincode(this.oneChannel, this.selectedChain)
+  installChaincode() {
+    let formData = new FormData();
+    for (let i = 0; i < this.file.length; i++) {
+      formData.append('file', this.file[i]);
+    }
+    formData.append('channelId', this.oneChannel);
+    formData.append('targets', this.targs);
+    formData.append('version', '1.0');
+    formData.append('language', 'node');
+    this.chaincodeService.installChaincode(formData);
+  }
+
+  initChaincode() {
+    this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.initArgs, this.targs);
   }
 
   queryChaincodes() {
+    this.orgList = [];
     this.targets = [];
     this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
-    this.queryBlocks();
     this.queryOrgs();
-    this.queryAllChain();
+    this.getInstalledChaincodes();
     this.getPeers()
   }
 
@@ -92,7 +103,7 @@ export class Home {
     });
   }
 
-  queryAllChain() {
+  getInstalledChaincodes() {
     this.chaincodeService.getInstalledChaincodes().then(chain => {
       this.installedChain = chain;
     });
@@ -133,6 +144,7 @@ export class Home {
   getQuery() {
     this.invoke = null;
     this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
+      console.log(query);
       this.query = query;
     });
   }
@@ -152,4 +164,3 @@ export class Home {
 
   }
 }
-
