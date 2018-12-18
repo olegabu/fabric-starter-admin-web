@@ -15,14 +15,14 @@
       <div repeat.for="o of channelList">
         <label>
           <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
-                 change.delegate="queryChaincodes() || queryBlocks()">
+                 change.delegate="queryChaincodes() || queryBlocks() || queryOrgs() || queryInstalledChaincodes() || queryPeers()">
           ${o}
         </label>
       </div>
 
       <div class="form-group ">
         <input type="text" class="form-control" value.bind="oneCh" placeholder="New Channel">
-        <button type="submit" class="btn  text-white"
+        <button type="submit" class="btn text-white "
                 click.trigger="addChannel()">Add Channel
         </button>
       </div>
@@ -71,7 +71,7 @@
       <div class="form-group">
         <input type="text" class="form-control" value.bind="newOrg" placeholder="New Organizatoin">
         <button type="submit" class="btn text-white"
-                click.trigger="addChannelOrg()">Add Organization
+                click.trigger="queryOrgs()">Add Organization
         </button>
       </div>
     </div>
@@ -100,10 +100,35 @@
       </div>
     </div>
   </div>
-  <p class="lead">Result: </p>
-  <div repeat.for="o of query">
-    ${o}
+  <p class="text-center">
+    <button class="btn text-white" data-toggle="collapse" href="#multiCollapseExample1" role="button"
+            aria-expanded="true"
+            aria-controls="multiCollapseExample1" data-target="#multiCollapseExample1">Result
+    </button>
+    <button class="btn text-white" type="button" data-toggle="collapse" data-target="#multiCollapseExample2"
+            aria-expanded="false" aria-controls="multiCollapseExample2">Info
+    </button>
+    <button class="btn text-white" type="button" data-toggle="collapse" data-target="#multiCollapseExample3"
+            aria-expanded="false" aria-controls="multiCollapseExample3">Json
+    </button>
+  </p>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="collapse multi-collapse" id="multiCollapseExample1">
+        <pre id="res"></pre>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="collapse multi-collapse" id="multiCollapseExample2">
+        <pre id="info"></pre>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="collapse multi-collapse" id="multiCollapseExample3">
+        <pre id="json"></pre>
+      </div>
+    </div>
   </div>
-  ${invoke._transaction_id}
+
 </template>
 

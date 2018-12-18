@@ -235,6 +235,25 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
+  decodeCert(cert, org, username) {
+    log.debug(`decode cert ${cert}`);
+    //const peerOrg = org ? org.name : this.identityService.org;
+    const url = Config.getUrl(`cert`);
+    const params = {
+      cert: cert
+    };
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.fetch(url, params, 'post', org, username).then(j => {
+          resolve(j);
+        })
+          .catch(err => {
+            reject(err);
+          });
+      },);
+    }, setTimeout(4000));
+  }
+
   installChaincode(file, org, username) {
     const url = Config.getUrl(`chaincodes`);
 
@@ -244,7 +263,8 @@ export class ChaincodeService {
         if (j.startsWith('Error')) {
           this.alertService.error(j);
         } else
-          this.alertService.success(j)
+          this.alertService.success(j);
+        resolve(j);
       })
         .catch(err => {
           reject(err);

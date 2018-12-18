@@ -5,31 +5,36 @@
   <nav class="navbar navbar-expand-md  mb-2 navbar-dark" style="background-color: #000000;">
     <img src="src/images/logo-small.png" width="25" height="25" alt="logo">
     <a class="navbar-brand mb-0 h1 mr-3" href="#/" t="appName"></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+            aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
       <!--<ul class="navbar-nav mr-auto ml-auto">-->
-        <!--<li repeat.for="row of router.navigation" class="nav-item ${row.isActive ? 'active' : ''} text-uppercase font-weight-bold text-center mt-2">-->
-          <!--<h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>-->
-        <!--</li>-->
+      <!--<li repeat.for="row of router.navigation" class="nav-item ${row.isActive ? 'active' : ''} text-uppercase font-weight-bold text-center mt-2">-->
+      <!--<h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>-->
+      <!--</li>-->
       <!--</ul>-->
       <div class="mr-auto ml-auto">
-      <img src="src/images/logo.png" width="230" height="50" alt="logo">
+        <img src="src/images/logo.png" width="230" height="50" alt="logo">
       </div>
       <h3><a class="badge badge-light mt-2">${org}</a></h3>
       <ul class="navbar-nav mt-3 ml-3 mt-md-0">
-        <li><a class="btn btn-sm btn-outline-secondary float-right text-uppercase" href click.delegate="logout()"><span t="logout">logout</span></a></li>
+        <li><a class="btn btn-sm btn-outline-secondary float-right text-uppercase" href click.delegate="logout()"><span
+          t="logout">logout</span></a></li>
       </ul>
     </div>
   </nav>
 
-<!-- class="container" -->
+  <!-- class="container" -->
   <main role="main" style="width: 100%; margin: 0 auto; padding-right: 15px; padding-left: 15px;">
     <router-view></router-view>
   </main>
+  <br>
+  <br>
   <nav class="navbar fixed-bottom navbar-light" style="background-color: #000000;">
     <a class="navbar-brand text-white" href="#">Web-admin</a>
   </nav>
+
 
 </template>

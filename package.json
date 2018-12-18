@@ -20,13 +20,13 @@
     "i18next": "^11.5.0",
     "i18next-xhr-backend": "^1.5.1",
     "jquery": "^3.3.1",
+    "json-formatter-js": "^2.2.1",
     "popper.js": "^1.14.4",
     "requirejs": "^2.3.2",
     "socket.io-client": "^2.1.1",
     "tether": "^1.4.5",
     "text": "github:requirejs/text#latest",
-    "toastr": "^2.1.4",
-    "velocity-animate": "^1.5.2"
+    "toastr": "^2.1.4"
   },
   "peerDependencies": {},
   "devDependencies": {
