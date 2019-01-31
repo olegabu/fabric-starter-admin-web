@@ -126,6 +126,23 @@ export class ChaincodeService {
     });
   }
 
+  addOrgToChannel(channel, newOrg, org, username){
+    const url = Config.getUrl(`channels/${channel}/orgs`);
+    const params = {
+      orgId: newOrg
+    };
+    return new Promise((resolve, reject) => {
+      this.fetch(url, params, 'post', org, username).then(j => {
+        // this.alertService.success(j);
+        console.log(j);
+        resolve(j);
+      })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
+
   getBlock(channel, num, org, username) {
     log.debug(`getChannels ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/blocks/${num}`);
@@ -216,12 +233,12 @@ export class ChaincodeService {
     });
   }
 
-  addChannel(channelId, org, username) {
-    log.debug(`invoke channel=${channelId}`);
+  addChannel(channel, org, username) {
+    log.debug(`invoke channel=${channel}`);
     //const peerOrg = org ? org.name : this.identityService.org;
     const url = Config.getUrl(`channels`);
     const params = {
-      channelId: channelId,
+      channelId: channel,
     };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -235,12 +252,10 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  decodeCert(cert, org, username) {
-    log.debug(`decode cert ${cert}`);
-    //const peerOrg = org ? org.name : this.identityService.org;
-    const url = Config.getUrl(`cert`);
+  joinChannel(channelId, org, username){
+    const url = Config.getUrl(`channels/${channelId}`);
     const params = {
-      cert: cert
+      channelId: channelId,
     };
     return new Promise((resolve, reject) => {
       setTimeout(() => {

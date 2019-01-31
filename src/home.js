@@ -6,7 +6,6 @@ import {ChaincodeService} from './services/chaincode-service';
 import {ConfigService} from './services/config-service';
 import {AlertService} from './services/alert-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter'
-
 let log = LogManager.getLogger('Home');
 
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService)
@@ -28,23 +27,28 @@ export class Home {
   file = null;
   initArgs = null;
   block = null;
+  joinCh = null;
 
 
-  constructor(identityService, eventAggregator, chaincodeService, configService) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
     this.configService = configService;
+    this.alertService = alertService;
   }
 
   attached() {
     this.queryChannels();
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
+      this.queryChannels();
       if (o.channel_id === this.oneChannel)
         this.updateBlock();
-      if (this.oneChannel)
+      if (this.oneChannel) {
         this.queryChaincodes();
+        this.queryOrgs();
+      }
     });
   }
 
@@ -63,10 +67,11 @@ export class Home {
     let re = /^[a-z][a-z0-9.-]*$/;
     if (this.oneCh && re.test(this.oneCh) && this.channelList.indexOf(this.oneCh) === -1) {
       this.chaincodeService.addChannel(this.oneCh);
-      this.channelList.push(this.oneCh);
       this.channelList.sort();
       this.oneCh = null;
     }
+    else
+      this.alertService.error("ALOOOO");
   }
 
   installChaincode() {
@@ -88,6 +93,7 @@ export class Home {
 
   initChaincode() {
     this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.initArgs, this.targs);
+    this.selectedChain = null;
   }
 
   queryChaincodes() {
@@ -115,6 +121,35 @@ export class Home {
     this.chaincodeService.getInstalledChaincodes().then(chain => {
       this.installedChain = chain;
     });
+  }
+
+  getLastBlock() {
+    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
+      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
+        let formatter = new JSONFormatter(block);
+        Home.output(formatter.render(), "json");
+        for (let j = 0; j < block.data.data.length; j++) {
+          const info = block.data.data[j].payload.header;
+          formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
+          Home.output(formatter.render(), 'info');
+        }
+      });
+    });
+  }
+
+  addOrgToChannel() {
+    console.log(this.oneChannel);
+    console.log(this.newOrg);
+    this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg).then(info => {
+      console.log(info);
+      this.newOrg = null;
+    })
+  }
+
+  joinChannel() {
+    this.chaincodeService.joinChannel(this.joinCh).then(info => {
+      this.joinCh = null;
+    })
   }
 
   queryBlocks() {
@@ -171,8 +206,8 @@ export class Home {
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload.header;
           txid.push(info.channel_header.tx_id);
-          this.decodeCert(info.signature_header.creator.IdBytes);
-          formatter = new JSONFormatter(info.signature_header.creator);
+          // this.decodeCert(info.signature_header.creator);
+          formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
           Home.output(formatter.render(), 'info');
         }
         this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
@@ -180,12 +215,10 @@ export class Home {
     });
   }
 
-  decodeCert(cert) {
-    this.chaincodeService.decodeCert(cert).then(res => {
-      const formatter = new JSONFormatter(res);
-      Home.output(formatter.render(), 'info');
-    });
-  }
+  // decodeCert(cert) {
+  //     const formatter = new JSONFormatter(x509.parseCert(cert));
+  //     Home.output(formatter.render(), 'info');
+  // }
 
   static output(inp, id) {
     const el = document.getElementById(id);

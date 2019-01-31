@@ -10,7 +10,7 @@
   "storage": "Хранение",
   "channelList": "Каналы",
   "chaincodeList":"Чейнкоды",
-  "Uploaded Chaincodes":"Загруженные чейнкоды",
+  "Install Chaincodes":"Установить чейнкод",
   "Upload Chaincode":"Загрузить чейнкод",
   "orgList":"Организации",
   "Targets":"Цели",

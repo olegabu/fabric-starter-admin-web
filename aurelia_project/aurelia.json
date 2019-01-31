@@ -63,11 +63,6 @@
             "main": "aurelia-templating-resources"
           },
           {
-            "name": "json-formatter-js",
-            "path": "../node_modules/json-formatter-js/dist/json-formatter",
-            "main": "json-formatter-js"
-          },
-          {
             "name": "aurelia-templating-router",
             "path": "../node_modules/aurelia-templating-router/dist/amd",
             "main": "aurelia-templating-router"
@@ -110,7 +105,9 @@
             "resources": [
               "build/toastr.min.css"
             ],
-            "deps": ["jquery"]
+            "deps": [
+              "jquery"
+            ]
           },
           {
             "name": "socket.io-client",
@@ -217,4 +214,3 @@
     "displayName": "Jasmine"
   }
 }
-
