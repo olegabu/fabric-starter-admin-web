@@ -126,7 +126,7 @@ export class ChaincodeService {
     });
   }
 
-  addOrgToChannel(channel, newOrg, org, username){
+  addOrgToChannel(channel, newOrg, org, username) {
     const url = Config.getUrl(`channels/${channel}/orgs`);
     const params = {
       orgId: newOrg
@@ -252,7 +252,7 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  joinChannel(channelId, org, username){
+  joinChannel(channelId, org, username) {
     const url = Config.getUrl(`channels/${channelId}`);
     const params = {
       channelId: channelId,
@@ -287,13 +287,20 @@ export class ChaincodeService {
     });
   }
 
-  instantiateChaincode(channel, chaincode, args, peers, org, username) {
+  instantiateChaincode(channel, chaincode, arg, peers, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
     };
+    if (arg) {
+      let args = arg.trim().split(" ");
+      params.chaincodeType = args[0];
+      params.chaincodeVersion = args[1];
+      params.fnc = args[2];
+      params.args = [args[3], args[4], args[5], args[6]];
+    }
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
         if (j.badPeers.length > 0) {
@@ -314,9 +321,11 @@ export class ChaincodeService {
       channelId: channel,
       chaincodeId: chaincode,
       fcn: func,
-      args: json(args.trim().split(" ")),
+      // args: json(args.trim().split(" ")),
       targets: json(peers)
     };
+    if (args)
+      params.args = json(args.trim().split(" "));
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'get', org, username).then(j => {
         resolve(j);
@@ -333,9 +342,11 @@ export class ChaincodeService {
       channelId: channel,
       chaincodeId: chaincode,
       fcn: func.trim(),
-      args: args.trim().split(" "),
+      // args: args.trim().split(" "),
       targets: peers
     };
+    if (args)
+      params.args = args.trim().split(" ");
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         this.fetch(url, params, 'post', org, username).then(j => {

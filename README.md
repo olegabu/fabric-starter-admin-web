@@ -19,15 +19,15 @@ sudo npm install aurelia-cli -g
 
 Build
 ```bash
-npm install && au build
+npm install && au build --env prod
 ```
 ## Create and start the network
 
 Follow instructions on  [Fabric Starter](https://github.com/olegabu/fabric-starter) to create a network of member 
 organizations who will run their REST API servers which will serve this web app.
 
-- org1 [http://localhost:3000](http://localhost:3000)
-- org2 [http://localhost:3001](http://localhost:3001)
+- org1 [http://localhost:4000/webapp/](http://localhost:4000/webapp/)
+- org2 [http://localhost:4001webapp/](http://localhost:4001/webapp/)
 
 ## Development
 
