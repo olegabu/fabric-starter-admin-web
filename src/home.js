@@ -49,6 +49,7 @@ export class Home {
       if (this.oneChannel) {
         this.queryChaincodes();
         this.queryOrgs();
+        this.queryPeers()
       }
     });
   }
@@ -65,14 +66,9 @@ export class Home {
   }
 
   addChannel() {
-    // let re = /^[a-z][a-z0-9.-]*$/;
-    // if (re.test(this.oneCh) && this.channelList.indexOf(this.oneCh) === -1) {
     this.chaincodeService.addChannel(this.oneCh);
     this.channelList.sort();
     this.oneCh = null;
-    // }
-    // else
-    //   this.alertService.error("ALOOOO");
   }
 
   installChaincode() {
@@ -86,6 +82,8 @@ export class Home {
       this.chaincodeService.installChaincode(formData).then(j => {
         if (!j.startsWith('Error'))
           this.installedChain.push(j.substring(10, j.length - 23));
+        else
+          this.alertService.error("Chaincode not installed");
       });
     }
   }
@@ -93,17 +91,15 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.alertService.info("Send instantiate request");
-      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.initArgs, this.targs);
+      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.initArgs);
     }
     else
       this.alertService.error("Select chaincode");
 
-    // this.selectedChain = null;
   }
 
   queryChaincodes() {
     this.show = false;
-    // this.oneChaincode = null;
     this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
@@ -121,6 +117,7 @@ export class Home {
   queryOrgs() {
     this.chaincodeService.getOrgs(this.oneChannel).then(orgs => {
       this.orgList = orgs;
+      this.orgList.sort();
     });
   }
 
@@ -137,32 +134,29 @@ export class Home {
         Home.output(formatter.render(), "json");
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload.header;
-          formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
-          Home.output(formatter.render(), 'info');
+          // formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
+          // Home.output(formatter.render(), 'info');
+          this.decodeCert(info.signature_header.creator.IdBytes);
         }
       });
     });
   }
 
   addOrgToChannel() {
-    // console.log(this.oneChannel);
-    // console.log(this.newOrg);
     this.alertService.info("Send invite");
-    this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg).then(info => {
-      console.log(info);
-      this.newOrg = null;
-    })
+    this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg);
+    this.newOrg = null;
   }
 
   joinChannel() {
-    this.chaincodeService.joinChannel(this.joinCh).then(info => {
-      this.joinCh = null;
-    })
+    this.chaincodeService.joinChannel(this.joinCh);
+    this.joinCh = null;
   }
 
   queryBlocks() {
     this.blocks = [];
     let bl = [];
+    this.oneChaincode = null;
     this.chaincodeService.getLastBlock(this.oneChannel).then(block => {
       for (let i = block - 5; i < block; i++) {
         if (i < 0)
@@ -193,11 +187,6 @@ export class Home {
       });
     else
       this.alertService.error("Write function and arguments");
-
-    // this.chaincodeService.invoke('common', 'reference', 'put', 'account 1 one', this.targs).then(invoke => {
-    //   const formatter = new JSONFormatter(invoke);
-    //   Home.output(formatter.render(), "res");
-    // });
   }
 
   getQuery() {
@@ -222,18 +211,17 @@ export class Home {
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload.header;
           txid.push(info.channel_header.tx_id);
-          // formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
-          // Home.output(formatter.render(), 'info');
+          this.decodeCert(info.signature_header.creator.IdBytes);
         }
         this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
       });
     });
   }
 
-  // decodeCert(cert) {
-  //     const formatter = new JSONFormatter(cert);
-  //     Home.output(formatter.render(), 'info');
-  // }
+  decodeCert(cert) {
+      const formatter = new JSONFormatter(cert);
+      Home.output(formatter.render(), 'info');
+  }
 
   static output(inp, id) {
     const el = document.getElementById(id);
@@ -244,5 +232,3 @@ export class Home {
     el.appendChild(inp);
   }
 }
-
-

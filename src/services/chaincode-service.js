@@ -287,7 +287,7 @@ export class ChaincodeService {
     });
   }
 
-  instantiateChaincode(channel, chaincode, arg, peers, org, username) {
+  instantiateChaincode(channel, chaincode, arg, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
     const params = {
@@ -303,9 +303,6 @@ export class ChaincodeService {
     }
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
-        if (j.badPeers.length > 0) {
-          this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
-        }
         resolve(j);
       })
         .catch(err => {
