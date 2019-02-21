@@ -26,8 +26,7 @@
     "socket.io-client": "^2.1.1",
     "tether": "^1.4.5",
     "text": "github:requirejs/text#latest",
-    "toastr": "^2.1.4",
-    "x509": "^0.3.4"
+    "toastr": "^2.1.4"
   },
   "peerDependencies": {},
   "devDependencies": {

@@ -19,7 +19,7 @@ export function configure(aurelia) {
 
     return instance.setup({
       backend: {                                  // <-- configure backend settings
-        loadPath: './locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
+        loadPath: '../locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
       },
       attributes: aliases,
       lng: 'en',

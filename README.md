@@ -21,6 +21,10 @@ Build
 ```bash
 npm install && au build --env prod
 ```
+Copy build files to docker containers org1 & org2
+```bash
+./copy-build.sh
+```
 ## Create and start the network
 
 Follow instructions on  [Fabric Starter](https://github.com/olegabu/fabric-starter) to create a network of member 
