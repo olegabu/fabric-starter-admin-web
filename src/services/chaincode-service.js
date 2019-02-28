@@ -49,7 +49,6 @@ export class ChaincodeService {
       promise.then(response => {
         response.json().then(j => {
           log.debug('fetch', j);
-
           if (!response.ok) {
             const msg = `${response.statusText} ${j}`;
             if (response.status === 401) {
@@ -134,7 +133,6 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
         // this.alertService.success(j);
-        console.log(j);
         resolve(j);
       })
         .catch(err => {
@@ -274,7 +272,6 @@ export class ChaincodeService {
 
     return new Promise((resolve, reject) => {
       this.fetchForFile(url, file, 'post', org, username).then(j => {
-        console.log(j);
         if (j.startsWith('Error')) {
           this.alertService.error(j);
         } else
@@ -294,12 +291,18 @@ export class ChaincodeService {
       channelId: channel,
       chaincodeId: chaincode,
     };
+    let arr = [];
     if (arg) {
       let args = arg.trim().split(" ");
-      params.chaincodeType = args[0];
-      params.chaincodeVersion = args[1];
-      params.fnc = args[2];
-      params.args = [args[3], args[4], args[5], args[6]];
+      params.chaincodeType = args[0] || null;
+      params.chaincodeVersion = args[1] || null;
+      params.fcn = args[2] || null;
+      // params.args = [args[3], args[4], args[5], args[6]] || null;
+      for (let i = 3; i < args.length; i++) {
+        arr.push(args[i]);
+      }
+      if(arr.length>0)
+        params.args = arr;
     }
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
@@ -318,7 +321,6 @@ export class ChaincodeService {
       channelId: channel,
       chaincodeId: chaincode,
       fcn: func,
-      // args: json(args.trim().split(" ")),
       targets: json(peers)
     };
     if (args)
@@ -347,6 +349,7 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         this.fetch(url, params, 'post', org, username).then(j => {
+          console.log(j);
           if (j.badPeers.length > 0) {
             this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
           }
@@ -357,5 +360,20 @@ export class ChaincodeService {
           });
       },);
     }, setTimeout(4000));
+  }
+
+  decodeCert(cert, org, username){
+    const url = Config.getUrl(`cert`);
+    const params = {
+      cert: cert
+    };
+    return new Promise((resolve, reject) => {
+      this.fetch(url, params, 'post', org, username).then(j => {
+        resolve(j);
+      })
+        .catch(err => {
+          reject(err);
+        });
+    });
   }
 }

@@ -30,6 +30,7 @@ export class Home {
   block = null;
   joinCh = null;
   show = true;
+  language = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService) {
     this.identityService = identityService;
@@ -78,7 +79,7 @@ export class Home {
       formData.append('channelId', this.oneChannel);
       formData.append('targets', this.targs);
       formData.append('version', '1.0');
-      formData.append('language', 'node');
+      formData.append('language', this.language);
       this.chaincodeService.installChaincode(formData).then(j => {
         if (!j.startsWith('Error'))
           this.installedChain.push(j.substring(10, j.length - 23));
@@ -134,8 +135,6 @@ export class Home {
         Home.output(formatter.render(), "json");
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload.header;
-          // formatter = new JSONFormatter(info.signature_header.creator.IdBytes);
-          // Home.output(formatter.render(), 'info');
           this.decodeCert(info.signature_header.creator.IdBytes);
         }
       });
@@ -219,8 +218,10 @@ export class Home {
   }
 
   decodeCert(cert) {
-      const formatter = new JSONFormatter(cert);
+    this.chaincodeService.decodeCert(cert).then( o => {
+      const formatter = new JSONFormatter(o);
       Home.output(formatter.render(), 'info');
+    });
   }
 
   static output(inp, id) {

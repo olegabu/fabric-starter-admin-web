@@ -20,13 +20,13 @@
       </div>
       <form submit.delegate="addChannel()">
         <div class="form-group ">
-          <input type="text" class="form-control" value.bind="oneCh" required placeholder="New Channel">
+          <input type="text" class="form-control my-1" value.bind="oneCh" required placeholder="New Channel">
           <button type="submit" class="btn text-white">Add Channel</button>
         </div>
       </form>
       <form submit.delegate="joinChannel()">
         <div class="form-group ">
-          <input type="text" class="form-control" value.bind="joinCh" required placeholder="Join to channel">
+          <input type="text" class="form-control my-1" value.bind="joinCh" required placeholder="Join the channel">
           <button type="submit" class="btn text-white ">Join</button>
         </div>
       </form>
@@ -47,6 +47,13 @@
         <input type="file"
                name="ChaincodeFile"
                files.bind="file" required accept="application/zip">
+          <select class="custom-select " style="width:auto" value.bind="language">
+            <option model.bind="null">Choose language</option>
+            <option>car</option>
+            <option>golang</option>
+            <option>java</option>
+            <option>node</option>
+          </select>
         <button type="submit" class="btn text-white">Install Chaincode</button>
       </form>
       <h4 t="Install Chaincodes">Install Chaincodes</h4>
@@ -67,7 +74,7 @@
       </ul>
       <form submit.delegate="addOrgToChannel()" hide.bind="show">
         <div class="form-group">
-          <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
+          <input type="text" class="form-control my-1" value.bind="newOrg" required placeholder="New Organizatoin">
           <button type="submit" class="btn text-white">Add Organization</button>
         </div>
       </form>
@@ -84,7 +91,7 @@
           </div>
           <input class="form-control my-1" type="text" value.bind="fnc" placeholder="Function, example: put">
 
-          <input class="form-control" type="text" value.bind="args"
+          <input class="form-control my-1" type="text" value.bind="args"
                  placeholder="Args, example: account 1 {name:&quot;one&quot;}">
 
           <button type="submit" class="btn text-white"
