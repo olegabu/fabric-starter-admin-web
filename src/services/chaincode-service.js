@@ -55,7 +55,7 @@ export class ChaincodeService {
               this.alertService.info('session expired, logging you out');
               this.identityService.logout();
             } else {
-              this.alertService.error(msg);
+              this.alertService.error(`${msg}. Status: ${response.status}`);
             }
 
             reject(new Error(msg));
@@ -301,7 +301,7 @@ export class ChaincodeService {
       for (let i = 3; i < args.length; i++) {
         arr.push(args[i]);
       }
-      if(arr.length>0)
+      if (arr.length > 0)
         params.args = arr;
     }
     return new Promise((resolve, reject) => {
@@ -362,7 +362,7 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  decodeCert(cert, org, username){
+  decodeCert(cert, org, username) {
     const url = Config.getUrl(`cert`);
     const params = {
       cert: cert

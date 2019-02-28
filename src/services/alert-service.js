@@ -12,7 +12,7 @@ export class AlertService {
     this.toastr.options.positionClass = 'toast-bottom-right';
     this.toastr.options.progressBar = true;
     this.toastr.options.closeButton = true;
-    this.toastr.options.timeOut = 1000;
+    this.toastr.options.timeOut = 3000;
     this.toastr.options.extendedTimeOut = 2000;
   }
 
