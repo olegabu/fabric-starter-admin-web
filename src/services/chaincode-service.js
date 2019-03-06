@@ -111,6 +111,17 @@ export class ChaincodeService {
     });
   }
 
+  getDomain(org, username) {
+    const url = Config.getUrl(`domain`);
+    return new Promise((resolve, reject) => {
+      this.fetch(url, null, 'get', org, username).then(j => {
+        resolve(j);
+      })
+        .catch(err => {
+          reject(err);
+        });
+    });
+  }
 
   getLastBlock(channel, org, username) {
     const url = Config.getUrl(`channels/${channel}`);
@@ -274,6 +285,7 @@ export class ChaincodeService {
       this.fetchForFile(url, file, 'post', org, username).then(j => {
         if (j.startsWith('Error')) {
           this.alertService.error(j);
+          reject(j);
         } else
           this.alertService.success(j);
         resolve(j);

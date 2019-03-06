@@ -30,7 +30,9 @@ export class Home {
   block = null;
   joinCh = null;
   show = true;
-  language = null;
+  language = 'node';
+  lastTx = null;
+  version = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService) {
     this.identityService = identityService;
@@ -42,6 +44,7 @@ export class Home {
 
   attached() {
     this.queryChannels();
+    this.queryInstalledChaincodes();
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
@@ -50,7 +53,7 @@ export class Home {
       if (this.oneChannel) {
         this.queryChaincodes();
         this.queryOrgs();
-        this.queryPeers()
+        this.queryPeers();
       }
     });
   }
@@ -76,15 +79,12 @@ export class Home {
     let formData = new FormData();
     for (let i = 0; i < this.file.length; i++) {
       formData.append('file', this.file[i]);
-      formData.append('channelId', this.oneChannel);
+      // formData.append('channelId', this.oneChannel);
       formData.append('targets', this.targs);
-      formData.append('version', '1.0');
+      formData.append('version', this.version || '1.0');
       formData.append('language', this.language);
       this.chaincodeService.installChaincode(formData).then(j => {
-        if (!j.startsWith('Error'))
-          this.installedChain.push(j.substring(10, j.length - 23));
-        else
-          this.alertService.error("Chaincode not installed");
+        this.queryInstalledChaincodes();
       });
     }
   }
@@ -128,19 +128,6 @@ export class Home {
     });
   }
 
-  getLastBlock() {
-    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
-      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
-        let formatter = new JSONFormatter(block);
-        Home.output(formatter.render(), "json");
-        for (let j = 0; j < block.data.data.length; j++) {
-          const info = block.data.data[j].payload.header;
-          this.decodeCert(info.signature_header.creator.IdBytes);
-        }
-      });
-    });
-  }
-
   addOrgToChannel() {
     this.alertService.info("Send invite");
     this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg);
@@ -150,6 +137,41 @@ export class Home {
   joinChannel() {
     this.chaincodeService.joinChannel(this.joinCh);
     this.joinCh = null;
+  }
+
+  getInvoke() {
+    if (this.fnc && this.args)
+      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
+        this.lastTx = invoke._transaction_id;
+        const formatter = new JSONFormatter(invoke);
+        Home.output(formatter.render(), "res");
+      });
+    else
+      this.alertService.error("Write function and arguments");
+  }
+
+  getQuery() {
+    if (this.oneChaincode === null || this.chaincodeList.indexOf(this.oneChaincode) === -1) {
+      this.alertService.error("Choose chaincode");
+    }
+    else
+      this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
+        const formatter = new JSONFormatter(query);
+        Home.output(formatter.render(), "res");
+      });
+  }
+
+  getLastBlock() {
+    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
+      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
+        let formatter = new JSONFormatter(block);
+        Home.output(formatter.render(), "json");
+        for (let j = 0; j < block.data.data.length; j++) {
+          const info = block.data.data[j].payload;
+          this.decodeCert(info.header.signature_header.creator.IdBytes);
+        }
+      });
+    });
   }
 
   queryBlocks() {
@@ -178,27 +200,6 @@ export class Home {
     this.blocks = bl;
   }
 
-  getInvoke() {
-    if (this.fnc && this.args)
-      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
-        const formatter = new JSONFormatter(invoke);
-        Home.output(formatter.render(), "res");
-      });
-    else
-      this.alertService.error("Write function and arguments");
-  }
-
-  getQuery() {
-    if (this.oneChaincode === null || this.chaincodeList.indexOf(this.oneChaincode) === -1) {
-      this.alertService.error("Choose chaincode");
-    }
-    else
-      this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
-        const formatter = new JSONFormatter(query);
-        Home.output(formatter.render(), "res");
-      });
-  }
-
   updateBlock() {
     if (this.blocks.length > 4)
       this.blocks.splice(0, 1);
@@ -208,9 +209,13 @@ export class Home {
         let formatter = new JSONFormatter(block);
         Home.output(formatter.render(), "json");
         for (let j = 0; j < block.data.data.length; j++) {
-          const info = block.data.data[j].payload.header;
-          txid.push(info.channel_header.tx_id);
-          this.decodeCert(info.signature_header.creator.IdBytes);
+          const info = block.data.data[j].payload;
+          if (info.header.channel_header.tx_id === this.lastTx) {
+            console.log(this.lastTx + "   " + j);
+            Home.parseBlock(info);
+            this.decodeCert(info.header.signature_header.creator.IdBytes);
+          }
+          txid.push(info.header.channel_header.tx_id);
         }
         this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
       });
@@ -218,7 +223,7 @@ export class Home {
   }
 
   decodeCert(cert) {
-    this.chaincodeService.decodeCert(cert).then( o => {
+    this.chaincodeService.decodeCert(cert).then(o => {
       const formatter = new JSONFormatter(o);
       Home.output(formatter.render(), 'info');
     });
@@ -231,5 +236,36 @@ export class Home {
     else
       el.removeChild(el.firstChild);
     el.appendChild(inp);
+  }
+
+  static parseBlock(block) {
+    let action = block.data.actions;
+    for (let i = 0; i < action.length; i++) {
+      let payload = action[i].payload.chaincode_proposal_payload.input.chaincode_spec.input.args;
+      let arr = [];
+      for (let j = 0; j < payload.length; j++) {
+        let str = "";
+        for (let k = 0; k < payload[j].data.length; k++) {
+          str += String.fromCharCode(payload[j].data[k])
+        }
+        arr.push(str);
+      }
+      const formatter = new JSONFormatter(arr);
+      Home.output(formatter.render(), "input");
+    }
+    for (let i = 0; i < action.length; i++) {
+      let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.writes;
+      for (let j = 0; j < payload.length; j++) {
+        const formatter = new JSONFormatter(payload[j]);
+        Home.output(formatter.render(), "writes");
+      }
+    }
+    for (let i = 0; i < action.length; i++) {
+      let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.reads) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.reads;
+      for (let j = 0; j < payload.length; j++) {
+        const formatter = new JSONFormatter(payload[j]);
+        Home.output(formatter.render(), "reads");
+      }
+    }
   }
 }

@@ -5,26 +5,29 @@ import {inject} from 'aurelia-framework';
 import {IdentityService} from './services/identity-service';
 import {SocketService} from './services/socket-service';
 import {AlertService} from './services/alert-service';
+import {ChaincodeService} from "./services/chaincode-service";
 
 let log = LogManager.getLogger('App');
 
-@inject(I18N, IdentityService, SocketService, AlertService)
+@inject(I18N, IdentityService, SocketService, AlertService, ChaincodeService)
 export class App {
-  constructor(i18n, identityService, socketService, alertService) {
+  domain = null;
+
+  constructor(i18n, identityService, socketService, alertService, chaincodeService,) {
     this.i18n = i18n;
     // this.i18n.setLocale(navigator.language || 'en');
     this.i18n.setLocale('ru');
     this.identityService = identityService;
     this.socketService = socketService;
     this.alertService = alertService;
+    this.chaincodeService = chaincodeService;
   }
 
   configureRouter(config, router) {
     config.title = this.i18n.tr('appName');
     let routes = [
       {route: ['', 'home'], name: 'home', moduleId: './home', nav: true, title: this.i18n.tr('home')}
-     ];
-
+    ];
     config.map(routes);
     this.router = router;
   }
@@ -32,8 +35,16 @@ export class App {
   attached() {
     this.username = this.identityService.username;
     this.org = this.identityService.org;
-
     this.socketService.subscribe();
+    this.chaincodeService.getDomain().then(domain => {
+      this.domain = domain;
+    });
+  }
+
+  getDomain() {
+    this.chaincodeService.getDomain().then(domain => {
+      this.domain = domain;
+    });
   }
 
   detached() {

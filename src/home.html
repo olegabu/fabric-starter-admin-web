@@ -14,122 +14,147 @@
       <div repeat.for="o of channelList">
         <label>
           <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
-                 change.delegate="queryChaincodes() || queryBlocks() || queryOrgs() || queryInstalledChaincodes() || queryPeers() || getLastBlock()">
+                 change.delegate="queryChaincodes() || queryBlocks() || queryOrgs() || queryPeers() || getLastBlock()">
           ${o}
         </label>
       </div>
-      <form submit.delegate="addChannel()">
-        <div class="form-group ">
-          <input type="text" class="form-control my-1" value.bind="oneCh" required placeholder="New Channel">
-          <button type="submit" class="btn text-white">Add Channel</button>
+
+
+      <form class="form-inline" submit.delegate="addChannel()">
+        <div class="form-group mb-2 mr-3">
+          <input type="text" class="form-control" value.bind="oneCh" required placeholder="New channel">
         </div>
+        <button type="submit" class="btn text-white mb-2">Add channel</button>
       </form>
-      <form submit.delegate="joinChannel()">
-        <div class="form-group ">
-          <input type="text" class="form-control my-1" value.bind="joinCh" required placeholder="Join the channel">
-          <button type="submit" class="btn text-white ">Join</button>
+
+
+      <form class="form-inline" submit.delegate="joinChannel()">
+        <div class="form-group mb-2 mr-3">
+          <input type="text" class="form-control" value.bind="joinCh" required placeholder="Join channel">
+        </div>
+        <button type="submit" class="btn text-white mb-2">Join channel</button>
+      </form>
+
+
+      <form submit.delegate="installChaincode()">
+        <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
+        <ul>
+          <li repeat.for="o of installedChain">${o}</li>
+        </ul>
+        <div class="form-group">
+          <input class="form-control-file" type="file"
+                 name="ChaincodeFile"
+                 files.bind="file" required accept="application/zip">
+        </div>
+        <div class="form-inline">
+          <div class="form-group mb-2 mr-3">
+            <select class="form-control" value.bind="language">
+              <option value="node">node</option>
+              <option value="car">car</option>
+              <option value="golang">golang</option>
+              <option value="java">java</option>
+            </select>
+          </div>
+          <div class="form-group mb-2 mr-3">
+            <input type="text" class="form-control" value.bind="version" placeholder="Version">
+          </div>
+          <button type="submit" class="btn text-white mb-2">Install Chaincode</button>
         </div>
       </form>
     </div>
 
-    <div class="col-md-4 hidden">
-      <h4 t="chaincodeList">chaincodeList</h4>
 
-      <div repeat.for="o of chaincodeList">
-        <label>
-          <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
-          ${o}
-        </label>
-      </div>
-
-      <h4 t="Upload Chaincode">Upload Chaincode</h4>
-      <form submit.delegate="installChaincode()" hide.bind="show">
-        <input type="file"
-               name="ChaincodeFile"
-               files.bind="file" required accept="application/zip">
-          <select class="custom-select " style="width:auto" value.bind="language">
-            <option model.bind="null">Choose language</option>
-            <option>car</option>
-            <option>golang</option>
-            <option>java</option>
-            <option>node</option>
-          </select>
-        <button type="submit" class="btn text-white">Install Chaincode</button>
+    <div class="col-md-4">
+      <form hide.bind="show">
+        <h4 t="chaincodeList">chaincodeList</h4>
+        <div repeat.for="o of chaincodeList">
+          <label>
+            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
+            ${o}
+          </label>
+        </div>
       </form>
-      <h4 t="Install Chaincodes">Install Chaincodes</h4>
-      <form submit.delegate="initChaincode()"  hide.bind="show">
+
+
+      <form submit.delegate="initChaincode()" hide.bind="show">
+        <h4 t="Install Chaincodes">Install Chaincodes</h4>
         <select class="custom-select my-1" value.bind="selectedChain">
           <option model.bind="null">Choose chaincode for instantiate</option>
           <option repeat.for="chain of installedChain">
             ${chain}
           </option>
         </select>
-        <input class="form-control" type="text" value.bind="initArgs"
-               placeholder="Args, example: node 1.0 init a 10 b 5">
-        <button type="submit" class="btn text-white my-1">Instantiate Chaincode</button>
+        <label for="inst">Arguments:</label>
+        <div class="row">
+          <div class="form-group mx-sm-3 mb-2">
+            <input class="form-control" id="inst" type="text" value.bind="initArgs"
+                   placeholder="node 1.0 init a 10 b 5">
+          </div>
+          <button type="submit" class="btn text-white mb-2">Instantiate Chaincode</button>
+        </div>
       </form>
-      <h4 t="orgList">orgList</h4>
-      <ul>
-        <li repeat.for="o of orgList">${o}</li>
-      </ul>
+
+
       <form submit.delegate="addOrgToChannel()" hide.bind="show">
-        <div class="form-group">
-          <input type="text" class="form-control my-1" value.bind="newOrg" required placeholder="New Organizatoin">
-          <button type="submit" class="btn text-white">Add Organization</button>
+        <h4 t="orgList">orgList</h4>
+        <ul>
+          <li repeat.for="o of orgList">${o}</li>
+        </ul>
+        <div class="row">
+          <div class="form-group mx-sm-3 mb-2">
+            <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
+          </div>
+          <button type="submit" class="btn text-white  mb-2">Add Organization to Channel</button>
         </div>
       </form>
     </div>
 
     <div class="col-md-4">
-      <h4 t="Targets">Targets</h4>
-        <div class="form-group" hide.bind="oneChaincode? false : true">
-          <div repeat.for="o of targets">
-            <label>
-              <input type="checkbox" value.bind="o" checked.bind="targs">
-              ${o}
-            </label>
-          </div>
-          <input class="form-control my-1" type="text" value.bind="fnc" placeholder="Function, example: put">
-
-          <input class="form-control my-1" type="text" value.bind="args"
-                 placeholder="Args, example: account 1 {name:&quot;one&quot;}">
-
-          <button type="submit" class="btn text-white"
-                  click.trigger="getInvoke()">Invoke
-          </button>
-          <button type="submit" class="btn text-white" click.trigger="getQuery()">
-            Query
-          </button>
+      <div class="form-group" hide.bind="oneChaincode? false : true">
+        <h4 t="Targets">Targets</h4>
+        <div repeat.for="o of targets">
+          <label>
+            <input type="checkbox" value.bind="o" checked.bind="targs">
+            ${o}
+          </label>
         </div>
+        <label for="function">Function:</label>
+        <div class="form-group">
+          <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
+        </div>
+        <label for="args">Arguments:</label>
+        <div class="form-group ">
+          <input class="form-control" id="args" type="text" value.bind="args"
+                 placeholder="account 1 {name:&quot;one&quot;}">
+        </div>
+
+        <button type="submit" class="btn text-white mr-3 mb-2"
+                click.trigger="getInvoke()">Invoke
+        </button>
+        <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
+          Query
+        </button>
+      </div>
     </div>
   </div>
-  <p class="text-center">
-    <button class="btn text-white" data-toggle="collapse" href="#multiCollapseExample1" role="button"
-            aria-expanded="true"
-            aria-controls="multiCollapseExample1" data-target="#multiCollapseExample1">Result
-    </button>
-    <button class="btn text-white" type="button" data-toggle="collapse" data-target="#multiCollapseExample2"
-            aria-expanded="false" aria-controls="multiCollapseExample2">Info
-    </button>
-    <button class="btn text-white" type="button" data-toggle="collapse" data-target="#multiCollapseExample3"
-            aria-expanded="false" aria-controls="multiCollapseExample3">Json
-    </button>
-  </p>
   <div class="row">
     <div class="col-md-4">
-      <div class="collapse multi-collapse show" id="multiCollapseExample1">
-        <pre id="res"></pre>
-      </div>
+      <h4 class="text-center" t="Transaction">Transaction</h4>
+      <pre id="res"></pre>
+      <h4 class="text-center" t="Input" hide.bind="lastTx? false : true">Input</h4>
+      <pre id="input"></pre>
+      <h4 class="text-center" t="Write" hide.bind="lastTx? false : true">Write</h4>
+      <pre id="writes"></pre>
+      <h4 class="text-center" t="Read" hide.bind="lastTx? false : true">Read</h4>
+      <pre id="reads"></pre>
     </div>
     <div class="col-md-4">
-      <div class="collapse multi-collapse show" id="multiCollapseExample2">
-        <pre id="info"></pre>
-      </div>
+      <h4 class="text-center" t="Endorsed">Endorsed</h4>
+      <pre id="info"></pre>
     </div>
     <div class="col-md-4">
-      <div class="collapse multi-collapse show" id="multiCollapseExample3">
-        <pre id="json"></pre>
-      </div>
+      <h4 class="text-center" t="Block">Block</h4>
+      <pre id="json"></pre>
     </div>
   </div>
 

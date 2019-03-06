@@ -4,7 +4,7 @@
 
   <nav class="navbar navbar-expand-md  mb-2 navbar-dark" style="background-color: #000000;">
     <img src="images/logo-small.png" width="25" height="25" alt="logo">
-    <a class="navbar-brand mb-0 h1 mr-3" href="#/" t="appName"></a>
+    <a class="navbar-brand mb-0 h1 mr-3 ml-2" href="#/" t="appName"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
             aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -15,8 +15,9 @@
       <!--<h5><a class="nav-link ${row.isActive ? '' : 'disabled'}" href.bind="row.href">${row.title}</a></h5>-->
       <!--</li>-->
       <!--</ul>-->
-      <div class="mr-auto ml-auto">
-        <img src="images/logo.png" width="230" height="50" alt="logo">
+      <div class="mr-auto ml-auto h1 text-white">
+        ${domain}
+        <!--<img src="images/logo.png" width="230" height="50" alt="logo">-->
       </div>
       <h3><a class="badge badge-light mt-2">${org}</a></h3>
       <ul class="navbar-nav mt-3 ml-3 mt-md-0">
@@ -30,11 +31,5 @@
   <main role="main" style="width: 100%; margin: 0 auto; padding-right: 15px; padding-left: 15px;">
     <router-view></router-view>
   </main>
-  <br>
-  <br>
-  <nav class="navbar fixed-bottom navbar-light" style="background-color: #000000;">
-    <a class="navbar-brand text-white" href="#">Web-admin</a>
-  </nav>
-
 
 </template>
