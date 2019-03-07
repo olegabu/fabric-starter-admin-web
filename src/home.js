@@ -33,6 +33,10 @@ export class Home {
   language = 'node';
   lastTx = null;
   version = null;
+  instLanguage = 'node';
+  instVersion = null;
+  cert = true;
+  endorse = [];
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService) {
     this.identityService = identityService;
@@ -92,7 +96,7 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.alertService.info("Send instantiate request");
-      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.initArgs);
+      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.instLanguage, this.instVersion, this.initArgs);
     }
     else
       this.alertService.error("Select chaincode");
@@ -143,8 +147,7 @@ export class Home {
     if (this.fnc && this.args)
       this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
         this.lastTx = invoke._transaction_id;
-        const formatter = new JSONFormatter(invoke);
-        Home.output(formatter.render(), "res");
+        Home.output(invoke, "res");
       });
     else
       this.alertService.error("Write function and arguments");
@@ -156,20 +159,20 @@ export class Home {
     }
     else
       this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
-        const formatter = new JSONFormatter(query);
-        Home.output(formatter.render(), "res");
+        Home.output(query, "res");
       });
   }
 
   getLastBlock() {
     this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
       this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
-        let formatter = new JSONFormatter(block);
-        Home.output(formatter.render(), "json");
-        for (let j = 0; j < block.data.data.length; j++) {
-          const info = block.data.data[j].payload;
-          this.decodeCert(info.header.signature_header.creator.IdBytes);
-        }
+        Home.output(block, "json");
+        const info = block.data.data[block.data.data.length - 1].payload;
+        this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
+            Home.output(o, "info");
+            Home.output(o.subject.commonName + "@" + o.issuer.organizationName, "creatorName");
+          }
+        );
       });
     });
   }
@@ -201,19 +204,30 @@ export class Home {
   }
 
   updateBlock() {
+    this.endorse = [];
     if (this.blocks.length > 4)
       this.blocks.splice(0, 1);
     this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
       this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
         let txid = [];
-        let formatter = new JSONFormatter(block);
-        Home.output(formatter.render(), "json");
+        Home.output(block, "json");
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload;
           if (info.header.channel_header.tx_id === this.lastTx) {
-            console.log(this.lastTx + "   " + j);
             Home.parseBlock(info);
-            this.decodeCert(info.header.signature_header.creator.IdBytes);
+            this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
+                Home.output(o.subject.commonName + "@" + o.issuer.organizationName, "creatorName");
+              }
+            );
+            Home.clear("endorsers");
+            Home.clear("endorsersCert");
+            const endorsers = info.data.actions[0].payload.action.endorsements;
+            for (let i = 0; i < endorsers.length; i++) {
+              this.decodeCert(endorsers[i].endorser.IdBytes).then(o => {
+                Home.output(o.subject.commonName, "endorsers");
+                Home.output(o, "endorsersCert");
+              });
+            }
           }
           txid.push(info.header.channel_header.tx_id);
         }
@@ -223,19 +237,29 @@ export class Home {
   }
 
   decodeCert(cert) {
-    this.chaincodeService.decodeCert(cert).then(o => {
-      const formatter = new JSONFormatter(o);
-      Home.output(formatter.render(), 'info');
+    return this.chaincodeService.decodeCert(cert).then(o => {
+      return o;
     });
   }
 
+  showCert() {
+    this.cert ? this.cert = false : this.cert = true;
+  }
+
   static output(inp, id) {
+    const formatter = new JSONFormatter(inp);
     const el = document.getElementById(id);
-    if (el.firstChild === null)
-      el.appendChild(inp);
-    else
-      el.removeChild(el.firstChild);
-    el.appendChild(inp);
+    if (id !== "endorsers" && id !== "endorsersCert")
+      this.clear(id);
+    el.appendChild(formatter.render());
+  }
+
+  static clear(id) {
+    const el = document.getElementById(id);
+    if (el && el.firstChild) {
+      while (el.firstChild)
+        el.removeChild(el.firstChild);
+    }
   }
 
   static parseBlock(block) {
@@ -250,21 +274,18 @@ export class Home {
         }
         arr.push(str);
       }
-      const formatter = new JSONFormatter(arr);
-      Home.output(formatter.render(), "input");
+      Home.output(arr, "input");
     }
     for (let i = 0; i < action.length; i++) {
       let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.writes;
       for (let j = 0; j < payload.length; j++) {
-        const formatter = new JSONFormatter(payload[j]);
-        Home.output(formatter.render(), "writes");
+        Home.output(payload[j], "writes");
       }
     }
     for (let i = 0; i < action.length; i++) {
       let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.reads) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.reads;
       for (let j = 0; j < payload.length; j++) {
-        const formatter = new JSONFormatter(payload[j]);
-        Home.output(formatter.render(), "reads");
+        Home.output(payload[j], "reads");
       }
     }
   }

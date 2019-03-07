@@ -46,9 +46,10 @@
                  name="ChaincodeFile"
                  files.bind="file" required accept="application/zip">
         </div>
-        <div class="form-inline">
-          <div class="form-group mb-2 mr-3">
-            <select class="form-control" value.bind="language">
+        <div class="row">
+          <div class="form-group mb-2 ml-3 mr-3">
+            <label for="uplanguage">Language:</label>
+            <select id="uplanguage" class="form-control" value.bind="language">
               <option value="node">node</option>
               <option value="car">car</option>
               <option value="golang">golang</option>
@@ -56,10 +57,13 @@
             </select>
           </div>
           <div class="form-group mb-2 mr-3">
-            <input type="text" class="form-control" value.bind="version" placeholder="Version">
+            <label for="upversion">Version:</label>
+
+            <input type="text" id="upversion" class="form-control" value.bind="version" placeholder="1.0">
           </div>
-          <button type="submit" class="btn text-white mb-2">Install Chaincode</button>
         </div>
+        <button type="submit" class="btn text-white mb-2">Install Chaincode</button>
+
       </form>
     </div>
 
@@ -84,13 +88,27 @@
             ${chain}
           </option>
         </select>
-        <label for="inst">Arguments:</label>
         <div class="row">
-          <div class="form-group mx-sm-3 mb-2">
-            <input class="form-control" id="inst" type="text" value.bind="initArgs"
-                   placeholder="node 1.0 init a 10 b 5">
+          <div class="form-group mb-2 mr-3 ml-3">
+            <label for="language">Language:</label>
+            <select class="form-control" id="language" value.bind="instLanguage">
+              <option value="node">node</option>
+              <option value="car">car</option>
+              <option value="golang">golang</option>
+              <option value="java">java</option>
+            </select>
           </div>
-          <button type="submit" class="btn text-white mb-2">Instantiate Chaincode</button>
+          <div class="form-group mb-2">
+            <label for="version">Version:</label>
+            <input class="form-control" id="version" type="text" value.bind="instVersion"
+                   placeholder="1.0">
+          </div>
+          <div class="form-group ml-3 mb-2">
+            <label for="instAgrs">Function and arguments:</label>
+            <input class="form-control" id="instAgrs" type="text" value.bind="initArgs"
+                   placeholder="init a 10 b 5">
+          </div>
+          <button type="submit" class="btn text-white ml-3">Instantiate Chaincode</button>
         </div>
       </form>
 
@@ -109,51 +127,59 @@
       </form>
     </div>
 
-    <div class="col-md-4">
-      <div class="form-group" hide.bind="oneChaincode? false : true">
-        <h4 t="Targets">Targets</h4>
-        <div repeat.for="o of targets">
-          <label>
-            <input type="checkbox" value.bind="o" checked.bind="targs">
-            ${o}
-          </label>
-        </div>
-        <label for="function">Function:</label>
-        <div class="form-group">
-          <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
-        </div>
-        <label for="args">Arguments:</label>
-        <div class="form-group ">
-          <input class="form-control" id="args" type="text" value.bind="args"
-                 placeholder="account 1 {name:&quot;one&quot;}">
-        </div>
-
-        <button type="submit" class="btn text-white mr-3 mb-2"
-                click.trigger="getInvoke()">Invoke
-        </button>
-        <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
-          Query
-        </button>
+    <div class="col-md-4" hide.bind="oneChaincode? false : true">
+      <h4 t="Targets">Targets</h4>
+      <div repeat.for="o of targets">
+        <label>
+          <input type="checkbox" value.bind="o" checked.bind="targs">
+          ${o}
+        </label>
       </div>
+
+      <div class="form-group mb-2">
+        <label for="function">Function:</label>
+        <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
+      </div>
+      <div class="form-group mb-2">
+        <label for="args">Arguments:</label>
+        <input class="form-control" id="args" type="text" value.bind="args"
+               placeholder="account 1 {name:&quot;one&quot;}">
+      </div>
+      <button type="submit" class="btn text-white mr-3"
+              click.trigger="getInvoke()">Invoke
+      </button>
+      <button type="submit" class="btn text-white " click.trigger="getQuery()">
+        Query
+      </button>
     </div>
   </div>
-  <div class="row">
+  <div class="row" hide.bind="show">
     <div class="col-md-4">
-      <h4 class="text-center" t="Transaction">Transaction</h4>
+      <h4 class="text" t="Transaction">Transaction</h4>
       <pre id="res"></pre>
-      <h4 class="text-center" t="Input" hide.bind="lastTx? false : true">Input</h4>
+      <h6 class="text" t="Input" hide.bind="lastTx? false : true">Input</h6>
       <pre id="input"></pre>
-      <h4 class="text-center" t="Write" hide.bind="lastTx? false : true">Write</h4>
-      <pre id="writes"></pre>
-      <h4 class="text-center" t="Read" hide.bind="lastTx? false : true">Read</h4>
+      <h6 class="text" t="ReadSet" hide.bind="lastTx? false : true">ReadSet</h6>
       <pre id="reads"></pre>
+      <h6 class="text" t="WriteSet" hide.bind="lastTx? false : true">WriteSet</h6>
+      <pre id="writes"></pre>
     </div>
     <div class="col-md-4">
-      <h4 class="text-center" t="Endorsed">Endorsed</h4>
-      <pre id="info"></pre>
+      <h4 class="text" t="Endorsed">Endorsed</h4>
+      <pre id="info" hide.bind="cert? true : false"></pre>
+      <div class="form-group" hide.bind="cert? false : true">
+        <h6 class="text" t="Creator">Creator</h6>
+        <pre id="creatorName"></pre>
+      </div>
+      <h6 class="text" t="Endorsers">Endorsers</h6>
+      <pre id="endorsers" hide.bind="cert? false : true"></pre>
+      <pre id="endorsersCert" hide.bind="cert? true : false"></pre>
+      <button type="submit" class="btn text-white mb-3" click.trigger="showCert()">
+        Show cert
+      </button>
     </div>
     <div class="col-md-4">
-      <h4 class="text-center" t="Block">Block</h4>
+      <h4 class="text" t="Block">Block</h4>
       <pre id="json"></pre>
     </div>
   </div>

@@ -296,7 +296,7 @@ export class ChaincodeService {
     });
   }
 
-  instantiateChaincode(channel, chaincode, arg, org, username) {
+  instantiateChaincode(channel, chaincode, language, version, args, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
     const params = {
@@ -304,14 +304,13 @@ export class ChaincodeService {
       chaincodeId: chaincode,
     };
     let arr = [];
-    if (arg) {
-      let args = arg.trim().split(" ");
-      params.chaincodeType = args[0] || null;
-      params.chaincodeVersion = args[1] || null;
-      params.fcn = args[2] || null;
-      // params.args = [args[3], args[4], args[5], args[6]] || null;
-      for (let i = 3; i < args.length; i++) {
-        arr.push(args[i]);
+    if (args) {
+      let arg = args.trim().split(" ");
+      params.chaincodeType = language;
+      params.chaincodeVersion = version || null;
+      params.fcn = arg[0] || null;
+      for (let i = 1; i < arg.length; i++) {
+        arr.push(arg[i]);
       }
       if (arr.length > 0)
         params.args = arr;
