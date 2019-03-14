@@ -1,16 +1,16 @@
-import {LogManager} from 'aurelia-framework';
-import {inject} from 'aurelia-framework';
+import {inject, LogManager} from 'aurelia-framework';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {IdentityService} from './services/identity-service';
 import {ChaincodeService} from './services/chaincode-service';
 import {ConfigService} from './services/config-service';
 import {AlertService} from './services/alert-service';
-import { ConsortiumService } from './services/consortium-service';
+import {ConsortiumService} from './services/consortium-service';
+import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
 export class Home {
   channelList = [];
   chaincodeList = [];
@@ -43,20 +43,26 @@ export class Home {
   endorse = [];
   consortiumInviteeIP = null;
   consortiumInviteeName = null;
+  installedWebApps = [];
+  webAppFile = null;
+  installedMiddlewares = [];
+  middlewareFile = null;
 
-  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
     this.configService = configService;
     this.alertService = alertService;
-    this.consortiumService = consortiumService
+    this.consortiumService = consortiumService;
+    this.webAppService = webAppService;
   }
 
   attached() {
     this.queryConsortium();
     this.queryChannels();
     this.queryInstalledChaincodes();
+    this.queryInstalledWebApps();
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
@@ -102,12 +108,10 @@ export class Home {
 
   initChaincode() {
     if (this.selectedChain) {
-      this.alertService.info("Send instantiate request");
+      this.alertService.info('Send instantiate request');
       this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs);
-    }
-    else
-      this.alertService.error("Select chaincode");
-
+    } else
+      this.alertService.error('Select chaincode');
   }
 
   queryChaincodes() {
@@ -140,7 +144,7 @@ export class Home {
   }
 
   addOrgToChannel() {
-    this.alertService.info("Send invite");
+    this.alertService.info('Send invite');
     this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg);
     this.newOrg = null;
   }
@@ -151,34 +155,34 @@ export class Home {
   }
 
   getInvoke() {
-    Home.clear("endorsers");
-    Home.clear("endorsersCert");
-    Home.clear("creatorName");
-    Home.clear("info");
-    Home.clear("json");
-    Home.clear("input");
-    Home.clear("reads");
-    Home.clear("writes");
-    Home.clear("res");
-      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
-        this.lastTx = invoke._transaction_id;
-        Home.output(invoke, "res");
-      });
+    Home.clear('endorsers');
+    Home.clear('endorsersCert');
+    Home.clear('creatorName');
+    Home.clear('info');
+    Home.clear('json');
+    Home.clear('input');
+    Home.clear('reads');
+    Home.clear('writes');
+    Home.clear('res');
+    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
+      this.lastTx = invoke._transaction_id;
+      Home.output(invoke, 'res');
+    });
   }
 
   getQuery() {
-    Home.clear("endorsers");
-    Home.clear("endorsersCert");
-    Home.clear("creatorName");
-    Home.clear("info");
-    Home.clear("json");
-    Home.clear("input");
-    Home.clear("reads");
-    Home.clear("writes");
-    Home.clear("res");
+    Home.clear('endorsers');
+    Home.clear('endorsersCert');
+    Home.clear('creatorName');
+    Home.clear('info');
+    Home.clear('json');
+    Home.clear('input');
+    Home.clear('reads');
+    Home.clear('writes');
+    Home.clear('res');
     this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.targs).then(query => {
       this.lastTx = query;
-      Home.output(query, "res");
+      Home.output(query, 'res');
     });
   }
 
@@ -193,17 +197,17 @@ export class Home {
         this.chaincodeService.getBlock(this.oneChannel, i).then(block => {
           let txid = [];
           for (let j = 0; j < block.data.data.length; j++) {
-            txid.push(block.data.data[j].payload.header.channel_header.tx_id)
+            txid.push(block.data.data[j].payload.header.channel_header.tx_id);
           }
           bl.push({blockNumber: block.header.number, txid: txid.join('; ')});
-          bl.sort(function (a, b) {
-            return a.blockNumber - b.blockNumber
+          bl.sort(function(a, b) {
+            return a.blockNumber - b.blockNumber;
           });
         });
       }
     });
-    bl.sort(function (a, b) {
-      return a.blockNumber - b.blockNumber
+    bl.sort(function(a, b) {
+      return a.blockNumber - b.blockNumber;
     });
     this.blocks = bl;
   }
@@ -215,23 +219,23 @@ export class Home {
     this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
       this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
         let txid = [];
-        Home.output(block, "json");
+        Home.output(block, 'json');
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload;
           if (info.header.channel_header.tx_id === this.lastTx) {
             Home.parseBlock(info);
             this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
-                Home.output(o, "info");
-                Home.output(o.subject.commonName + "@" + o.issuer.organizationName, "creatorName");
-              }
+              Home.output(o, 'info');
+              Home.output(o.subject.commonName + '@' + o.issuer.organizationName, 'creatorName');
+            }
             );
-            Home.clear("endorsers");
-            Home.clear("endorsersCert");
+            Home.clear('endorsers');
+            Home.clear('endorsersCert');
             const endorsers = info.data.actions[0].payload.action.endorsements;
             for (let i = 0; i < endorsers.length; i++) {
               this.decodeCert(endorsers[i].endorser.IdBytes).then(o => {
-                Home.output(o.subject.commonName, "endorsers");
-                Home.output(o, "endorsersCert");
+                Home.output(o.subject.commonName, 'endorsers');
+                Home.output(o, 'endorsersCert');
               });
             }
           }
@@ -252,28 +256,54 @@ export class Home {
     this.cert ? this.cert = false : this.cert = true;
   }
 
-  
 
   queryConsortium() {
     this.consortiumService.query().then((orgs) => {
-      this.consortiumMembersList = orgs
-  })
-}
+      this.consortiumMembersList = orgs;
+    });
+  }
 
-addToConsortium() {
-  this.consortiumService.inviteByName(this.consortiumInviteeName).then((result)=>
-  {
-    // this.consortiumService.query()
-    console.log(result);
-    this.alertService.success(`${this.consortiumInviteeName} added to the consortium`)
-    this.queryConsortium()
-  })
-}
+  addToConsortium() {
+    this.consortiumService.inviteByName(this.consortiumInviteeName).then((result) => {
+      // this.consortiumService.query()
+      console.log(result);
+      this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
+      this.queryConsortium();
+    });
+  }
+
+  queryInstalledWebApps() {
+    this.webAppService.getWebApps().then(items => {
+      this.installedWebApps = items;
+    });
+    this.webAppService.getMiddlewares().then(items => {
+      this.installedMiddlewares = items;
+    });
+  }
+
+  installWebApp() {
+    let formUrlEncoded = this.createUploadFileForm(this.webAppFile);
+    return this.webAppService.installWebApp(formUrlEncoded).then(()=>this.queryInstalledWebApps());
+  }
+
+  installMiddleware() {
+    let formUrlEncoded = this.createUploadFileForm(this.middlewareFile);
+    return this.webAppService.installMiddleware(formUrlEncoded).then(()=>this.queryInstalledWebApps());
+  }
+
+  createUploadFileForm(fileElement, fields) {
+    let formData = new FormData();
+    for (let i = 0; i < fileElement.length; i++) {
+      formData.append('file', fileElement[i]);
+    }
+    if (fields) Object.keys(fields).forEach(k => formData.append(k, fields[k]));
+    return formData;
+  }
 
   static output(inp, id) {
     const formatter = new JSONFormatter(inp);
     const el = document.getElementById(id);
-    if (id !== "endorsers" && id !== "endorsersCert")
+    if (id !== 'endorsers' && id !== 'endorsersCert')
       this.clear(id);
     if (el)
       el.appendChild(formatter.render());
@@ -293,24 +323,24 @@ addToConsortium() {
       let payload = action[i].payload.chaincode_proposal_payload.input.chaincode_spec.input.args;
       let arr = [];
       for (let j = 0; j < payload.length; j++) {
-        let str = "";
+        let str = '';
         for (let k = 0; k < payload[j].data.length; k++) {
-          str += String.fromCharCode(payload[j].data[k])
+          str += String.fromCharCode(payload[j].data[k]);
         }
         arr.push(str);
       }
-      Home.output(arr, "input");
+      Home.output(arr, 'input');
     }
     for (let i = 0; i < action.length; i++) {
       let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.writes;
       for (let j = 0; j < payload.length; j++) {
-        Home.output(payload[j], "writes");
+        Home.output(payload[j], 'writes');
       }
     }
     for (let i = 0; i < action.length; i++) {
       let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.reads) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.reads;
       for (let j = 0; j < payload.length; j++) {
-        Home.output(payload[j], "reads");
+        Home.output(payload[j], 'reads');
       }
     }
   }

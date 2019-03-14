@@ -5,7 +5,7 @@ import {inject} from 'aurelia-framework';
 import {IdentityService} from './services/identity-service';
 import {SocketService} from './services/socket-service';
 import {AlertService} from './services/alert-service';
-import {ChaincodeService} from "./services/chaincode-service";
+import {ChaincodeService} from './services/chaincode-service';
 
 let log = LogManager.getLogger('App');
 
@@ -13,7 +13,7 @@ let log = LogManager.getLogger('App');
 export class App {
   domain = null;
 
-  constructor(i18n, identityService, socketService, alertService, chaincodeService,) {
+  constructor(i18n, identityService, socketService, alertService, chaincodeService) {
     this.i18n = i18n;
     // this.i18n.setLocale(navigator.language || 'en');
     this.i18n.setLocale('ru');
