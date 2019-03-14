@@ -23,9 +23,12 @@ export class Home {
   newOrg = null;
   fnc = null;
   args = null;
+  key = null;
+  value = null;
   selectedChain = null;
   oneCh = null;
   file = null;
+  initFcn = null;
   initArgs = null;
   block = null;
   joinCh = null;
@@ -83,7 +86,6 @@ export class Home {
     let formData = new FormData();
     for (let i = 0; i < this.file.length; i++) {
       formData.append('file', this.file[i]);
-      // formData.append('channelId', this.oneChannel);
       formData.append('targets', this.targs);
       formData.append('version', this.version || '1.0');
       formData.append('language', this.language);
@@ -96,7 +98,7 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.alertService.info("Send instantiate request");
-      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.instLanguage, this.instVersion, this.initArgs);
+      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs);
     }
     else
       this.alertService.error("Select chaincode");
@@ -144,36 +146,34 @@ export class Home {
   }
 
   getInvoke() {
-    if (this.fnc && this.args)
-      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(invoke => {
+    Home.clear("endorsers");
+    Home.clear("endorsersCert");
+    Home.clear("creatorName");
+    Home.clear("info");
+    Home.clear("json");
+    Home.clear("input");
+    Home.clear("reads");
+    Home.clear("writes");
+    Home.clear("res");
+      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
         this.lastTx = invoke._transaction_id;
         Home.output(invoke, "res");
       });
-    else
-      this.alertService.error("Write function and arguments");
   }
 
   getQuery() {
-    if (this.oneChaincode === null || this.chaincodeList.indexOf(this.oneChaincode) === -1) {
-      this.alertService.error("Choose chaincode");
-    }
-    else
-      this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.args, this.targs).then(query => {
-        Home.output(query, "res");
-      });
-  }
-
-  getLastBlock() {
-    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
-      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
-        Home.output(block, "json");
-        const info = block.data.data[block.data.data.length - 1].payload;
-        this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
-            Home.output(o, "info");
-            Home.output(o.subject.commonName + "@" + o.issuer.organizationName, "creatorName");
-          }
-        );
-      });
+    Home.clear("endorsers");
+    Home.clear("endorsersCert");
+    Home.clear("creatorName");
+    Home.clear("info");
+    Home.clear("json");
+    Home.clear("input");
+    Home.clear("reads");
+    Home.clear("writes");
+    Home.clear("res");
+    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.targs).then(query => {
+      this.lastTx = query;
+      Home.output(query, "res");
     });
   }
 
@@ -216,6 +216,7 @@ export class Home {
           if (info.header.channel_header.tx_id === this.lastTx) {
             Home.parseBlock(info);
             this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
+                Home.output(o, "info");
                 Home.output(o.subject.commonName + "@" + o.issuer.organizationName, "creatorName");
               }
             );
@@ -251,7 +252,8 @@ export class Home {
     const el = document.getElementById(id);
     if (id !== "endorsers" && id !== "endorsersCert")
       this.clear(id);
-    el.appendChild(formatter.render());
+    if (el)
+      el.appendChild(formatter.render());
   }
 
   static clear(id) {

@@ -296,25 +296,19 @@ export class ChaincodeService {
     });
   }
 
-  instantiateChaincode(channel, chaincode, language, version, args, org, username) {
+  instantiateChaincode(channel, chaincode, language, version, fcn, args, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
     };
-    let arr = [];
-    if (args) {
-      let arg = args.trim().split(" ");
-      params.chaincodeType = language;
-      params.chaincodeVersion = version || null;
-      params.fcn = arg[0] || null;
-      for (let i = 1; i < arg.length; i++) {
-        arr.push(arg[i]);
-      }
-      if (arr.length > 0)
-        params.args = arr;
-    }
+    params.chaincodeType = language;
+    params.chaincodeVersion = version;
+    if (fcn)
+      params.fcn = fcn;
+    if (args)
+      params.args = args.trim().split(" ");
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'post', org, username).then(j => {
         resolve(j);
@@ -325,8 +319,8 @@ export class ChaincodeService {
     });
   }
 
-  query(channel, chaincode, func, args, peers, org, username) {
-    log.debug(`query channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
+  query(channel, chaincode, func, key, peers, org, username) {
+    log.debug(`query channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, key);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     const params = {
       channelId: channel,
@@ -334,8 +328,8 @@ export class ChaincodeService {
       fcn: func,
       targets: json(peers)
     };
-    if (args)
-      params.args = json(args.trim().split(" "));
+    if (key)
+      params.args = json(key.trim().split(" "));
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'get', org, username).then(j => {
         resolve(j);
@@ -345,22 +339,36 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  invoke(channel, chaincode, func, args, peers, org, username) {
+  invoke(channel, chaincode, func, key, value, peers, org, username) {
     log.debug(`invoke channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
-      fcn: func.trim(),
-      // args: args.trim().split(" "),
       targets: peers
     };
-    if (args)
-      params.args = args.trim().split(" ");
+    if (func)
+      params.fcn = func.trim();
+    let args = [];
+    if (key)
+      args = key.trim().split(" ");
+    if (value) {
+      let some_arg = value.substring(value.indexOf("\"") + 1, value.lastIndexOf("\""));
+
+      if (some_arg) {
+        args.push(some_arg);
+        params.args = args;
+      } else {
+        let val = value.trim().split(" ");
+        for (let i = 0; i < val.length; i++) {
+          args.push(val[i]);
+        }
+        params.args = args;
+      }
+    }
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         this.fetch(url, params, 'post', org, username).then(j => {
-          console.log(j);
           if (j.badPeers.length > 0) {
             this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
           }
