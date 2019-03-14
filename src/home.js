@@ -5,11 +5,12 @@ import {IdentityService} from './services/identity-service';
 import {ChaincodeService} from './services/chaincode-service';
 import {ConfigService} from './services/config-service';
 import {AlertService} from './services/alert-service';
+import { ConsortiumService } from './services/consortium-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService)
 export class Home {
   channelList = [];
   chaincodeList = [];
@@ -40,16 +41,20 @@ export class Home {
   instVersion = null;
   cert = true;
   endorse = [];
+  consortiumInviteeIP = null;
+  consortiumInviteeName = null;
 
-  constructor(identityService, eventAggregator, chaincodeService, configService, alertService) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
     this.configService = configService;
     this.alertService = alertService;
+    this.consortiumService = consortiumService
   }
 
   attached() {
+    this.queryConsortium();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
@@ -246,6 +251,24 @@ export class Home {
   showCert() {
     this.cert ? this.cert = false : this.cert = true;
   }
+
+  
+
+  queryConsortium() {
+    this.consortiumService.query().then((orgs) => {
+      this.consortiumMembersList = orgs
+  })
+}
+
+addToConsortium() {
+  this.consortiumService.inviteByName(this.consortiumInviteeName).then((result)=>
+  {
+    // this.consortiumService.query()
+    console.log(result);
+    this.alertService.success(`${this.consortiumInviteeName} added to the consortium`)
+    this.queryConsortium()
+  })
+}
 
   static output(inp, id) {
     const formatter = new JSONFormatter(inp);
