@@ -155,10 +155,10 @@ export class Home {
     Home.clear("reads");
     Home.clear("writes");
     Home.clear("res");
-      this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
-        this.lastTx = invoke._transaction_id;
-        Home.output(invoke, "res");
-      });
+    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
+      this.lastTx = invoke.txid;
+      Home.output(invoke, "res");
+    });
   }
 
   getQuery() {

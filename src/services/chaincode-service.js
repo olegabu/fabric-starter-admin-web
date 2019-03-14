@@ -345,7 +345,8 @@ export class ChaincodeService {
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
-      targets: peers
+      targets: peers,
+      waitForTransactionEvent: true
     };
     if (func)
       params.fcn = func.trim();
