@@ -216,7 +216,8 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
         const allChannel = j.map(o => {
-          return o.name;
+          console.log(o);
+          return o.name + ':' + o.version;
         });
         resolve(allChannel);
       })
