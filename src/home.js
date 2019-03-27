@@ -155,15 +155,7 @@ export class Home {
   }
 
   getInvoke() {
-    Home.clear('endorsers');
-    Home.clear('endorsersCert');
-    Home.clear('creatorName');
-    Home.clear('info');
-    Home.clear('json');
-    Home.clear('input');
-    Home.clear('reads');
-    Home.clear('writes');
-    Home.clear('res');
+    Home.clearAll();
     this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
       this.lastTx = invoke._transaction_id;
       Home.output(invoke, 'res');
@@ -171,15 +163,7 @@ export class Home {
   }
 
   getQuery() {
-    Home.clear('endorsers');
-    Home.clear('endorsersCert');
-    Home.clear('creatorName');
-    Home.clear('info');
-    Home.clear('json');
-    Home.clear('input');
-    Home.clear('reads');
-    Home.clear('writes');
-    Home.clear('res');
+    Home.clearAll();
     this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.targs).then(query => {
       this.lastTx = query;
       Home.output(query, 'res');
@@ -200,13 +184,13 @@ export class Home {
             txid.push(block.data.data[j].payload.header.channel_header.tx_id);
           }
           bl.push({blockNumber: block.header.number, txid: txid.join('; ')});
-          bl.sort(function(a, b) {
+          bl.sort(function (a, b) {
             return a.blockNumber - b.blockNumber;
           });
         });
       }
     });
-    bl.sort(function(a, b) {
+    bl.sort(function (a, b) {
       return a.blockNumber - b.blockNumber;
     });
     this.blocks = bl;
@@ -225,9 +209,9 @@ export class Home {
           if (info.header.channel_header.tx_id === this.lastTx) {
             Home.parseBlock(info);
             this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
-              Home.output(o, 'info');
-              Home.output(o.subject.commonName + '@' + o.issuer.organizationName, 'creatorName');
-            }
+                Home.output(o, 'info');
+                Home.output(o.subject.commonName + '@' + o.issuer.organizationName, 'creatorName');
+              }
             );
             Home.clear('endorsers');
             Home.clear('endorsersCert');
@@ -283,12 +267,12 @@ export class Home {
 
   installWebApp() {
     let formUrlEncoded = this.createUploadFileForm(this.webAppFile);
-    return this.webAppService.installWebApp(formUrlEncoded).then(()=>this.queryInstalledWebApps());
+    return this.webAppService.installWebApp(formUrlEncoded).then(() => this.queryInstalledWebApps());
   }
 
   installMiddleware() {
     let formUrlEncoded = this.createUploadFileForm(this.middlewareFile);
-    return this.webAppService.installMiddleware(formUrlEncoded).then(()=>this.queryInstalledWebApps());
+    return this.webAppService.installMiddleware(formUrlEncoded).then(() => this.queryInstalledWebApps());
   }
 
   createUploadFileForm(fileElement, fields) {
@@ -315,6 +299,18 @@ export class Home {
       while (el.firstChild)
         el.removeChild(el.firstChild);
     }
+  }
+
+  static clearAll() {
+    Home.clear('endorsers');
+    Home.clear('endorsersCert');
+    Home.clear('creatorName');
+    Home.clear('info');
+    Home.clear('json');
+    Home.clear('input');
+    Home.clear('reads');
+    Home.clear('writes');
+    Home.clear('res');
   }
 
   static parseBlock(block) {
