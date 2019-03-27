@@ -33,6 +33,7 @@
   "Function": "Функция",
   "Arguments": "Аргументы",
   "Instantiate Chaincode": "Инициализация чейнкода",
+  "Upgrade Chaincode": "Обновление чейнкода",
   "Add Organization to Channel": "Добавить организацию в канал",
   "Key": "Ключ",
   "Value": "Значение",
@@ -43,5 +44,8 @@
   "Block": "Блок",
   "Input": "Входные данные",
   "ReadSet": "Чтение",
-  "WriteSet": "Запись"
+  "WriteSet": "Запись",
+  "Result": "Результат",
+  "Policy": "Политика",
+  "Collections":"Коллекция"
 }

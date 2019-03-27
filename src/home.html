@@ -138,16 +138,17 @@
     <div class="col-md-4">
       <form hide.bind="show">
         <h4 t="chaincodeList">chaincodeList</h4>
-        <div repeat.for="o of chaincodeList" class.bind="lastTx=null">
+        <div repeat.for="o of chaincodeList">
           <label>
-            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
+            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'
+                   change.delegate="hideTx()">
             ${o}
           </label>
         </div>
       </form>
 
 
-      <form submit.delegate="initChaincode()" hide.bind="show">
+      <form hide.bind="show">
         <h4 t="Install chaincodes">Install chaincodes</h4>
         <div class="row">
           <div class="form-group mb-2 ml-3">
@@ -187,8 +188,31 @@
           <textarea class="form-control" id="arg" type="text" value.bind="initArgs"
                     placeholder="a 10 b 5"></textarea>
         </div>
+        <!--<div class="form-group mb-2">-->
+          <!--<label for="policy" t="Policy">Policy</label>-->
+          <!--<textarea class="form-control" style="height: 230px" id="policy" type="text" value.bind="policy"-->
+                    <!--placeholder="{-->
+    <!--identities: [-->
+        <!--{ role: { name: &quot;member&quot;, mspId: &quot;org1&quot; }},-->
+        <!--{ role: { name: &quot;member&quot;, mspId: &quot;org2&quot; }}-->
+    <!--],-->
+    <!--policy: {-->
+       <!--&quot;1-of&quot;: [{ &quot;signed-by&quot;: 0 }, { &quot;signed-by&quot;: 1 }]-->
+    <!--}-->
+<!--}"></textarea>-->
+        <!--</div>-->
 
-        <button type="submit" class="btn text-white mb-2" t="Instantiate Chaincode">Instantiate Chaincode</button>
+        <!--<div class="form-group mb-2">-->
+          <!--<label for="collections" t="Collections">Collections</label>-->
+          <!--<textarea class="form-control" id="collections" type="text" value.bind="collections"></textarea>-->
+        <!--</div>-->
+
+        <button type="submit" class="btn text-white mb-2" t="Instantiate Chaincode" click.trigger="initChaincode()">
+          Instantiate Chaincode
+        </button>
+        <button type="submit" class="btn text-white mb-2" t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
+          Upgrade Chaincode
+        </button>
       </form>
 
 
@@ -235,6 +259,7 @@
       </form>
       <div class="form-group mb-2" hide.bind="lastTx? false : true">
         <h4 class="text" t="Transaction">Transaction</h4>
+        <h6 class="text" t="Result">Result</h6>
         <pre id="res"></pre>
         <h6 class="text" t="Input">Input</h6>
         <pre id="input"></pre>

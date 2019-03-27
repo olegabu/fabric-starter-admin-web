@@ -46,6 +46,8 @@ export class Home {
   webAppFile = null;
   installedMiddlewares = [];
   middlewareFile = null;
+  policy = null;
+  collections = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -108,7 +110,15 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.alertService.info('Send instantiate request');
-      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain, this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs);
+      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain.slice(0, this.selectedChain.indexOf(':')), this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs, this.policy, this.collections);
+    } else
+      this.alertService.error('Select chaincode');
+  }
+
+  upgradeChaincode() {
+    if (this.selectedChain) {
+      this.alertService.info('Send instantiate request');
+      this.chaincodeService.upgradeChaincode(this.oneChannel, this.selectedChain.slice(0, this.selectedChain.indexOf(':')), this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs, this.policy, this.collections);
     } else
       this.alertService.error('Select chaincode');
   }
@@ -237,6 +247,10 @@ export class Home {
 
   showCert() {
     this.cert ? this.cert = false : this.cert = true;
+  }
+
+  hideTx() {
+    this.lastTx = null;
   }
 
 
