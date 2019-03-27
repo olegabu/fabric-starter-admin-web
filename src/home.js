@@ -314,29 +314,37 @@ export class Home {
 
   static parseBlock(block) {
     let action = block.data.actions;
+    let rwset = [];
     for (let i = 0; i < action.length; i++) {
       let payload = action[i].payload.chaincode_proposal_payload.input.chaincode_spec.input.args;
-      let arr = [];
       for (let j = 0; j < payload.length; j++) {
         let str = '';
         for (let k = 0; k < payload[j].data.length; k++) {
           str += String.fromCharCode(payload[j].data[k]);
         }
-        arr.push(str);
+        rwset.push(str);
       }
-      Home.output(arr, 'input');
+      Home.output(rwset, 'input');
     }
+    rwset = [];
     for (let i = 0; i < action.length; i++) {
-      let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.writes) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.writes;
+      let payload = action[i].payload.action.proposal_response_payload.extension.results.ns_rwset;
       for (let j = 0; j < payload.length; j++) {
-        Home.output(payload[j], 'writes');
+        for (let k = 0; k < payload[j].rwset.writes.length; k++) {
+          rwset.push(payload[j].rwset.writes[k])
+        }
       }
     }
+    Home.output(rwset, 'writes');
+    rwset = [];
     for (let i = 0; i < action.length; i++) {
-      let payload = (action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1] && action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[1].rwset.reads) || action[i].payload.action.proposal_response_payload.extension.results.ns_rwset[0].rwset.reads;
+      let payload = action[i].payload.action.proposal_response_payload.extension.results.ns_rwset;
       for (let j = 0; j < payload.length; j++) {
-        Home.output(payload[j], 'reads');
+        for (let k = 0; k < payload[j].rwset.reads.length; k++) {
+          rwset.push(payload[j].rwset.reads[k]);
+        }
       }
     }
+    Home.output(rwset, 'reads');
   }
 }
