@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div class="row p-1 row-vdivide">
+  <div class="row p-1  ">
     <div class="col-md-4">
       <h4 t="channelList">channelList</h4>
       <div repeat.for="o of channelList">
@@ -35,6 +35,46 @@
         <button type="submit" class="btn text-white mb-2" t="Join channel">Join channel</button>
       </form>
 
+      <form submit.delegate="addToConsortium()" class="form-horizontal" role="form">
+        <div class="form-group">
+          <legend>Consortium</legend>
+        </div>
+        <div class="col-md-8">
+          <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th>IP</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr repeat.for="org of consortiumMembersList">
+              <td>${org}</td>
+              <td></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <div class="form-group row row-no-vdivide">
+              <label for="consortiumInviteeIP" class="col-sm-2">IP</label>
+              <input type="text" readonly name="OrgIP" id="consortiumInviteeIP" value.bind="consortiumInviteeIP"
+                     autocomplete="off" required>
+            </div>
+            <div class="form-group row row-no-vdivide">
+
+              <label for="consortiumInviteeName" class="col-sm-2">Name</label>
+
+              <input type="text" name="OrgName" id="consortiumInviteeName" value.bind="consortiumInviteeName"
+                     autocomplete="off" required>
+            </div>
+
+            <button type="submit" class="btn text-white mb-3">Invite</button>
+          </div>
+        </div>
+      </form>
+
 
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
@@ -46,7 +86,7 @@
                  name="ChaincodeFile"
                  files.bind="file" required accept="application/zip">
         </div>
-        <div class="row p-1 row-vdivide">
+        <div class="row p-1  ">
           <div class="form-group mb-2 ml-3 mr-3">
             <label for="uplanguage" t="Language">Language</label>
             <select id="uplanguage" class="form-control" value.bind="language">
@@ -65,6 +105,33 @@
         <button type="submit" class="btn text-white mb-2" t="Install chaincode">Install chaincode</button>
 
       </form>
+
+      <form submit.delegate="installWebApp()">
+        <h4 t="Uploaded WebApps">Web Applications</h4>
+        <ul>
+          <li repeat.for="app of installedWebApps"><a href="/${app}">${app}</a></li>
+        </ul>
+        <div class="form-group">
+          <input class="form-control-file" type="file"
+                 name="webAppFile" files.bind="webAppFile" required accept="application/zip">
+        </div>
+        <button type="submit" class="btn text-white mb-2">Install Web App</button>
+
+      </form>
+
+      <form submit.delegate="installMiddleware()">
+        <h4 t="Uploaded Middlewares">Middlewares</h4>
+        <ul>
+          <li repeat.for="item of installedMiddlewares">${item}</a></li>
+        </ul>
+        <div class="form-group">
+          <input class="form-control-file" type="file"
+                 name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
+        </div>
+        <button type="submit" class="btn text-white mb-2">Install Middleware</button>
+
+      </form>
+
     </div>
 
 
@@ -73,7 +140,7 @@
         <h4 t="chaincodeList">chaincodeList</h4>
         <div repeat.for="o of chaincodeList" class.bind="lastTx=null">
           <label>
-            <input type="radio"  value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
+            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'>
             ${o}
           </label>
         </div>
@@ -82,7 +149,7 @@
 
       <form submit.delegate="initChaincode()" hide.bind="show">
         <h4 t="Install chaincodes">Install chaincodes</h4>
-        <div class="row p-1 row-vdivide">
+        <div class="row">
           <div class="form-group mb-2 ml-3">
             <label for="instCh" t="Chaincode for instantiate">Chaincode for instantiate</label>
             <select class="form-control" id="instCh" value.bind="selectedChain">
@@ -93,7 +160,7 @@
             </select>
           </div>
         </div>
-        <div class="row p-1 row-vdivide">
+        <div class="row">
           <div class="form-group mb-2 ml-3">
             <label for="language" t="Language">Language</label>
             <select class="form-control" id="language" value.bind="instLanguage">
@@ -108,17 +175,19 @@
             <input class="form-control" id="version" type="text" value.bind="instVersion"
                    placeholder="1.0">
           </div>
-          <div class="form-group ml-3 mb-2">
+          <div class="form-group mb-2 ml-3 mr-3">
             <label for="fcn" t="Function">Function</label>
             <input class="form-control" id="fcn" type="text" value.bind="initFcn"
                    placeholder="init">
           </div>
-          <div class="form-group ml-3 mb-2">
-            <label for="arg" t="Arguments">Arguments</label>
-            <input class="form-control" id="arg" type="text" value.bind="initArgs"
-                   placeholder="a 10 b 5">
-          </div>
         </div>
+
+        <div class="form-group mb-2">
+          <label for="arg" t="Arguments">Arguments</label>
+          <textarea class="form-control" id="arg" type="text" value.bind="initArgs"
+                    placeholder="a 10 b 5"></textarea>
+        </div>
+
         <button type="submit" class="btn text-white mb-2" t="Instantiate Chaincode">Instantiate Chaincode</button>
       </form>
 
@@ -128,7 +197,7 @@
         <ul>
           <li repeat.for="o of orgList">${o}</li>
         </ul>
-        <div class="row p-1 row-vdivide">
+        <div class="row p-1  ">
           <div class="form-group mb-2 mr-3 ml-3">
             <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
           </div>
@@ -147,27 +216,23 @@
           ${o}
         </label>
       </div>
-
-      <div class="form-group mb-2">
-        <label for="function" t="Function">Function</label>
-        <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
-      </div>
-      <div class="form-group mb-2">
-        <label for="key" t="Key">Key</label>
-        <input class="form-control" id="key" type="text" value.bind="key"
-               placeholder="account 1">
-      </div>
-      <div class="form-group mb-2">
-        <label for="value" t="Value">Value</label>
-        <input class="form-control" id="value" type="text" value.bind="value"
-               placeholder="&quot;{name:&quot;one&quot;}&quot;">
-      </div>
-      <button type="submit" class="btn text-white mr-3 mb-2"
-              click.trigger="getInvoke()">Invoke
-      </button>
-      <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
-        Query
-      </button>
+      <form>
+        <div class="form-group mb-2">
+          <label for="function" t="Function">Function</label>
+          <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
+        </div>
+        <div class="form-group mb-2">
+          <label for="value" t="Arguments">Value</label>
+          <textarea class="form-control" id="value" type="text" value.bind="value"
+                    placeholder="account 1 &quot;{name:&quot;one&quot;}&quot;"></textarea>
+        </div>
+        <button type="submit" class="btn text-white mr-3 mb-2"
+                click.trigger="getInvoke()">Invoke
+        </button>
+        <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
+          Query
+        </button>
+      </form>
       <div class="form-group mb-2" hide.bind="lastTx? false : true">
         <h4 class="text" t="Transaction">Transaction</h4>
         <pre id="res"></pre>
@@ -198,87 +263,6 @@
         <h4 class="text" t="Block">Block</h4>
         <pre id="json"></pre>
       </div>
-    </div>
-  </div>
-
-  <hr>
-
-  <div class="row p-1 row-vdivide">
-    <div class="col-md-4">
-      <form submit.delegate="addToConsortium()" class="form-horizontal" role="form">
-        <div class="form-group">
-          <legend>Consortium</legend>
-        </div>
-        <div class="col-md-8">
-            <table class="table table-bordered table-hover">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>IP</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr repeat.for="org of consortiumMembersList">
-                    <td>${org}</td>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-10 col-sm-offset-2">
-            <div class="form-group row row-no-vdivide">
-              <label for="consortiumInviteeIP" class="col-sm-2">IP</label>
-              <input type="text" readonly name="OrgIP" id = "consortiumInviteeIP" value.bind="consortiumInviteeIP" autocomplete="off">
-            </div>
-            <div class="form-group row row-no-vdivide">
-
-              <label for="consortiumInviteeName" class="col-sm-2">Name</label>
-
-              <input type="text" name="OrgName" id = "consortiumInviteeName" value.bind="consortiumInviteeName" autocomplete="off">
-            </div>
-
-            <button type="submit" class="btn text-white mb-3">Invite</button>
-          </div>
-        </div>
-      </form>
-
-    </div>
-
-    <div class="col-md-4 col-sm-offset-2">
-      <div class="row row-no-vdivide">
-        <div class="col-md-6">
-          <form submit.delegate="installWebApp()">
-            <h4 t="Uploaded WebApps">Web Applications</h4>
-            <ul>
-              <li repeat.for="app of installedWebApps"><a href="/${app}">${app}</a></li>
-            </ul>
-            <div class="form-group">
-              <input class="form-control-file" type="file"
-                     name="webAppFile" files.bind="webAppFile" required accept="application/zip">
-            </div>
-            <button type="submit" class="btn text-white mb-2">Install Web App</button>
-
-          </form>
-        </div>
-        <div class="col-md-6">
-          <form submit.delegate="installMiddleware()">
-            <h4 t="Uploaded Middlewares">Middlewares</h4>
-            <ul>
-              <li repeat.for="item of installedMiddlewares">${item}</a></li>
-            </ul>
-            <div class="form-group">
-              <input class="form-control-file" type="file"
-                     name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
-            </div>
-            <button type="submit" class="btn text-white mb-2">Install Middleware</button>
-
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
     </div>
   </div>
 </template>

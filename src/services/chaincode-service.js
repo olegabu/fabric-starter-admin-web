@@ -339,7 +339,7 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  invoke(channel, chaincode, func, key, value, peers, org, username) {
+  invoke(channel, chaincode, func, value, peers, org, username) {
     log.debug(`invoke channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     const params = {
@@ -351,12 +351,14 @@ export class ChaincodeService {
     if (func)
       params.fcn = func.trim();
     let args = [];
-    if (key)
-      args = key.trim().split(" ");
     if (value) {
       let some_arg = value.substring(value.indexOf("\"") + 1, value.lastIndexOf("\""));
-
+      let cutstr = value.slice(0, value.indexOf("\"")).trim();
       if (some_arg) {
+        let val = cutstr.split(" ");
+        for (let i = 0; i < val.length; i++) {
+          args.push(val[i]);
+        }
         args.push(some_arg);
         params.args = args;
       } else {

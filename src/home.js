@@ -24,7 +24,6 @@ export class Home {
   newOrg = null;
   fnc = null;
   args = null;
-  key = null;
   value = null;
   selectedChain = null;
   oneCh = null;
@@ -156,15 +155,15 @@ export class Home {
 
   getInvoke() {
     Home.clearAll();
-    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.value, this.targs).then(invoke => {
-      this.lastTx = invoke._transaction_id;
+    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.value, this.targs).then(invoke => {
+      this.lastTx = invoke.txid;
       Home.output(invoke, 'res');
     });
   }
 
   getQuery() {
     Home.clearAll();
-    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.key, this.targs).then(query => {
+    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.value, this.targs).then(query => {
       this.lastTx = query;
       Home.output(query, 'res');
     });
