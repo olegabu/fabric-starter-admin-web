@@ -35,44 +35,37 @@
         <button type="submit" class="btn text-white mb-2" t="Join channel">Join channel</button>
       </form>
 
-      <form submit.delegate="addToConsortium()" class="form-horizontal" role="form">
+      <form submit.delegate="addToConsortium()" class="form-horizontal">
         <div class="form-group">
-          <legend>Consortium</legend>
+          <legend t="Consortium">Consortium</legend>
         </div>
-        <div class="col-md-8">
-          <table class="table table-bordered table-hover">
-            <thead>
-            <tr>
-              <th>Name</th>
-              <th>IP</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr repeat.for="org of consortiumMembersList">
-              <td>${org}</td>
-              <td></td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="form-group">
-          <div class="col-sm-10 col-sm-offset-2">
-            <div class="form-group row">
-              <label for="consortiumInviteeIP" class="col-sm-2">IP</label>
-              <input type="text" readonly name="OrgIP" id="consortiumInviteeIP" value.bind="consortiumInviteeIP"
-                     autocomplete="off" required>
-            </div>
-            <div class="form-group row">
-
-              <label for="consortiumInviteeName" class="col-sm-2">Name</label>
-
-              <input type="text" name="OrgName" id="consortiumInviteeName" value.bind="consortiumInviteeName"
-                     autocomplete="off" required>
-            </div>
-
-            <button type="submit" class="btn text-white mb-3">Invite</button>
+        <table class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>IP</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr repeat.for="org of consortiumMembersList">
+            <td>${org}</td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="row">
+          <div class="form-group ml-3 mb-2 mr-3">
+            <label for="ip" t="IP">IP</label>
+            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"
+                   placeholder="IP address of org" autocomplete="off" required>
+          </div>
+          <div class="form-group mb-2">
+            <label for="name" t="Name">Name</label>
+            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
+                   placeholder="Name of org" required>
           </div>
         </div>
+        <button type="submit" class="btn text-white mb-3" t="Invite">Invite</button>
       </form>
 
 
@@ -86,7 +79,7 @@
                  name="ChaincodeFile"
                  files.bind="file" required accept="application/zip">
         </div>
-        <div class="row p-1  ">
+        <div class="row">
           <div class="form-group mb-2 ml-3 mr-3">
             <label for="uplanguage" t="Language">Language</label>
             <select id="uplanguage" class="form-control" value.bind="language">
@@ -115,7 +108,7 @@
           <input class="form-control-file" type="file"
                  name="webAppFile" files.bind="webAppFile" required accept="application/zip">
         </div>
-        <button type="submit" class="btn text-white mb-2">Install Web App</button>
+        <button type="submit" class="btn text-white mb-2" t="Install Web App">Install Web App</button>
 
       </form>
 
@@ -128,7 +121,7 @@
           <input class="form-control-file" type="file"
                  name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
         </div>
-        <button type="submit" class="btn text-white mb-2">Install Middleware</button>
+        <button type="submit" class="btn text-white mb-2" t="Install Middleware">Install Middleware</button>
 
       </form>
 
@@ -149,7 +142,7 @@
 
 
       <form hide.bind="show">
-        <h4 t="Install chaincodes">Install chaincodes</h4>
+        <h4 t="Instantiate chaincode">Instantiate chaincode</h4>
         <div class="row">
           <div class="form-group mb-2 ml-3">
             <label for="instCh" t="Chaincode for instantiate">Chaincode for instantiate</label>
@@ -197,7 +190,7 @@
           </div>
         </form>
 
-        <button type="submit" class="btn text-white mb-2" t="Instantiate Chaincode" click.trigger="initChaincode()">
+        <button type="submit" class="btn text-white mb-2" t="Instantiate chaincode" click.trigger="initChaincode()">
           Instantiate Chaincode
         </button>
         <button type="submit" class="btn text-white mb-2" t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
