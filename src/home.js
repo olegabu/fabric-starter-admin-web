@@ -109,6 +109,7 @@ export class Home {
 
   initChaincode() {
     if (this.selectedChain) {
+      this.alertService.info('Send instantiate request');
       let formData = new FormData();
       if (this.privateCollectionFile) {
         for (let i = 0; i < this.privateCollectionFile.length; i++) {
@@ -133,6 +134,7 @@ export class Home {
 
   upgradeChaincode() {
     if (this.selectedChain) {
+      this.alertService.info('Send upgrade request');
       let formData = new FormData();
       if (this.privateCollectionFile) {
         for (let i = 0; i < this.privateCollectionFile.length; i++) {
