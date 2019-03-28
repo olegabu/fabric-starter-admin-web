@@ -200,7 +200,7 @@ export class ChaincodeService {
       this.fetch(url, null, 'get', org, username).then(j => {
         const test = j.chaincodes;
         const chaincode = test.map(o => {
-          return o.name;
+          return o.name + ':' + o.version;
         });
         resolve(chaincode);
       })
@@ -216,7 +216,6 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       this.fetch(url, null, 'get', org, username).then(j => {
         const allChannel = j.map(o => {
-          console.log(o);
           return o.name + ':' + o.version;
         });
         resolve(allChannel);
@@ -297,26 +296,26 @@ export class ChaincodeService {
     });
   }
 
-  upgradeChaincode(channel, chaincode, language, version, fcn, args, policy, collections, org, username) {
+  upgradeChaincode(file, channel, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes/upgrade`);
-    const params = {
-      channelId: channel,
-      chaincodeId: chaincode,
-      waitForTransactionEvent: true
-    };
-    params.chaincodeType = language;
-    params.chaincodeVersion = version;
-    if (fcn)
-      params.fcn = fcn;
-    if (args)
-      params.args = args.trim().split(" ");
-    if (policy)
-      params.policy = policy;
-    if (collections)
-      params.collection = collections;
+    // const params = {
+    //   channelId: channel,
+    //   chaincodeId: chaincode,
+    //   waitForTransactionEvent: true
+    // };
+    // params.chaincodeType = language;
+    // params.chaincodeVersion = version;
+    // if (fcn)
+    //   params.fcn = fcn;
+    // if (args)
+    //   params.args = args.trim().split(" ");
+    // if (policy)
+    //   params.policy = policy;
+    // if (collections)
+    //   params.collection = collections;
     return new Promise((resolve, reject) => {
-      this.fetch(url, params, 'post', org, username).then(j => {
+      this.fetchForFile(url, file, 'post', org, username).then(j => {
         resolve(j);
       })
         .catch(err => {
@@ -325,27 +324,11 @@ export class ChaincodeService {
     });
   }
 
-  instantiateChaincode(channel, chaincode, language, version, fcn, args, policy, collections, org, username) {
+  instantiateChaincode(file, channel, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes`);
-    const params = {
-      channelId: channel,
-      chaincodeId: chaincode,
-      waitForTransactionEvent: true
-    };
-    params.chaincodeType = language;
-    params.chaincodeVersion = version;
-    if (fcn)
-      params.fcn = fcn;
-    if (args)
-      params.args = args.trim().split(" ");
-    if (policy) {
-      params.policy = policy;
-    }
-    if (collections)
-      params.collection = collections;
     return new Promise((resolve, reject) => {
-      this.fetch(url, params, 'post', org, username).then(j => {
+      this.fetchForFile(url, file, 'post', org, username).then(j => {
         resolve(j);
       })
         .catch(err => {

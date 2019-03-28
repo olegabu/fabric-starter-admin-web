@@ -37,7 +37,6 @@ export class Home {
   lastTx = null;
   version = null;
   instLanguage = 'node';
-  instVersion = null;
   cert = true;
   endorse = [];
   consortiumInviteeIP = null;
@@ -48,6 +47,7 @@ export class Home {
   middlewareFile = null;
   policy = null;
   collections = null;
+  privateCollectionFile = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -109,16 +109,48 @@ export class Home {
 
   initChaincode() {
     if (this.selectedChain) {
-      this.alertService.info('Send instantiate request');
-      this.chaincodeService.instantiateChaincode(this.oneChannel, this.selectedChain.slice(0, this.selectedChain.indexOf(':')), this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs, this.policy, this.collections);
+      let formData = new FormData();
+      if (this.privateCollectionFile) {
+        for (let i = 0; i < this.privateCollectionFile.length; i++) {
+          formData.append('file', this.privateCollectionFile[i]);
+        }
+      }
+      formData.append('channelId', this.oneChannel);
+      formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
+      formData.append('waitForTransactionEvent', 'true');
+      formData.append('chaincodeType', this.instLanguage || 'node');
+      formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
+      if (this.initFcn)
+        formData.append('fcn', this.initFcn);
+      if (this.initArgs)
+        formData.append('args', this.initArgs);
+      if (this.policy)
+        formData.append('policy', this.policy);
+      this.chaincodeService.instantiateChaincode(formData, this.oneChannel);
     } else
       this.alertService.error('Select chaincode');
   }
 
   upgradeChaincode() {
     if (this.selectedChain) {
-      this.alertService.info('Send instantiate request');
-      this.chaincodeService.upgradeChaincode(this.oneChannel, this.selectedChain.slice(0, this.selectedChain.indexOf(':')), this.instLanguage || 'node', this.instVersion || '1.0', this.initFcn, this.initArgs, this.policy, this.collections);
+      let formData = new FormData();
+      if (this.privateCollectionFile) {
+        for (let i = 0; i < this.privateCollectionFile.length; i++) {
+          formData.append('file', this.privateCollectionFile[i]);
+        }
+      }
+      formData.append('channelId', this.oneChannel);
+      formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
+      formData.append('waitForTransactionEvent', 'true');
+      formData.append('chaincodeType', this.instLanguage || 'node');
+      formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
+      if (this.initFcn)
+        formData.append('fcn', this.initFcn);
+      if (this.initArgs)
+        formData.append('args', this.initArgs);
+      if (this.policy)
+        formData.append('policy', this.policy);
+      this.chaincodeService.upgradeChaincode(formData, this.oneChannel);
     } else
       this.alertService.error('Select chaincode');
   }
@@ -165,7 +197,7 @@ export class Home {
 
   getInvoke() {
     Home.clearAll();
-    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode, this.fnc, this.value, this.targs).then(invoke => {
+    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode.slice(0, this.selectedChain.indexOf(':')), this.fnc, this.value, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       Home.output(invoke, 'res');
     });
@@ -173,7 +205,7 @@ export class Home {
 
   getQuery() {
     Home.clearAll();
-    this.chaincodeService.query(this.oneChannel, this.oneChaincode, this.fnc, this.value, this.targs).then(query => {
+    this.chaincodeService.query(this.oneChannel, this.oneChaincode.slice(0, this.selectedChain.indexOf(':')), this.fnc, this.value, this.targs).then(query => {
       this.lastTx = query;
       Home.output(query, 'res');
     });
@@ -263,7 +295,6 @@ export class Home {
   addToConsortium() {
     this.consortiumService.inviteByName(this.consortiumInviteeName).then((result) => {
       // this.consortiumService.query()
-      console.log(result);
       this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
       this.queryConsortium();
     });

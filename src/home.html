@@ -171,11 +171,6 @@
               <option value="java">java</option>
             </select>
           </div>
-          <div class="form-group mb-2 mr-4 ml-3">
-            <label for="version" t="Version">Version:</label>
-            <input class="form-control" id="version" type="text" value.bind="instVersion"
-                   placeholder="1.0">
-          </div>
           <div class="form-group mb-2 ml-3 mr-3">
             <label for="fcn" t="Function">Function</label>
             <input class="form-control" id="fcn" type="text" value.bind="initFcn"
@@ -188,24 +183,19 @@
           <textarea class="form-control" id="arg" type="text" value.bind="initArgs"
                     placeholder="a 10 b 5"></textarea>
         </div>
-        <!--<div class="form-group mb-2">-->
-          <!--<label for="policy" t="Policy">Policy</label>-->
-          <!--<textarea class="form-control" style="height: 230px" id="policy" type="text" value.bind="policy"-->
-                    <!--placeholder="{-->
-    <!--identities: [-->
-        <!--{ role: { name: &quot;member&quot;, mspId: &quot;org1&quot; }},-->
-        <!--{ role: { name: &quot;member&quot;, mspId: &quot;org2&quot; }}-->
-    <!--],-->
-    <!--policy: {-->
-       <!--&quot;1-of&quot;: [{ &quot;signed-by&quot;: 0 }, { &quot;signed-by&quot;: 1 }]-->
-    <!--}-->
-<!--}"></textarea>-->
-        <!--</div>-->
+        <div class="form-group mb-2">
+          <label for="policy" t="Policy">Policy</label>
+          <textarea class="form-control" style="height:100px" id="policy" type="text" value.bind="policy"
+                    placeholder="{&quot;identities&quot;:[{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org1&quot;}},{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org2&quot;}}],&quot;policy&quot;:{&quot;1-of&quot;:[{&quot;signed-by&quot;:0},{&quot;signed-by&quot;:1}]}}"></textarea>
+        </div>
 
-        <!--<div class="form-group mb-2">-->
-          <!--<label for="collections" t="Collections">Collections</label>-->
-          <!--<textarea class="form-control" id="collections" type="text" value.bind="collections"></textarea>-->
-        <!--</div>-->
+        <form>
+          <div class="form-group">
+            <label for="collection" t="Collection">Collection</label>
+            <input class="form-control-file" id="collection" type="file"
+                   name="webAppFile" files.bind="privateCollectionFile" required accept="application/json">
+          </div>
+        </form>
 
         <button type="submit" class="btn text-white mb-2" t="Instantiate Chaincode" click.trigger="initChaincode()">
           Instantiate Chaincode
