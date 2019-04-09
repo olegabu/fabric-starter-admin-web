@@ -12,42 +12,54 @@ let log = LogManager.getLogger('Home');
 
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
 export class Home {
-  channelList = [];
-  chaincodeList = [];
-  orgList = [];
-  installedChain = [];
+//Blocks
   blocks = [];
-  targets = [];
-  oneChannel = null;
-  oneChaincode = null;
-  targs = [];
+//Channels
+  channelList = [];
+  channel = null;
+  channelJoin = null;
+  channelNew = null;
+//Consortium
+  consortiumInviteeIP = null;
+  consortiumInviteeName = null;
+  consortiumMembersList = [];
+//Install Chaincode
+  installLanguage = 'node';
+  installedChaincodes = [];
+  installVersion = null;
+  chaincodeFile = null;
+//Instantiate chaincodes
+  selectedChaincode = null;
+  selectedChain = null;
+  initLanguage = 'node';
+  initFcn = null;
+  initArgs = null;
+  chaincodeList = [];
+  policy = null;
+  privateCollectionFile = null;
+//ADD orgs to channel
+  orgList = [];
   newOrg = null;
+//Uploaded WebApps
+  installedWebApps = [];
+  webAppFile = null;
+//Uploaded Middlewares
+  installedMiddlewares = [];
+  middlewareFile = null;
+//Operation
+  operation = false;
   fnc = null;
   args = null;
   value = null;
-  selectedChain = null;
-  oneCh = null;
-  file = null;
-  initFcn = null;
-  initArgs = null;
-  block = null;
-  joinCh = null;
-  show = true;
-  language = 'node';
   lastTx = null;
-  version = null;
-  instLanguage = 'node';
   cert = true;
   endorse = [];
-  consortiumInviteeIP = null;
-  consortiumInviteeName = null;
-  installedWebApps = [];
-  webAppFile = null;
-  installedMiddlewares = [];
-  middlewareFile = null;
-  policy = null;
-  collections = null;
-  privateCollectionFile = null;
+  targets = [];
+  targs = [];
+
+  block = null;
+  show = true;
+
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -67,9 +79,9 @@ export class Home {
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
-      if (o.channel_id === this.oneChannel)
+      if (o.channel_id === this.channel)
         this.updateBlock();
-      if (this.oneChannel) {
+      if (this.channel) {
         this.queryChaincodes();
         this.queryOrgs();
         this.queryPeers();
@@ -89,18 +101,18 @@ export class Home {
   }
 
   addChannel() {
-    this.chaincodeService.addChannel(this.oneCh);
+    this.chaincodeService.addChannel(this.channelNew);
     this.channelList.sort();
-    this.oneCh = null;
+    this.channelNew = null;
   }
 
   installChaincode() {
     let formData = new FormData();
-    for (let i = 0; i < this.file.length; i++) {
-      formData.append('file', this.file[i]);
+    for (let i = 0; i < this.chaincodeFile.length; i++) {
+      formData.append('file', this.chaincodeFile[i]);
       formData.append('targets', this.targs);
-      formData.append('version', this.version || '1.0');
-      formData.append('language', this.language);
+      formData.append('version', this.installVersion || '1.0');
+      formData.append('language', this.installLanguage);
       this.chaincodeService.installChaincode(formData).then(j => {
         this.queryInstalledChaincodes();
       });
@@ -116,10 +128,10 @@ export class Home {
           formData.append('file', this.privateCollectionFile[i]);
         }
       }
-      formData.append('channelId', this.oneChannel);
+      formData.append('channelId', this.channel);
       formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
       formData.append('waitForTransactionEvent', 'true');
-      formData.append('chaincodeType', this.instLanguage || 'node');
+      formData.append('chaincodeType', this.initLanguage || 'node');
       formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
       if (this.initFcn)
         formData.append('fcn', this.initFcn);
@@ -127,7 +139,7 @@ export class Home {
         formData.append('args', this.initArgs);
       if (this.policy)
         formData.append('policy', this.policy);
-      this.chaincodeService.instantiateChaincode(formData, this.oneChannel);
+      this.chaincodeService.instantiateChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
   }
@@ -141,10 +153,10 @@ export class Home {
           formData.append('file', this.privateCollectionFile[i]);
         }
       }
-      formData.append('channelId', this.oneChannel);
+      formData.append('channelId', this.channel);
       formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
       formData.append('waitForTransactionEvent', 'true');
-      formData.append('chaincodeType', this.instLanguage || 'node');
+      formData.append('chaincodeType', this.initLanguage || 'node');
       formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
       if (this.initFcn)
         formData.append('fcn', this.initFcn);
@@ -152,21 +164,21 @@ export class Home {
         formData.append('args', this.initArgs);
       if (this.policy)
         formData.append('policy', this.policy);
-      this.chaincodeService.upgradeChaincode(formData, this.oneChannel);
+      this.chaincodeService.upgradeChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
   }
 
   queryChaincodes() {
     this.show = false;
-    this.chaincodeService.getChaincodes(this.oneChannel).then(chaincodes => {
+    this.chaincodeService.getChaincodes(this.channel).then(chaincodes => {
       this.chaincodeList = chaincodes;
     });
   }
 
   queryPeers() {
     this.targets = [];
-    this.chaincodeService.getPeersForOrgOnChannel(this.oneChannel).then(peers => {
+    this.chaincodeService.getPeersForOrgOnChannel(this.channel).then(peers => {
       for (let i = 0; i < peers.length; i++) {
         this.targets.push(peers[i]);
       }
@@ -174,7 +186,7 @@ export class Home {
   }
 
   queryOrgs() {
-    this.chaincodeService.getOrgs(this.oneChannel).then(orgs => {
+    this.chaincodeService.getOrgs(this.channel).then(orgs => {
       this.orgList = orgs;
       this.orgList.sort();
     });
@@ -182,24 +194,24 @@ export class Home {
 
   queryInstalledChaincodes() {
     this.chaincodeService.getInstalledChaincodes().then(chain => {
-      this.installedChain = chain;
+      this.installedChaincodes = chain;
     });
   }
 
   addOrgToChannel() {
     this.alertService.info('Send invite');
-    this.chaincodeService.addOrgToChannel(this.oneChannel, this.newOrg);
+    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
     this.newOrg = null;
   }
 
   joinChannel() {
-    this.chaincodeService.joinChannel(this.joinCh);
-    this.joinCh = null;
+    this.chaincodeService.joinChannel(this.channelJoin);
+    this.channelJoin = null;
   }
 
   getInvoke() {
     Home.clearAll();
-    this.chaincodeService.invoke(this.oneChannel, this.oneChaincode.slice(0, this.selectedChain.indexOf(':')), this.fnc, this.value, this.targs).then(invoke => {
+    this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, this.value, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       Home.output(invoke, 'res');
     });
@@ -207,7 +219,7 @@ export class Home {
 
   getQuery() {
     Home.clearAll();
-    this.chaincodeService.query(this.oneChannel, this.oneChaincode.slice(0, this.selectedChain.indexOf(':')), this.fnc, this.value, this.targs).then(query => {
+    this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, this.value, this.targs).then(query => {
       this.lastTx = query;
       Home.output(query, 'res');
     });
@@ -216,12 +228,12 @@ export class Home {
   queryBlocks() {
     this.blocks = [];
     let bl = [];
-    this.oneChaincode = null;
-    this.chaincodeService.getLastBlock(this.oneChannel).then(block => {
+    this.selectedChaincode = null;
+    this.chaincodeService.getLastBlock(this.channel).then(block => {
       for (let i = block - 5; i < block; i++) {
         if (i < 0)
           continue;
-        this.chaincodeService.getBlock(this.oneChannel, i).then(block => {
+        this.chaincodeService.getBlock(this.channel, i).then(block => {
           let txid = [];
           for (let j = 0; j < block.data.data.length; j++) {
             txid.push(block.data.data[j].payload.header.channel_header.tx_id);
@@ -243,8 +255,8 @@ export class Home {
     this.endorse = [];
     if (this.blocks.length > 4)
       this.blocks.splice(0, 1);
-    this.chaincodeService.getLastBlock(this.oneChannel).then(lastBlock => {
-      this.chaincodeService.getBlock(this.oneChannel, lastBlock - 1).then(block => {
+    this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
+      this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
         let txid = [];
         Home.output(block, 'json');
         for (let j = 0; j < block.data.data.length; j++) {

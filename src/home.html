@@ -1,102 +1,121 @@
 <template>
   <require from="css/style.css"></require>
 
-  <div style="height: 25px">
+  <div class="my-1" style="height: 25px">
     <div class="d-inline p-2 text-white mr-1" id="block" style="background-color: #000000;" repeat.for="o of blocks"
          data-toggle="tooltip" data-placement="left" title="${o.txid}">
       ${o.blockNumber}
     </div>
   </div>
 
-  <div class="row p-1  ">
+  <div class="row">
+
     <div class="col-md-4">
-      <h4 t="channelList">channelList</h4>
-      <div repeat.for="o of channelList">
-        <label>
-          <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChannel'
-                 change.delegate="queryChaincodes() || queryBlocks() || queryOrgs() || queryPeers() || getLastBlock()">
-          ${o}
-        </label>
-      </div>
 
-
-      <form class="form-inline" submit.delegate="addChannel()">
-        <div class="form-group mb-2 mr-3">
-          <input type="text" class="form-control" value.bind="oneCh" required placeholder="New channel">
+      <form>
+        <h4 t="channelList">channelList</h4>
+        <div repeat.for="o of channelList">
+          <label>
+            <input type="radio" value.bind="o" autocomplete="off" checked.bind='channel'
+                   change.delegate="queryChaincodes() || queryBlocks() || queryOrgs() || queryPeers() || getLastBlock()">
+            ${o}
+          </label>
         </div>
-        <button type="submit" class="btn text-white mb-2" t="Add channel">Add channel</button>
       </form>
 
-
-      <form class="form-inline" submit.delegate="joinChannel()">
-        <div class="form-group mb-2 mr-3">
-          <input type="text" class="form-control" value.bind="joinCh" required placeholder="Join channel">
+      <form submit.delegate="addChannel()">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <input type="text" class="form-control" value.bind="channelNew" required placeholder="New channel">
+          </div>
+          <div class="col-auto my-1">
+            <button type="submit" class="btn text-white" t="Add channel">Add channel</button>
+          </div>
         </div>
-        <button type="submit" class="btn text-white mb-2" t="Join channel">Join channel</button>
       </form>
 
-      <form submit.delegate="addToConsortium()" class="form-horizontal">
-        <div class="form-group">
-          <legend t="Consortium">Consortium</legend>
+      <form submit.delegate="joinChannel()">
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <input type="text" class="form-control" value.bind="channelJoin" required placeholder="Join channel">
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Join channel">Join channel</button>
+          </div>
         </div>
-        <table class="table table-bordered table-hover">
-          <thead>
-          <tr>
-            <th>Name</th>
-            <th>IP</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr repeat.for="org of consortiumMembersList">
-            <td>${org}</td>
-            <td></td>
-          </tr>
-          </tbody>
-        </table>
-        <div class="row">
-          <div class="form-group ml-3 mb-2 mr-3">
+      </form>
+
+      <form submit.delegate="addToConsortium()">
+        <h4 t="Consortium">Consortium</h4>
+        <div class="form-row align-items-center my-1">
+          <div class="col-10">
+            <table class="table table-bordered my-1">
+              <thead class="text-white" style="background-color: #000000">
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Ip</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr repeat.for="org of consortiumMembersList">
+                <td>${org}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
             <label for="ip" t="IP">IP</label>
             <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"
                    placeholder="IP address of org" autocomplete="off" required>
           </div>
-          <div class="form-group mb-2">
+          <div class="col-auto">
             <label for="name" t="Name">Name</label>
             <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
                    placeholder="Name of org" required>
           </div>
         </div>
-        <button type="submit" class="btn text-white mb-3" t="Invite">Invite</button>
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Invite">Invite</button>
+          </div>
+        </div>
       </form>
-
 
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
         <ul>
-          <li repeat.for="o of installedChain">${o}</li>
+          <li repeat.for="o of installedChaincodes">${o}</li>
         </ul>
-        <div class="form-group">
-          <input class="form-control-file" type="file"
-                 name="ChaincodeFile"
-                 files.bind="file" required accept="application/zip">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <input class="form-control-file" type="file"
+                   name="ChaincodeFile"
+                   files.bind="chaincodeFile" required accept="application/zip">
+          </div>
         </div>
-        <div class="row">
-          <div class="form-group mb-2 ml-3 mr-3">
-            <label for="uplanguage" t="Language">Language</label>
-            <select id="uplanguage" class="form-control" value.bind="language">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <label for="installLanguage" t="Language">Language</label>
+            <select id="installLanguage" class="form-control" value.bind="installLanguage">
               <option value="node">node</option>
               <option value="car">car</option>
               <option value="golang">golang</option>
               <option value="java">java</option>
             </select>
           </div>
-          <div class="form-group mb-2 mr-3">
-            <label for="upversion" t="Version">Version:</label>
-
-            <input type="text" id="upversion" class="form-control" value.bind="version" placeholder="1.0">
+          <div class="col-auto">
+            <label for="installVersion" t="Version">Version:</label>
+            <input type="text" id="installVersion" class="form-control" value.bind="installVersion" placeholder="1.0">
           </div>
         </div>
-        <button type="submit" class="btn text-white mb-2" t="Install chaincode">Install chaincode</button>
-
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Install chaincode">Install chaincode</button>
+          </div>
+        </div>
       </form>
 
       <form submit.delegate="installWebApp()">
@@ -104,12 +123,13 @@
         <ul>
           <li repeat.for="app of installedWebApps"><a href="/${app}">${app}</a></li>
         </ul>
-        <div class="form-group">
-          <input class="form-control-file" type="file"
-                 name="webAppFile" files.bind="webAppFile" required accept="application/zip">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <input class="form-control-file" type="file"
+                   name="webAppFile" files.bind="webAppFile" required accept="application/zip">
+          </div>
         </div>
-        <button type="submit" class="btn text-white mb-2" t="Install Web App">Install Web App</button>
-
+        <button type="submit" class="btn text-white my-1" t="Install Web App">Install Web App</button>
       </form>
 
       <form submit.delegate="installMiddleware()">
@@ -117,105 +137,113 @@
         <ul>
           <li repeat.for="item of installedMiddlewares">${item}</a></li>
         </ul>
-        <div class="form-group">
-          <input class="form-control-file" type="file"
-                 name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <input class="form-control-file" type="file"
+                   name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
+          </div>
         </div>
-        <button type="submit" class="btn text-white mb-2" t="Install Middleware">Install Middleware</button>
-
+        <button type="submit" class="btn text-white my-1" t="Install Middleware">Install Middleware</button>
       </form>
-
     </div>
 
+    <div class="col-md-4" hide.bind="show">
 
-    <div class="col-md-4">
-      <form hide.bind="show">
+      <form>
         <h4 t="chaincodeList">chaincodeList</h4>
         <div repeat.for="o of chaincodeList">
           <label>
-            <input type="radio" value.bind="o" autocomplete="off" checked.bind='oneChaincode'
+            <input type="radio" value.bind="o" autocomplete="off" checked.bind='selectedChaincode'
                    change.delegate="hideTx()">
             ${o}
           </label>
         </div>
       </form>
 
-
-      <form hide.bind="show">
+      <form>
         <h4 t="Instantiate chaincode">Instantiate chaincode</h4>
-        <div class="row">
-          <div class="form-group mb-2 ml-3">
-            <label for="instCh" t="Chaincode for instantiate">Chaincode for instantiate</label>
-            <select class="form-control" id="instCh" value.bind="selectedChain">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <label for="initChaincode" t="Chaincode for instantiate">Chaincode for instantiate</label>
+            <select class="form-control" id="initChaincode" value.bind="selectedChain">
               <option model.bind="null">Choose chaincode for instantiate</option>
-              <option repeat.for="chain of installedChain">
+              <option repeat.for="chain of installedChaincodes">
                 ${chain}
               </option>
             </select>
           </div>
         </div>
-        <div class="row">
-          <div class="form-group mb-2 ml-3">
-            <label for="language" t="Language">Language</label>
-            <select class="form-control" id="language" value.bind="instLanguage">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <label for="initLanguage" t="Language">Language</label>
+            <select class="form-control" id="initLanguage" value.bind="initLanguage">
               <option value="node">node</option>
               <option value="car">car</option>
               <option value="golang">golang</option>
               <option value="java">java</option>
             </select>
           </div>
-          <div class="form-group mb-2 ml-3 mr-3">
-            <label for="fcn" t="Function">Function</label>
-            <input class="form-control" id="fcn" type="text" value.bind="initFcn"
+          <div class="col-auto">
+            <label for="initFcn" t="Function">Function</label>
+            <input class="form-control" id="initFcn" type="text" value.bind="initFcn"
                    placeholder="init">
           </div>
         </div>
 
-        <div class="form-group mb-2">
-          <label for="arg" t="Arguments">Arguments</label>
-          <textarea class="form-control" id="arg" type="text" value.bind="initArgs"
-                    placeholder="a 10 b 5"></textarea>
+        <div class="form-row align-items-center">
+          <div class="col-10">
+            <label for="initArgs" t="Arguments">Arguments</label>
+            <textarea class="form-control" id="initArgs" type="text" value.bind="initArgs"
+                      placeholder="a 10 b 5"></textarea>
+          </div>
         </div>
-        <div class="form-group mb-2">
-          <label for="policy" t="Policy">Policy</label>
-          <textarea class="form-control" style="height:100px" id="policy" type="text" value.bind="policy"
-                    placeholder="{&quot;identities&quot;:[{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org1&quot;}},{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org2&quot;}}],&quot;policy&quot;:{&quot;1-of&quot;:[{&quot;signed-by&quot;:0},{&quot;signed-by&quot;:1}]}}"></textarea>
+        <div class="form-row align-items-center">
+          <div class="col-10">
+            <label for="policy" t="Policy">Policy</label>
+            <textarea class="form-control" style="height:100px" id="policy" type="text" value.bind="policy"
+                      placeholder="{&quot;identities&quot;:[{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org1&quot;}},{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org2&quot;}}],&quot;policy&quot;:{&quot;1-of&quot;:[{&quot;signed-by&quot;:0},{&quot;signed-by&quot;:1}]}}"></textarea>
+          </div>
         </div>
-
-        <form>
-          <div class="form-group">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
             <label for="collection" t="Collection">Collection</label>
             <input class="form-control-file" id="collection" type="file"
                    name="webAppFile" files.bind="privateCollectionFile" required accept="application/json">
           </div>
-        </form>
-
-        <button type="submit" class="btn text-white mb-2" t="Instantiate chaincode" click.trigger="initChaincode()">
-          Instantiate Chaincode
-        </button>
-        <button type="submit" class="btn text-white mb-2" t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
-          Upgrade Chaincode
-        </button>
+        </div>
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Instantiate chaincode" click.trigger="initChaincode()">
+              Instantiate Chaincode
+            </button>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
+              Upgrade Chaincode
+            </button>
+          </div>
+        </div>
       </form>
 
-
-      <form submit.delegate="addOrgToChannel()" hide.bind="show">
+      <form submit.delegate="addOrgToChannel()">
         <h4 t="orgList">orgList</h4>
         <ul>
           <li repeat.for="o of orgList">${o}</li>
         </ul>
-        <div class="row p-1  ">
-          <div class="form-group mb-2 mr-3 ml-3">
+        <div class="form-row align-items-center">
+          <div class="col-auto">
             <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
           </div>
-          <button type="submit" class="btn text-white mb-2" t="Add Organization to Channel">Add Organization to
-            Channel
-          </button>
+          <div class="col-auto">
+            <button type="submit" class="btn text-white" t="Add Organization to Channel">Add Organization to
+              Channel
+            </button>
+          </div>
         </div>
       </form>
     </div>
 
-    <div class="col-md-4" hide.bind="oneChaincode? false : true">
+    <div class="col-md-4" hide.bind="selectedChaincode? false : true">
       <h4 t="Targets">Targets</h4>
       <div repeat.for="o of targets">
         <label>
@@ -224,22 +252,34 @@
         </label>
       </div>
       <form>
-        <div class="form-group mb-2">
-          <label for="function" t="Function">Function</label>
-          <input class="form-control" id="function" type="text" value.bind="fnc" placeholder="put">
+        <div class="form-row align-items-center">
+          <div class="col-10">
+            <label for="invFunction" t="Function">Function</label>
+            <input class="form-control" id="invFunction" type="text" value.bind="fnc" placeholder="put">
+          </div>
         </div>
-        <div class="form-group mb-2">
-          <label for="value" t="Arguments">Value</label>
-          <textarea class="form-control" id="value" type="text" value.bind="value"
-                    placeholder="account 1 &quot;{name:&quot;one&quot;}&quot;"></textarea>
+        <div class="form-row align-items-center my-1">
+          <div class="col-10">
+            <label for="invValue" t="Arguments">Value</label>
+            <textarea class="form-control" id="invValue" type="text" value.bind="value"
+                      placeholder="account 1 &quot;{name:&quot;one&quot;}&quot;"></textarea>
+          </div>
         </div>
-        <button type="submit" class="btn text-white mr-3 mb-2"
-                click.trigger="getInvoke()">Invoke
-        </button>
-        <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
-          Query
-        </button>
+        <div class="form-row align-items-center">
+          <div class="col-auto">
+            <button type="submit" class="btn text-white mr-3 mb-2"
+                    click.trigger="getInvoke()">Invoke
+            </button>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
+              Query
+            </button>
+          </div>
+        </div>
       </form>
+
+
       <div class="form-group mb-2" hide.bind="lastTx? false : true">
         <h4 class="text" t="Transaction">Transaction</h4>
         <h6 class="text" t="Result">Result</h6>
@@ -272,5 +312,6 @@
         <pre id="json"></pre>
       </div>
     </div>
+
   </div>
 </template>
