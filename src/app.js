@@ -15,8 +15,7 @@ export class App {
 
   constructor(i18n, identityService, socketService, alertService, chaincodeService) {
     this.i18n = i18n;
-    // this.i18n.setLocale(navigator.language || 'en');
-    this.i18n.setLocale('ru');
+    this.i18n.setLocale(navigator.language || 'en');
     this.identityService = identityService;
     this.socketService = socketService;
     this.alertService = alertService;
