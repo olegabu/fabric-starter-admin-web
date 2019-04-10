@@ -51,14 +51,17 @@ export class Home {
   fnc = null;
   args = null;
   value = null;
-  lastTx = null;
-  cert = true;
-  endorse = [];
   targets = [];
   targs = [];
-
+//Info
+  lastTx = null;
+  creator = null;
+  creatorCert = null;
+  endorses = [];
+  endorsesCert = [];
   block = null;
-  show = true;
+  show = false;
+  qu = false;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -137,7 +140,7 @@ export class Home {
       if (this.initArgs)
         formData.append('args', this.initArgs);
       if (this.policy)
-        formData.append('policy', this.policy.replace(/\s/g,''));
+        formData.append('policy', this.policy.replace(/\s/g, ''));
       this.chaincodeService.instantiateChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
@@ -162,7 +165,7 @@ export class Home {
       if (this.initArgs)
         formData.append('args', this.initArgs);
       if (this.policy)
-        formData.append('policy', this.policy.replace(/\s/g,''));
+        formData.append('policy', this.policy.replace(/\s/g, ''));
       this.chaincodeService.upgradeChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
@@ -209,16 +212,23 @@ export class Home {
   }
 
   getInvoke() {
-    Home.clearAll();
+    this.clearAll();
+    this.qu = false;
+    this.lastTx = null;
+    this.show = true;
     let args = this.parseArgs(this.value);
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
+      this.qu = true;
       Home.output(invoke, 'res');
     });
   }
 
   getQuery() {
-    Home.clearAll();
+    this.clearAll();
+    this.lastTx = null;
+    this.show = true;
+    this.qu = false;
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
@@ -294,7 +304,7 @@ export class Home {
   }
 
   updateBlock() {
-    this.endorse = [];
+    this.endorses = [];
     if (this.blocks.length > 4)
       this.blocks.splice(0, 1);
     this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
@@ -306,17 +316,15 @@ export class Home {
           if (info.header.channel_header.tx_id === this.lastTx) {
             Home.parseBlock(info);
             this.decodeCert(info.header.signature_header.creator.IdBytes).then(o => {
-                Home.output(o, 'info');
-                Home.output(o.subject.commonName + '@' + o.issuer.organizationName, 'creatorName');
+                this.creator = o.subject.commonName + '@' + o.issuer.organizationName;
+                this.creatorCert = o;
               }
             );
-            Home.clear('endorsers');
-            Home.clear('endorsersCert');
             const endorsers = info.data.actions[0].payload.action.endorsements;
             for (let i = 0; i < endorsers.length; i++) {
               this.decodeCert(endorsers[i].endorser.IdBytes).then(o => {
-                Home.output(o.subject.commonName, 'endorsers');
-                Home.output(o, 'endorsersCert');
+                this.endorses.push(o.subject.commonName);
+                this.endorsesCert.push(o);
               });
             }
           }
@@ -331,10 +339,6 @@ export class Home {
     return this.chaincodeService.decodeCert(cert).then(o => {
       return o;
     });
-  }
-
-  showCert() {
-    this.cert ? this.cert = false : this.cert = true;
   }
 
   hideTx() {
@@ -387,8 +391,6 @@ export class Home {
   static output(inp, id) {
     const formatter = new JSONFormatter(inp);
     const el = document.getElementById(id);
-    if (id !== 'endorsers' && id !== 'endorsersCert')
-      this.clear(id);
     if (el)
       el.appendChild(formatter.render());
   }
@@ -401,10 +403,14 @@ export class Home {
     }
   }
 
-  static clearAll() {
-    Home.clear('endorsers');
-    Home.clear('endorsersCert');
-    Home.clear('creatorName');
+  clearAll() {
+    this.endorsesCert = [];
+    for (let i = 0; i < this.endorses.length; i++) {
+      console.log(this.endorses[i]);
+      let o = this.endorses[i];
+      Home.clear(o);
+    }
+    this.endorses = [];
     Home.clear('info');
     Home.clear('json');
     Home.clear('input');
@@ -447,5 +453,22 @@ export class Home {
       }
     }
     Home.output(rwset, 'reads');
+  }
+
+  queryCert(o, creator) {
+    const el = document.getElementById(o);
+    if (el && el.firstChild) {
+      while (el.firstChild)
+        el.removeChild(el.firstChild);
+    } else if (creator) {
+      Home.output(this.creatorCert, o);
+    } else {
+      for (let i = 0; i < this.endorsesCert.length; i++) {
+        if (this.endorsesCert[i].subject.commonName === o) {
+          Home.output(this.endorsesCert[i], o);
+        }
+      }
+    }
+
   }
 }

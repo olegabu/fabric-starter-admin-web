@@ -290,32 +290,39 @@
 
       <div class="form-group mb-2" hide.bind="!lastTx">
         <h4 class="text" t="Transaction">Transaction</h4>
-        <h6 class="text" t="Result">Result</h6>
+        <h5 class="text" t="Result">Result</h5>
         <pre id="res"></pre>
-        <h6 class="text" t="Input">Input</h6>
+        <h5 class="text" t="Input" hide.bind="!qu">Input</h5>
         <pre id="input"></pre>
-        <h6 class="text" t="ReadSet">ReadSet</h6>
+        <h5 class="text" t="ReadSet" hide.bind="!qu">ReadSet</h5>
         <pre id="reads"></pre>
-        <h6 class="text" t="WriteSet">WriteSet</h6>
+        <h5 class="text" t="WriteSet" hide.bind="!qu">WriteSet</h5>
         <pre id="writes"></pre>
       </div>
 
-      <div class="form-group mb-2">
-        <div hide.bind="!lastTx">
+      <div class="form-group mb-2" hide.bind="!qu">
+        <div>
           <h4 class="text" t="Endorsed">Endorsed</h4>
-          <h6 class="text" t="Creator">Creator</h6>
-          <pre id="creatorName" hide.bind="!cert"></pre>
-          <pre id="info" hide.bind="cert"></pre>
-          <h6 class="text" t="Endorsers">Endorsers</h6>
-          <pre id="endorsers" hide.bind="!cert"></pre>
-          <pre id="endorsersCert" hide.bind="cert"></pre>
-          <button type="submit" class="btn text-white mb-3" click.trigger="showCert()">
-            Show cert
-          </button>
+          <h5 class="text" t="Creator">Creator</h5>
+          <div>
+            ${creator}
+            <pre id="${creator}"></pre>
+            <button type="submit" class="btn btn-xs text-white" click.trigger="queryCert(creator, true)">
+              Show cert
+            </button>
+          </div>
+          <h5 class="text" t="Endorsers">Endorsers</h5>
+          <div repeat.for="o of endorses">
+            ${o}
+            <pre id="${o}"></pre>
+            <button type="submit" class="btn btn-xs text-white" click.trigger="queryCert(o)">
+              Show cert
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="form-group mb-2" hide.bind="!lastTx">
+      <div class="form-group mb-2" hide.bind="!qu">
         <h4 class="text" t="Block">Block</h4>
         <pre id="json"></pre>
       </div>
