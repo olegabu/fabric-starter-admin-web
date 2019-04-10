@@ -7,29 +7,29 @@ import {Backend, TCustomAttribute} from 'aurelia-i18n';
 export function configure(aurelia) {
 
   aurelia.use
-  .standardConfiguration()
-  .plugin('aurelia-i18n', (instance) => {
-    let aliases = ['t', 'i18n'];
-    // add aliases for 't' attribute
-    TCustomAttribute.configureAliases(aliases);
+    .standardConfiguration()
+    .plugin('aurelia-i18n', (instance) => {
+      let aliases = ['t', 'i18n'];
+      // add aliases for 't' attribute
+      TCustomAttribute.configureAliases(aliases);
 
-    // register backend plugin
-    instance.i18next.use(Backend.with(aurelia.loader));
-    // instance.i18next.use(Backend);
+      // register backend plugin
+      instance.i18next.use(Backend.with(aurelia.loader));
+      // instance.i18next.use(Backend);
 
-    return instance.setup({
-      backend: {                                  // <-- configure backend settings
-        loadPath: '../locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
-      },
-      attributes: aliases,
-      lng: 'en',
-      fallbackLng: 'en',
-      debug: false
-    });
-  })
-  .plugin('aurelia-table')
-  .plugin('aurelia-validation')
-  .feature('resources');
+      return instance.setup({
+        backend: {                                  // <-- configure backend settings
+          loadPath: '../locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
+        },
+        attributes: aliases,
+        lng: 'en',
+        fallbackLng: 'en',
+        debug: false
+      });
+    })
+    .plugin('aurelia-table')
+    .plugin('aurelia-validation')
+    .feature('resources');
 
   if (environment.debug) {
     aurelia.use.developmentLogging();

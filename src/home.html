@@ -45,44 +45,44 @@
         </div>
       </form>
 
-      <form submit.delegate="addToConsortium()">
-        <h4 t="Consortium">Consortium</h4>
-        <div class="form-row align-items-center my-1">
-          <div class="col-10">
-            <table class="table table-bordered my-1">
-              <thead class="text-white" style="background-color: #000000">
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Ip</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr repeat.for="org of consortiumMembersList">
-                <td>${org}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <!--<form submit.delegate="addToConsortium()">-->
+      <!--<h4 t="Consortium">Consortium</h4>-->
+      <!--<div class="form-row align-items-center my-1">-->
+      <!--<div class="col-10">-->
+      <!--<table class="table table-bordered my-1">-->
+      <!--<thead class="text-white" style="background-color: #000000">-->
+      <!--<tr>-->
+      <!--<th scope="col">Name</th>-->
+      <!--<th scope="col">Ip</th>-->
+      <!--</tr>-->
+      <!--</thead>-->
+      <!--<tbody>-->
+      <!--<tr repeat.for="org of consortiumMembersList">-->
+      <!--<td>${org}</td>-->
+      <!--</tr>-->
+      <!--</tbody>-->
+      <!--</table>-->
+      <!--</div>-->
+      <!--</div>-->
 
-        <div class="form-row align-items-center my-1">
-          <div class="col-auto">
-            <label for="ip" t="IP">IP</label>
-            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"
-                   placeholder="IP address of org" autocomplete="off" required>
-          </div>
-          <div class="col-auto">
-            <label for="name" t="Name">Name</label>
-            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
-                   placeholder="Name of org" required>
-          </div>
-        </div>
-        <div class="form-row align-items-center my-1">
-          <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Invite">Invite</button>
-          </div>
-        </div>
-      </form>
+      <!--<div class="form-row align-items-center my-1">-->
+      <!--<div class="col-auto">-->
+      <!--<label for="ip" t="IP">IP</label>-->
+      <!--<input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"-->
+      <!--placeholder="IP address of org" autocomplete="off" required>-->
+      <!--</div>-->
+      <!--<div class="col-auto">-->
+      <!--<label for="name" t="Name">Name</label>-->
+      <!--<input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"-->
+      <!--placeholder="Name of org" required>-->
+      <!--</div>-->
+      <!--</div>-->
+      <!--<div class="form-row align-items-center my-1">-->
+      <!--<div class="col-auto">-->
+      <!--<button type="submit" class="btn text-white" t="Invite">Invite</button>-->
+      <!--</div>-->
+      <!--</div>-->
+      <!--</form>-->
 
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
@@ -147,7 +147,7 @@
       </form>
     </div>
 
-    <div class="col-md-4" hide.bind="show">
+    <div class="col-md-4" hide.bind="!channel">
 
       <form>
         <h4 t="chaincodeList">chaincodeList</h4>
@@ -165,8 +165,8 @@
         <div class="form-row align-items-center">
           <div class="col-auto">
             <label for="initChaincode" t="Chaincode for instantiate">Chaincode for instantiate</label>
-            <select class="form-control" id="initChaincode" value.bind="selectedChain">
-              <option model.bind="null">Choose chaincode for instantiate</option>
+            <select class="form-control" id="initChaincode" value.bind="selectedChain" required>
+              <option selected disabled model.bind="null" value="">Choose chaincode for instantiate</option>
               <option repeat.for="chain of installedChaincodes">
                 ${chain}
               </option>
@@ -200,15 +200,23 @@
         <div class="form-row align-items-center">
           <div class="col-10">
             <label for="policy" t="Policy">Policy</label>
-            <textarea class="form-control" style="height:100px" id="policy" type="text" value.bind="policy"
-                      placeholder="{&quot;identities&quot;:[{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org1&quot;}},{&quot;role&quot;:{&quot;name&quot;:&quot;member&quot;,&quot;mspId&quot;:&quot;org2&quot;}}],&quot;policy&quot;:{&quot;1-of&quot;:[{&quot;signed-by&quot;:0},{&quot;signed-by&quot;:1}]}}"></textarea>
+            <textarea class="form-control" style="height:225px" id="policy" type="text" value.bind="policy"
+                      placeholder="{
+  &quot;identities&quot;: [
+            { &quot;role&quot;: { &quot;name&quot;: &quot;member&quot;, &quot;mspId&quot;: &quot;org1&quot; }},
+            { &quot;role&quot;: { &quot;name&quot;: &quot;member&quot;, &quot;mspId&quot;: &quot;org2&quot; }}
+  ],
+  &quot;policy&quot;: {
+            &quot;1-of&quot;: [{ &quot;signed-by&quot;: 0 }, { &quot;signed-by&quot;: 1 }]
+  }
+}"></textarea>
           </div>
         </div>
         <div class="form-row align-items-center">
           <div class="col-auto">
             <label for="collection" t="Collection">Collection</label>
             <input class="form-control-file" id="collection" type="file"
-                   name="webAppFile" files.bind="privateCollectionFile" required accept="application/json">
+                   name="webAppFile" files.bind="privateCollectionFile" accept="application/json">
           </div>
         </div>
         <div class="form-row align-items-center my-1">
@@ -243,32 +251,33 @@
       </form>
     </div>
 
-    <div class="col-md-4" hide.bind="selectedChaincode? false : true">
-      <h4 t="Targets">Targets</h4>
-      <div repeat.for="o of targets">
-        <label>
-          <input type="checkbox" value.bind="o" checked.bind="targs">
-          ${o}
-        </label>
-      </div>
+    <div class="col-md-4" hide.bind="!selectedChaincode">
+
       <form>
+        <h4 t="Targets">Targets</h4>
+        <div repeat.for="o of targets">
+          <label>
+            <input type="checkbox" value.bind="o" checked.bind="targs">
+            ${o}
+          </label>
+        </div>
         <div class="form-row align-items-center">
           <div class="col-10">
             <label for="invFunction" t="Function">Function</label>
-            <input class="form-control" id="invFunction" type="text" value.bind="fnc" placeholder="put">
+            <input class="form-control" id="invFunction" type="text" value.bind="fnc" placeholder="put" required>
           </div>
         </div>
         <div class="form-row align-items-center my-1">
           <div class="col-10">
             <label for="invValue" t="Arguments">Value</label>
             <textarea class="form-control" id="invValue" type="text" value.bind="value"
-                      placeholder="account 1 &quot;{name:&quot;one&quot;}&quot;"></textarea>
+                      placeholder="&quot;account&quot; &quot;1&quot; {&quot;name&quot;:&quot;one&quot;}"></textarea>
           </div>
         </div>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <button type="submit" class="btn text-white mb-2"
-                    click.trigger="getInvoke()">Invoke
+            <button type="submit" class="btn text-white mb-2" click.trigger="getInvoke()">
+              Invoke
             </button>
           </div>
           <div class="col-auto">
@@ -279,8 +288,7 @@
         </div>
       </form>
 
-
-      <div class="form-group mb-2" hide.bind="lastTx? false : true">
+      <div class="form-group mb-2" hide.bind="!lastTx">
         <h4 class="text" t="Transaction">Transaction</h4>
         <h6 class="text" t="Result">Result</h6>
         <pre id="res"></pre>
@@ -293,21 +301,21 @@
       </div>
 
       <div class="form-group mb-2">
-        <div hide.bind="lastTx? false : true">
+        <div hide.bind="!lastTx">
           <h4 class="text" t="Endorsed">Endorsed</h4>
           <h6 class="text" t="Creator">Creator</h6>
-          <pre id="creatorName" hide.bind="cert? false : true"></pre>
-          <pre id="info" hide.bind="cert? true : false"></pre>
+          <pre id="creatorName" hide.bind="!cert"></pre>
+          <pre id="info" hide.bind="cert"></pre>
           <h6 class="text" t="Endorsers">Endorsers</h6>
-          <pre id="endorsers" hide.bind="cert? false : true"></pre>
-          <pre id="endorsersCert" hide.bind="cert? true : false"></pre>
+          <pre id="endorsers" hide.bind="!cert"></pre>
+          <pre id="endorsersCert" hide.bind="cert"></pre>
           <button type="submit" class="btn text-white mb-3" click.trigger="showCert()">
             Show cert
           </button>
         </div>
       </div>
 
-      <div class="form-group mb-2" hide.bind="lastTx? false : true">
+      <div class="form-group mb-2" hide.bind="!lastTx">
         <h4 class="text" t="Block">Block</h4>
         <pre id="json"></pre>
       </div>

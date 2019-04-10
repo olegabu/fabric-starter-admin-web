@@ -60,7 +60,6 @@ export class Home {
   block = null;
   show = true;
 
-
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
@@ -72,7 +71,7 @@ export class Home {
   }
 
   attached() {
-    this.queryConsortium();
+    // this.queryConsortium();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();
@@ -138,7 +137,7 @@ export class Home {
       if (this.initArgs)
         formData.append('args', this.initArgs);
       if (this.policy)
-        formData.append('policy', this.policy);
+        formData.append('policy', this.policy.replace(/\s/g,''));
       this.chaincodeService.instantiateChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
@@ -163,7 +162,7 @@ export class Home {
       if (this.initArgs)
         formData.append('args', this.initArgs);
       if (this.policy)
-        formData.append('policy', this.policy);
+        formData.append('policy', this.policy.replace(/\s/g,''));
       this.chaincodeService.upgradeChaincode(formData, this.channel);
     } else
       this.alertService.error('Select chaincode');
@@ -211,7 +210,8 @@ export class Home {
 
   getInvoke() {
     Home.clearAll();
-    this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, this.value, this.targs).then(invoke => {
+    let args = this.parseArgs(this.value);
+    this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       Home.output(invoke, 'res');
     });
@@ -219,10 +219,52 @@ export class Home {
 
   getQuery() {
     Home.clearAll();
-    this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, this.value, this.targs).then(query => {
+    let args = this.parseArgs(this.value);
+    this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
       Home.output(query, 'res');
     });
+  }
+
+  parseArgs(value) {
+    let args = [];
+    if (value) {
+      let someJson = value.substring(value.indexOf("\{"), value.lastIndexOf("\}") + 1);
+      let cutStr = value.slice(0, value.indexOf("\{")).trim();
+      let cutStrAfter = value.slice(value.indexOf("\}") + 1, value.length).trim();
+      let val = [];
+      if (someJson) {
+
+        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
+          val = cutStr.split("\"");
+        else
+          val = cutStr.split("\'");
+        for (let i = 0; i < val.length; i++) {
+          if (val[i] && val[i] !== " ")
+            args.push(val[i]);
+        }
+        args.push(someJson);
+        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
+          val = cutStrAfter.split("\"");
+        else
+          val = cutStrAfter.split("\'");
+        for (let i = 0; i < val.length; i++) {
+          if (val[i] && val[i] !== " ")
+            args.push(val[i]);
+        }
+      }
+      else {
+        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
+          val = cutStr.split("\"");
+        else
+          val = cutStr.split("\'");
+        for (let i = 0; i < val.length; i++) {
+          if (val[i] && val[i] !== " ")
+            args.push(val[i]);
+        }
+      }
+    }
+    return args;
   }
 
   queryBlocks() {

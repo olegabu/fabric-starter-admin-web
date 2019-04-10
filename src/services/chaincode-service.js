@@ -337,17 +337,16 @@ export class ChaincodeService {
     });
   }
 
-  query(channel, chaincode, func, key, peers, org, username) {
-    log.debug(`query channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, key);
+  query(channel, chaincode, fcn, args, peers, org, username) {
+    log.debug(`query channel=${channel} chaincode=${chaincode} fcn=${fcn} ${org} ${username}`, args);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
-      fcn: func,
-      targets: json(peers)
+      fcn: fcn,
+      targets: json(peers),
+      args: json(args)
     };
-    if (key)
-      params.args = json(key.trim().split(" "));
     return new Promise((resolve, reject) => {
       this.fetch(url, params, 'get', org, username).then(j => {
         resolve(j);
@@ -357,36 +356,18 @@ export class ChaincodeService {
     }, setTimeout(4000));
   }
 
-  invoke(channel, chaincode, func, value, peers, org, username) {
-    log.debug(`invoke channel=${channel} chaincode=${chaincode} func=${func} ${org} ${username}`, args);
+  invoke(channel, chaincode, fcn, args, peers, org, username) {
+    log.debug(`invoke channel=${channel} chaincode=${chaincode} fcn=${fcn} ${org} ${username}`, args);
     const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
     const params = {
       channelId: channel,
       chaincodeId: chaincode,
       targets: peers,
-      waitForTransactionEvent: true
+      waitForTransactionEvent: true,
+      args: args
     };
-    if (func)
-      params.fcn = func.trim();
-    let args = [];
-    if (value) {
-      let some_arg = value.substring(value.indexOf("\"") + 1, value.lastIndexOf("\""));
-      let cutstr = value.slice(0, value.indexOf("\"")).trim();
-      if (some_arg) {
-        let val = cutstr.split(" ");
-        for (let i = 0; i < val.length; i++) {
-          args.push(val[i]);
-        }
-        args.push(some_arg);
-        params.args = args;
-      } else {
-        let val = value.trim().split(" ");
-        for (let i = 0; i < val.length; i++) {
-          args.push(val[i]);
-        }
-        params.args = args;
-      }
-    }
+    if (fcn)
+      params.fcn = fcn.trim();
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         this.fetch(url, params, 'post', org, username).then(j => {

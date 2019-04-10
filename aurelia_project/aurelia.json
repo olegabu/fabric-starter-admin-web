@@ -162,6 +162,12 @@
       ]
     }
   },
+  "localesProcessor": {
+    "id": "none",
+    "displayName": "None",
+    "fileExtension": ".json",
+    "source": "../locales/**/*.json"
+  },
   "platform": {
     "id": "web",
     "displayName": "Web",
