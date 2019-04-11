@@ -29,7 +29,7 @@
             <input type="text" class="form-control" value.bind="channelNew" required placeholder="New channel">
           </div>
           <div class="col-auto my-1">
-            <button type="submit" class="btn text-white" t="Add channel">Add channel</button>
+            <button type="submit" class="btn" t="Add channel">Add channel</button>
           </div>
         </div>
       </form>
@@ -40,7 +40,7 @@
             <input type="text" class="form-control" value.bind="channelJoin" required placeholder="Join channel">
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Join channel">Join channel</button>
+            <button type="submit" class="btn " t="Join channel">Join channel</button>
           </div>
         </div>
       </form>
@@ -79,7 +79,7 @@
       <!--</div>-->
       <!--<div class="form-row align-items-center my-1">-->
       <!--<div class="col-auto">-->
-      <!--<button type="submit" class="btn text-white" t="Invite">Invite</button>-->
+      <!--<button type="submit" class="btn " t="Invite">Invite</button>-->
       <!--</div>-->
       <!--</div>-->
       <!--</form>-->
@@ -113,7 +113,7 @@
         </div>
         <div class="form-row align-items-center my-1">
           <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Install chaincode">Install chaincode</button>
+            <button type="submit" class="btn " t="Install chaincode">Install chaincode</button>
           </div>
         </div>
       </form>
@@ -129,7 +129,7 @@
                    name="webAppFile" files.bind="webAppFile" required accept="application/zip">
           </div>
         </div>
-        <button type="submit" class="btn text-white my-1" t="Install Web App">Install Web App</button>
+        <button type="submit" class="btn  my-1" t="Install Web App">Install Web App</button>
       </form>
 
       <form submit.delegate="installMiddleware()">
@@ -143,7 +143,7 @@
                    name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
           </div>
         </div>
-        <button type="submit" class="btn text-white my-1" t="Install Middleware">Install Middleware</button>
+        <button type="submit" class="btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
     </div>
 
@@ -221,12 +221,12 @@
         </div>
         <div class="form-row align-items-center my-1">
           <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Instantiate chaincode" click.trigger="initChaincode()">
+            <button type="submit" class="btn " t="Instantiate chaincode" click.trigger="initChaincode()">
               Instantiate Chaincode
             </button>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
+            <button type="submit" class="btn " t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
               Upgrade Chaincode
             </button>
           </div>
@@ -243,7 +243,7 @@
             <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn text-white" t="Add Organization to Channel">Add Organization to
+            <button type="submit" class="btn " t="Add Organization to Channel">Add Organization to
               Channel
             </button>
           </div>
@@ -276,12 +276,12 @@
         </div>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <button type="submit" class="btn text-white mb-2" click.trigger="getInvoke()">
+            <button type="submit" class="btn  mb-2" click.trigger="getInvoke()">
               Invoke
             </button>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn text-white mb-2" click.trigger="getQuery()">
+            <button type="submit" class="btn  mb-2" click.trigger="getQuery()">
               Query
             </button>
           </div>
@@ -307,7 +307,7 @@
           <div>
             ${creator}
             <pre id="${creator}"></pre>
-            <button type="submit" class="btn btn-xs text-white" click.trigger="queryCert(creator, true)">
+            <button type="submit" class="btn btn-xs" click.trigger="queryCert(creator, true)">
               Show cert
             </button>
           </div>
@@ -315,7 +315,7 @@
           <div repeat.for="o of endorses">
             ${o}
             <pre id="${o}"></pre>
-            <button type="submit" class="btn btn-xs text-white" click.trigger="queryCert(o)">
+            <button type="submit" class="btn btn-xs" click.trigger="queryCert(o)">
               Show cert
             </button>
           </div>

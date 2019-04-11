@@ -217,6 +217,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     let args = this.parseArgs(this.value);
+    this.alertService.info('Send invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       this.qu = true;
@@ -229,6 +230,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     this.qu = false;
+    this.alertService.info('Send query');
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
@@ -343,6 +345,7 @@ export class Home {
 
   hideTx() {
     this.lastTx = null;
+    this.qu = false;
   }
 
 
