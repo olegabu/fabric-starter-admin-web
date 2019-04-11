@@ -30,6 +30,7 @@
   "Instantiate chaincode": "Инициализация чейнкода",
   "Join channel": "Вступить в канал",
   "Add channel": "Добавить канал",
+  "New channel": "Новый канал",
   "Chaincode for instantiate": "Чейнкоды для инициализации",
   "Function": "Функция",
   "Arguments": "Аргументы",
@@ -55,5 +56,6 @@
   "Install Web App": "Установить веб приложение",
   "Install Middleware": "Установить промежуточное программное обеспечение",
   "Uploaded WebApps": "Загруженные веб-приложения",
-  "Uploaded Middlewares": "Загруженное промежуточное программное обеспечение"
+  "Uploaded Middlewares": "Загруженное промежуточное программное обеспечение",
+  "New Organizatoin": "Новая организация"
 }

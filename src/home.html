@@ -26,7 +26,7 @@
       <form submit.delegate="addChannel()">
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <input type="text" class="form-control" value.bind="channelNew" required placeholder="New channel">
+            <input type="text" class="form-control" value.bind="channelNew" required t="[placeholder]New channel">
           </div>
           <div class="col-auto my-1">
             <button type="submit" class="btn" t="Add channel">Add channel</button>
@@ -37,7 +37,7 @@
       <form submit.delegate="joinChannel()">
         <div class="form-row align-items-center my-1">
           <div class="col-auto">
-            <input type="text" class="form-control" value.bind="channelJoin" required placeholder="Join channel">
+            <input type="text" class="form-control" value.bind="channelJoin" required t="[placeholder]Join channel">
           </div>
           <div class="col-auto">
             <button type="submit" class="btn " t="Join channel">Join channel</button>
@@ -166,7 +166,6 @@
           <div class="col-auto">
             <label for="initChaincode" t="Chaincode for instantiate">Chaincode for instantiate</label>
             <select class="form-control" id="initChaincode" value.bind="selectedChain" required>
-              <option selected disabled model.bind="null" value="">Choose chaincode for instantiate</option>
               <option repeat.for="chain of installedChaincodes">
                 ${chain}
               </option>
@@ -240,7 +239,7 @@
         </ul>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <input type="text" class="form-control" value.bind="newOrg" required placeholder="New Organizatoin">
+            <input type="text" class="form-control" value.bind="newOrg" required t="[placeholder]New Organizatoin">
           </div>
           <div class="col-auto">
             <button type="submit" class="btn " t="Add Organization to Channel">Add Organization to

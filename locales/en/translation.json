@@ -24,6 +24,7 @@
   "Language": "Language",
   "Install chaincode": "Install chaincode",
   "Join channel": "Join channel",
+  "New channel": "New channel",
   "Add channel": "Add channel",
   "Chaincode for instantiate": "Chaincode for instantiate",
   "Function": "Function",
@@ -43,5 +44,6 @@
   "chaincodeList": "Chaincodes",
   "Uploaded Chaincodes": "Uploaded Chaincodes",
   "orgList": "Organizations",
-  "Targets": "Targets"
+  "Targets": "Targets",
+  "New Organizatoin": "New Organizatoin"
 }
