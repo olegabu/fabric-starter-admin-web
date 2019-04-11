@@ -95,7 +95,7 @@ export class ChaincodeService {
               this.alertService.info('session expired, logging you out');
               this.identityService.logout();
             } else {
-              this.alertService.error(msg);
+              this.alertService.error(`${msg}. Status: ${response.status}`);
             }
 
             reject(new Error(msg));
@@ -280,13 +280,8 @@ export class ChaincodeService {
 
   installChaincode(file, org, username) {
     const url = Config.getUrl(`chaincodes`);
-
     return new Promise((resolve, reject) => {
       this.fetchForFile(url, file, 'post', org, username).then(j => {
-        if (j.startsWith('Error')) {
-          this.alertService.error(j);
-          reject(j);
-        } else
           this.alertService.success(j);
         resolve(j);
       })
@@ -299,21 +294,6 @@ export class ChaincodeService {
   upgradeChaincode(file, channel, org, username) {
     log.debug(`getOrgs ${org} ${username}`);
     const url = Config.getUrl(`channels/${channel}/chaincodes/upgrade`);
-    // const params = {
-    //   channelId: channel,
-    //   chaincodeId: chaincode,
-    //   waitForTransactionEvent: true
-    // };
-    // params.chaincodeType = language;
-    // params.chaincodeVersion = version;
-    // if (fcn)
-    //   params.fcn = fcn;
-    // if (args)
-    //   params.args = args.trim().split(" ");
-    // if (policy)
-    //   params.policy = policy;
-    // if (collections)
-    //   params.collection = collections;
     return new Promise((resolve, reject) => {
       this.fetchForFile(url, file, 'post', org, username).then(j => {
         resolve(j);
