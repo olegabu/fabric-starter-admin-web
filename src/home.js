@@ -191,7 +191,9 @@ export class Home {
 
   addOrgToChannel() {
     this.alertService.info('Send invite');
-    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
+    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg).then(() => {
+      this.queryPeers();
+    });
     this.newOrg = null;
   }
 
