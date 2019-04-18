@@ -211,6 +211,7 @@ export class Home {
     this.alertService.info('Send invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
+      this.block = invoke.blockNumber;
       this.qu = true;
       Home.output(invoke, 'res');
     });
@@ -297,13 +298,14 @@ export class Home {
   }
 
   updateBlock() {
-    this.endorses = [];
-    if (this.blocks.length > 4)
-      this.blocks.splice(0, 1);
     this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
       this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
         let txid = [];
-        Home.output(block, 'json');
+        if (lastBlock - 1 + '' === this.block) {
+          this.endorses = [];
+          Home.clear('json');
+          Home.output(block, 'json');
+        }
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload;
           if (info.header.channel_header.tx_id === this.lastTx) {
@@ -323,7 +325,13 @@ export class Home {
           }
           txid.push(info.header.channel_header.tx_id);
         }
-        this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
+
+        if (!(lastBlock - 1 + '' === this.blocks[this.blocks.length - 1].blockNumber)) {
+          if (this.blocks.length > 4)
+            this.blocks.splice(0, 1);
+          this.blocks.push({blockNumber: lastBlock - 1 + '', txid: txid.join('; ')});
+        }
+
       });
     });
   }
@@ -400,7 +408,6 @@ export class Home {
   clearAll() {
     this.endorsesCert = [];
     for (let i = 0; i < this.endorses.length; i++) {
-      console.log(this.endorses[i]);
       let o = this.endorses[i];
       Home.clear(o);
     }
