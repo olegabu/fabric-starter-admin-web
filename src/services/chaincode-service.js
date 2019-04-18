@@ -37,6 +37,17 @@ export class ChaincodeService {
             'Authorization': 'Bearer ' + jwt
           }
         });
+        promise.then(response => {
+          if (!response.ok) {
+            if (response.status === 401) {
+              this.identityService.logout();
+            } else {
+              this.alertService.error(`${response.statusText}. Status: ${response.status}`);
+            }
+            const msg = `${response.statusText}. Status: ${response.status}`;
+            reject(new Error(msg));
+          }
+        });
       } else {
         promise = this.http.fetch(url, {
           method: method,
@@ -48,7 +59,6 @@ export class ChaincodeService {
       }
       promise.then(response => {
         response.json().then(j => {
-          log.debug('fetch', j);
           if (!response.ok) {
             const msg = `${response.statusText} ${j}`;
             if (response.status === 401) {
@@ -282,7 +292,7 @@ export class ChaincodeService {
     const url = Config.getUrl(`chaincodes`);
     return new Promise((resolve, reject) => {
       this.fetchForFile(url, file, 'post', org, username).then(j => {
-          this.alertService.success(j);
+        this.alertService.success(j);
         resolve(j);
       })
         .catch(err => {
