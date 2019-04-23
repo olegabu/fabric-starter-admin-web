@@ -103,6 +103,7 @@ export class Home {
   }
 
   addChannel() {
+    this.alertService.info('Send channel create request');
     this.chaincodeService.addChannel(this.channelNew);
     this.channelList.sort();
     this.channelNew = null;
@@ -198,6 +199,7 @@ export class Home {
   }
 
   joinChannel() {
+    this.alertService.info('Send join request');
     this.chaincodeService.joinChannel(this.channelJoin);
     this.channelJoin = null;
   }
@@ -226,6 +228,9 @@ export class Home {
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
+      for (let i = 0; i < query.length; i++) {
+        query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
+      }
       Home.output(query, 'res');
     });
   }

@@ -361,9 +361,10 @@ export class ChaincodeService {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         this.fetch(url, params, 'post', org, username).then(j => {
-          if (j.badPeers.length > 0) {
+          if (j.badPeers && j.badPeers.length > 0) {
             this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
-          }
+          } else if (j.badPeers)
+            delete j.badPeers;
           resolve(j);
         })
           .catch(err => {
