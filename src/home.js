@@ -63,6 +63,12 @@ export class Home {
   show = false;
   qu = false;
 
+//Load
+  load = true;
+  loadAdd = true;
+  loadJ = true;
+  loadI = true;
+
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
@@ -104,9 +110,26 @@ export class Home {
 
   addChannel() {
     this.alertService.info('Send channel create request');
-    this.chaincodeService.addChannel(this.channelNew);
+    this.loadAdd = false;
+    this.chaincodeService.addChannel(this.channelNew).then(() => {
+      this.loadAdd = true;
+    }).catch(() => {
+      this.loadAdd = true;
+    });
     this.channelList.sort();
     this.channelNew = null;
+  }
+
+  joinChannel() {
+    this.alertService.info('Send join request');
+    this.loadJ = false;
+    this.chaincodeService.joinChannel(this.channelJoin).then(j => {
+      console.log(j);
+      this.loadJ = true;
+    }).catch(() => {
+      this.loadJ = true;
+    });
+    this.channelJoin = null;
   }
 
   installChaincode() {
@@ -124,9 +147,14 @@ export class Home {
 
   initChaincode() {
     if (this.selectedChain) {
+      this.loadI = false;
       this.alertService.info('Send instantiate request');
       let formData = this.createUploadForm();
-      this.chaincodeService.instantiateChaincode(formData, this.channel);
+      this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
+        this.loadI = true;
+      }).catch(() => {
+        this.loadI = true;
+      });
     } else
       this.alertService.error('Select chaincode');
   }
@@ -135,7 +163,11 @@ export class Home {
     if (this.selectedChain) {
       this.alertService.info('Send upgrade request');
       let formData = this.createUploadForm();
-      this.chaincodeService.upgradeChaincode(formData, this.channel);
+      this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
+        this.loadI = true;
+      }).catch(() => {
+        this.loadI = true;
+      });
     } else
       this.alertService.error('Select chaincode');
   }
@@ -198,13 +230,9 @@ export class Home {
     this.newOrg = null;
   }
 
-  joinChannel() {
-    this.alertService.info('Send join request');
-    this.chaincodeService.joinChannel(this.channelJoin);
-    this.channelJoin = null;
-  }
 
   getInvoke() {
+    this.load = false;
     this.clearAll();
     this.qu = false;
     this.lastTx = null;
@@ -215,11 +243,15 @@ export class Home {
       this.lastTx = invoke.txid;
       this.block = invoke.blockNumber;
       this.qu = true;
+      this.load = true;
       Home.output(invoke, 'res');
+    }).catch(() => {
+      this.load = true;
     });
   }
 
   getQuery() {
+    this.load = false;
     this.clearAll();
     this.lastTx = null;
     this.show = true;
@@ -232,6 +264,9 @@ export class Home {
         query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
       }
       Home.output(query, 'res');
+      this.load = true;
+    }).catch(() => {
+      this.load = true;
     });
   }
 
