@@ -497,6 +497,8 @@ export class Home {
   }
 
   queryCert(o, creator) {
+    let btn = document.getElementById(o + 'b').childNodes[0].nodeValue.replace(/^\s/g, '').trim();
+    document.getElementById(o + 'b').childNodes[0].nodeValue = btn === 'Show cert' ? 'Hide cert' : 'Show cert';
     const el = document.getElementById(o);
     if (el && el.firstChild) {
       while (el.firstChild)

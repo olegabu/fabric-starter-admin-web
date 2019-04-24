@@ -326,7 +326,7 @@
           <div>
             ${creator}
             <pre id="${creator}"></pre>
-            <button type="submit" class="btn btn-xs" click.trigger="queryCert(creator, true)">
+            <button id="${creator}b" type="submit" class="btn btn-xs" click.trigger="queryCert(creator, true)">
               Show cert
             </button>
           </div>
@@ -334,7 +334,7 @@
           <div repeat.for="o of endorses">
             ${o}
             <pre id="${o}"></pre>
-            <button type="submit" class="btn btn-xs" click.trigger="queryCert(o)">
+            <button id="${o}b" type="submit" class="btn btn-xs" click.trigger="queryCert(o)">
               Show cert
             </button>
           </div>
