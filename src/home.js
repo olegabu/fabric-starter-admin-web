@@ -63,6 +63,12 @@ export class Home {
   show = false;
   qu = false;
 
+//Load
+  load = true;
+  loadAdd = true;
+  loadJ = true;
+  loadI = true;
+
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
@@ -103,9 +109,27 @@ export class Home {
   }
 
   addChannel() {
-    this.chaincodeService.addChannel(this.channelNew);
+    this.alertService.info('Send channel create request');
+    this.loadAdd = false;
+    this.chaincodeService.addChannel(this.channelNew).then(() => {
+      this.loadAdd = true;
+    }).catch(() => {
+      this.loadAdd = true;
+    });
     this.channelList.sort();
     this.channelNew = null;
+  }
+
+  joinChannel() {
+    this.alertService.info('Send join request');
+    this.loadJ = false;
+    this.chaincodeService.joinChannel(this.channelJoin).then(j => {
+      console.log(j);
+      this.loadJ = true;
+    }).catch(() => {
+      this.loadJ = true;
+    });
+    this.channelJoin = null;
   }
 
   installChaincode() {
@@ -123,25 +147,14 @@ export class Home {
 
   initChaincode() {
     if (this.selectedChain) {
+      this.loadI = false;
       this.alertService.info('Send instantiate request');
-      let formData = new FormData();
-      if (this.privateCollectionFile) {
-        for (let i = 0; i < this.privateCollectionFile.length; i++) {
-          formData.append('file', this.privateCollectionFile[i]);
-        }
-      }
-      formData.append('channelId', this.channel);
-      formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
-      formData.append('waitForTransactionEvent', 'true');
-      formData.append('chaincodeType', this.initLanguage || 'node');
-      formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
-      if (this.initFcn)
-        formData.append('fcn', this.initFcn);
-      if (this.initArgs)
-        formData.append('args', this.initArgs);
-      if (this.policy)
-        formData.append('policy', this.policy.replace(/\s/g, ''));
-      this.chaincodeService.instantiateChaincode(formData, this.channel);
+      let formData = this.createUploadForm();
+      this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
+        this.loadI = true;
+      }).catch(() => {
+        this.loadI = true;
+      });
     } else
       this.alertService.error('Select chaincode');
   }
@@ -149,26 +162,35 @@ export class Home {
   upgradeChaincode() {
     if (this.selectedChain) {
       this.alertService.info('Send upgrade request');
-      let formData = new FormData();
-      if (this.privateCollectionFile) {
-        for (let i = 0; i < this.privateCollectionFile.length; i++) {
-          formData.append('file', this.privateCollectionFile[i]);
-        }
-      }
-      formData.append('channelId', this.channel);
-      formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
-      formData.append('waitForTransactionEvent', 'true');
-      formData.append('chaincodeType', this.initLanguage || 'node');
-      formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
-      if (this.initFcn)
-        formData.append('fcn', this.initFcn);
-      if (this.initArgs)
-        formData.append('args', this.initArgs);
-      if (this.policy)
-        formData.append('policy', this.policy.replace(/\s/g, ''));
-      this.chaincodeService.upgradeChaincode(formData, this.channel);
+      let formData = this.createUploadForm();
+      this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
+        this.loadI = true;
+      }).catch(() => {
+        this.loadI = true;
+      });
     } else
       this.alertService.error('Select chaincode');
+  }
+
+  createUploadForm() {
+    let formData = new FormData();
+    if (this.privateCollectionFile) {
+      for (let i = 0; i < this.privateCollectionFile.length; i++) {
+        formData.append('file', this.privateCollectionFile[i]);
+      }
+    }
+    formData.append('channelId', this.channel);
+    formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
+    formData.append('waitForTransactionEvent', 'true');
+    formData.append('chaincodeType', this.initLanguage || 'node');
+    formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
+    if (this.initFcn)
+      formData.append('fcn', this.initFcn);
+    if (this.initArgs)
+      formData.append('args', this.initArgs);
+    if (this.policy)
+      formData.append('policy', this.policy.replace(/\s/g, ''));
+    return formData;
   }
 
   queryChaincodes() {
@@ -202,16 +224,15 @@ export class Home {
 
   addOrgToChannel() {
     this.alertService.info('Send invite');
-    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
+    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg).then(() => {
+      this.queryPeers();
+    });
     this.newOrg = null;
   }
 
-  joinChannel() {
-    this.chaincodeService.joinChannel(this.channelJoin);
-    this.channelJoin = null;
-  }
 
   getInvoke() {
+    this.load = false;
     this.clearAll();
     this.qu = false;
     this.lastTx = null;
@@ -220,12 +241,17 @@ export class Home {
     this.alertService.info('Send invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
+      this.block = invoke.blockNumber;
       this.qu = true;
+      this.load = true;
       Home.output(invoke, 'res');
+    }).catch(() => {
+      this.load = true;
     });
   }
 
   getQuery() {
+    this.load = false;
     this.clearAll();
     this.lastTx = null;
     this.show = true;
@@ -234,7 +260,13 @@ export class Home {
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
+      for (let i = 0; i < query.length; i++) {
+        query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
+      }
       Home.output(query, 'res');
+      this.load = true;
+    }).catch(() => {
+      this.load = true;
     });
   }
 
@@ -306,13 +338,14 @@ export class Home {
   }
 
   updateBlock() {
-    this.endorses = [];
-    if (this.blocks.length > 4)
-      this.blocks.splice(0, 1);
     this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
       this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
         let txid = [];
-        Home.output(block, 'json');
+        if (lastBlock - 1 + '' === this.block) {
+          this.endorses = [];
+          Home.clear('json');
+          Home.output(block, 'json');
+        }
         for (let j = 0; j < block.data.data.length; j++) {
           const info = block.data.data[j].payload;
           if (info.header.channel_header.tx_id === this.lastTx) {
@@ -332,7 +365,13 @@ export class Home {
           }
           txid.push(info.header.channel_header.tx_id);
         }
-        this.blocks.push({blockNumber: lastBlock - 1, txid: txid.join('; ')});
+
+        if (!(lastBlock - 1 + '' === this.blocks[this.blocks.length - 1].blockNumber)) {
+          if (this.blocks.length > 4)
+            this.blocks.splice(0, 1);
+          this.blocks.push({blockNumber: lastBlock - 1 + '', txid: txid.join('; ')});
+        }
+
       });
     });
   }
@@ -409,7 +448,6 @@ export class Home {
   clearAll() {
     this.endorsesCert = [];
     for (let i = 0; i < this.endorses.length; i++) {
-      console.log(this.endorses[i]);
       let o = this.endorses[i];
       Home.clear(o);
     }

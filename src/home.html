@@ -31,6 +31,11 @@
           <div class="col-auto my-1">
             <button type="submit" class="btn" t="Add channel">Add channel</button>
           </div>
+          <div class="col-auto my-1" hide.bind="loadAdd">
+            <div class="spinner-grow" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
         </div>
       </form>
 
@@ -41,6 +46,11 @@
           </div>
           <div class="col-auto">
             <button type="submit" class="btn " t="Join channel">Join channel</button>
+          </div>
+          <div class="col-auto my-1" hide.bind="loadJ">
+            <div class="spinner-grow" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </div>
         </div>
       </form>
@@ -229,6 +239,11 @@
               Upgrade Chaincode
             </button>
           </div>
+          <div class="col-auto my-1" hide.bind="loadI">
+            <div class="spinner-grow" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+          </div>
         </div>
       </form>
 
@@ -270,7 +285,7 @@
           <div class="col-10">
             <label for="invValue" t="Arguments">Value</label>
             <textarea class="form-control" id="invValue" type="text" value.bind="value"
-                      placeholder="&quot;account&quot; &quot;1&quot; {&quot;name&quot;:&quot;one&quot;}"></textarea>
+                      placeholder="&quot;account&quot; &quot;one two&quot; {JSON}"></textarea>
           </div>
         </div>
         <div class="form-row align-items-center">
@@ -283,6 +298,11 @@
             <button type="submit" class="btn  mb-2" click.trigger="getQuery()">
               Query
             </button>
+          </div>
+          <div class="col-auto" hide.bind="load">
+            <div class="spinner-grow" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
           </div>
         </div>
       </form>
@@ -326,6 +346,6 @@
         <pre id="json"></pre>
       </div>
     </div>
-
   </div>
+  <br>
 </template>
