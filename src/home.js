@@ -13,10 +13,10 @@ let log = LogManager.getLogger('Home');
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
 export class Home {
 //Blocks
-  blocks = [];
+  blocks = []; // list of blocks
 //Channels
-  channelList = [];
-  channel = null;
+  channelList = []; // list of channels
+  channel = null; // chosen channel
   channelJoin = null;
   channelNew = null;
 //Consortium
@@ -36,6 +36,7 @@ export class Home {
   initArgs = null;
   chaincodeList = [];
   policy = null;
+  orgs = [];
   privateCollectionFile = null;
 //ADD orgs to channel
   orgList = [];
@@ -68,6 +69,15 @@ export class Home {
   loadAdd = true;
   loadJ = true;
   loadI = true;
+
+  type = null;
+  policyType = ['any', 'all', 'majority'];
+  pol = true;
+  selectedRoles = [];
+  jsonPolicy = {
+    identities: [],
+    policy: {}
+  };
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -109,7 +119,7 @@ export class Home {
   }
 
   addChannel() {
-    this.alertService.info('Send channel create request');
+    this.alertService.info('Sent create channel request');
     this.loadAdd = false;
     this.chaincodeService.addChannel(this.channelNew).then(() => {
       this.loadAdd = true;
@@ -121,7 +131,7 @@ export class Home {
   }
 
   joinChannel() {
-    this.alertService.info('Send join request');
+    this.alertService.info('Sent join channel request');
     this.loadJ = false;
     this.chaincodeService.joinChannel(this.channelJoin).then(j => {
       console.log(j);
@@ -132,14 +142,21 @@ export class Home {
     this.channelJoin = null;
   }
 
+  queryInstalledChaincodes() {
+    this.chaincodeService.getInstalledChaincodes().then(chain => {
+      this.installedChaincodes = chain;
+    });
+  }
+
   installChaincode() {
+    this.alertService.info('Sent install chaincode request');
     let formData = new FormData();
     for (let i = 0; i < this.chaincodeFile.length; i++) {
       formData.append('file', this.chaincodeFile[i]);
       formData.append('targets', this.targs);
       formData.append('version', this.installVersion || '1.0');
       formData.append('language', this.installLanguage);
-      this.chaincodeService.installChaincode(formData).then(j => {
+      this.chaincodeService.installChaincode(formData).then(() => {
         this.queryInstalledChaincodes();
       });
     }
@@ -148,7 +165,7 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.loadI = false;
-      this.alertService.info('Send instantiate request');
+      this.alertService.info('Sent instantiate request');
       let formData = this.createUploadForm();
       this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
         this.loadI = true;
@@ -161,7 +178,7 @@ export class Home {
 
   upgradeChaincode() {
     if (this.selectedChain) {
-      this.alertService.info('Send upgrade request');
+      this.alertService.info('Sent upgrade request');
       let formData = this.createUploadForm();
       this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
         this.loadI = true;
@@ -173,6 +190,10 @@ export class Home {
   }
 
   createUploadForm() {
+    this.jsonPolicy = {
+      identities: [],
+      policy: {}
+    };
     let formData = new FormData();
     if (this.privateCollectionFile) {
       for (let i = 0; i < this.privateCollectionFile.length; i++) {
@@ -185,12 +206,43 @@ export class Home {
     formData.append('chaincodeType', this.initLanguage || 'node');
     formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
     if (this.initFcn)
-      formData.append('fcn', this.initFcn);
+      formData.append('fcn', this.initFcn || 'init');
     if (this.initArgs)
-      formData.append('args', this.initArgs);
-    if (this.policy)
-      formData.append('policy', this.policy.replace(/\s/g, ''));
+      formData.append('args', JSON.stringify(this.parseArgs(this.initArgs)));
+    console.log(JSON.stringify(this.parseArgs(this.initArgs)));
+    if (this.pol && this.type && this.orgs.length > 0) {
+      if (this.type === 'any')
+        this.jsonPolicy.policy["1-of"] = this.countOrgs(this.orgs.length);
+      else if (this.type === 'all')
+        this.jsonPolicy.policy[this.orgs.length + "-of"] = this.countOrgs(this.orgs.length);
+      else {
+        if ((this.orgs.length / 2) + 1 > this.orgs.length) {
+          this.alertService.error('Majority bigger than orgs count');
+          return;
+        }
+        this.jsonPolicy.policy[(this.orgs.length / 2) + 1 + "-of"] = this.countOrgs(this.orgs.length);
+      }
+      for (let i = 0; i < this.orgs.length; i++) {
+        if (this.selectedRoles.indexOf(this.orgs[i]) !== -1)
+          this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: this.orgs[i]}};
+        else
+          this.jsonPolicy.identities[i] = {role: {name: "member", mspId: this.orgs[i]}};
+      }
+      console.log(this.jsonPolicy);
+      formData.append('policy', JSON.stringify(this.jsonPolicy));
+      console.log(formData.getAll('policy'));
+    } else if (this.policy)
+      formData.append('policy', this.policy.replace(/\s/g, '').trim());
+
     return formData;
+  }
+
+  countOrgs(num) {
+    let array = [];
+    for (let i = 0; i < num; i++) {
+      array.push({"signed-by": i})
+    }
+    return array;
   }
 
   queryChaincodes() {
@@ -203,30 +255,20 @@ export class Home {
   queryPeers() {
     this.targets = [];
     this.chaincodeService.getPeersForOrgOnChannel(this.channel).then(peers => {
-      for (let i = 0; i < peers.length; i++) {
-        this.targets.push(peers[i]);
-      }
+      this.targets = peers;
     });
   }
 
   queryOrgs() {
     this.chaincodeService.getOrgs(this.channel).then(orgs => {
       this.orgList = orgs;
-      this.orgList.sort();
-    });
-  }
-
-  queryInstalledChaincodes() {
-    this.chaincodeService.getInstalledChaincodes().then(chain => {
-      this.installedChaincodes = chain;
+      this.orgList.splice(orgs.indexOf('orderer'), 1).sort();
     });
   }
 
   addOrgToChannel() {
-    this.alertService.info('Send invite');
-    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg).then(() => {
-      this.queryPeers();
-    });
+    this.alertService.info('Sent invite');
+    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
     this.newOrg = null;
   }
 
@@ -238,7 +280,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     let args = this.parseArgs(this.value);
-    this.alertService.info('Send invoke');
+    this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       this.block = invoke.blockNumber;
@@ -256,7 +298,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     this.qu = false;
-    this.alertService.info('Send query');
+    this.alertService.info('Sent query');
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
@@ -273,9 +315,9 @@ export class Home {
   parseArgs(value) {
     let args = [];
     if (value) {
-      let someJson = value.substring(value.indexOf("\{"), value.lastIndexOf("\}") + 1);
-      let cutStr = value.slice(0, value.indexOf("\{")).trim();
-      let cutStrAfter = value.slice(value.indexOf("\}") + 1, value.length).trim();
+      let someJson = value.substring(value.indexOf("\["), value.lastIndexOf("\]") + 1);
+      let cutStr = value.slice(0, value.indexOf("\[")).trim();
+      let cutStrAfter = value.slice(value.indexOf("\]") + 1, value.length).trim();
       let val = [];
       if (someJson) {
 
@@ -341,7 +383,7 @@ export class Home {
     this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
       this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
         let txid = [];
-        if (lastBlock - 1 + '' === this.block) {
+        if ((lastBlock - 1).toString() === this.block) {
           this.endorses = [];
           Home.clear('json');
           Home.output(block, 'json');
@@ -512,6 +554,9 @@ export class Home {
         }
       }
     }
+  }
 
+  select(value) {
+    this.pol = value;
   }
 }
