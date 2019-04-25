@@ -70,8 +70,8 @@ export class Home {
   loadJ = true;
   loadI = true;
 
-  type = null;
-  policyType = ['any', 'all', 'majority'];
+  type = 'none';
+  policyType = ['None', 'Any', 'All', 'Majority'];
   pol = true;
   selectedRoles = [];
   jsonPolicy = {
@@ -134,7 +134,6 @@ export class Home {
     this.alertService.info('Sent join channel request');
     this.loadJ = false;
     this.chaincodeService.joinChannel(this.channelJoin).then(j => {
-      console.log(j);
       this.loadJ = true;
     }).catch(() => {
       this.loadJ = true;
@@ -165,8 +164,14 @@ export class Home {
   initChaincode() {
     if (this.selectedChain) {
       this.loadI = false;
+      let formData;
+      try {
+        formData = this.createUploadForm();
+      } catch (e) {
+        this.alertService.error(e);
+        return;
+      }
       this.alertService.info('Sent instantiate request');
-      let formData = this.createUploadForm();
       this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
         this.loadI = true;
       }).catch(() => {
@@ -178,8 +183,14 @@ export class Home {
 
   upgradeChaincode() {
     if (this.selectedChain) {
+      let formData;
+      try {
+        formData = this.createUploadForm();
+      } catch (e) {
+        this.alertService.error(e);
+        return;
+      }
       this.alertService.info('Sent upgrade request');
-      let formData = this.createUploadForm();
       this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
         this.loadI = true;
       }).catch(() => {
@@ -209,28 +220,25 @@ export class Home {
       formData.append('fcn', this.initFcn || 'init');
     if (this.initArgs)
       formData.append('args', JSON.stringify(this.parseArgs(this.initArgs)));
-    console.log(JSON.stringify(this.parseArgs(this.initArgs)));
-    if (this.pol && this.type && this.orgs.length > 0) {
-      if (this.type === 'any')
-        this.jsonPolicy.policy["1-of"] = this.countOrgs(this.orgs.length);
-      else if (this.type === 'all')
-        this.jsonPolicy.policy[this.orgs.length + "-of"] = this.countOrgs(this.orgs.length);
+    if (this.pol && this.type && this.type !== 'None') {
+      let orgsLenght = this.orgs.length === 0 ? this.orgList : this.orgs;
+      if (this.type === 'Any')
+        this.jsonPolicy.policy["1-of"] = this.countOrgs(orgsLenght.length);
+      else if (this.type === 'All')
+        this.jsonPolicy.policy[orgsLenght.length + "-of"] = this.countOrgs(orgsLenght.length);
       else {
-        if ((this.orgs.length / 2) + 1 > this.orgs.length) {
-          this.alertService.error('Majority bigger than orgs count');
-          return;
+        if (parseInt((orgsLenght.length / 2), 10) + 1 > orgsLenght.length) {
+          throw Error('Majority bigger than orgs count')
         }
-        this.jsonPolicy.policy[(this.orgs.length / 2) + 1 + "-of"] = this.countOrgs(this.orgs.length);
+        this.jsonPolicy.policy[parseInt((orgsLenght.length / 2), 10) + 1 + "-of"] = this.countOrgs(orgsLenght.length);
       }
-      for (let i = 0; i < this.orgs.length; i++) {
-        if (this.selectedRoles.indexOf(this.orgs[i]) !== -1)
-          this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: this.orgs[i]}};
+      for (let i = 0; i < orgsLenght.length; i++) {
+        if (this.selectedRoles.indexOf(orgsLenght[i]) !== -1)
+          this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: orgsLenght[i]}};
         else
-          this.jsonPolicy.identities[i] = {role: {name: "member", mspId: this.orgs[i]}};
+          this.jsonPolicy.identities[i] = {role: {name: "member", mspId: orgsLenght[i]}};
       }
-      console.log(this.jsonPolicy);
       formData.append('policy', JSON.stringify(this.jsonPolicy));
-      console.log(formData.getAll('policy'));
     } else if (this.policy)
       formData.append('policy', this.policy.replace(/\s/g, '').trim());
 
@@ -261,8 +269,8 @@ export class Home {
 
   queryOrgs() {
     this.chaincodeService.getOrgs(this.channel).then(orgs => {
-      this.orgList = orgs;
-      this.orgList.splice(orgs.indexOf('orderer'), 1).sort();
+      this.orgList = orgs.sort();
+      this.orgList.splice(orgs.indexOf('orderer'), 1);
     });
   }
 
@@ -314,42 +322,80 @@ export class Home {
 
   parseArgs(value) {
     let args = [];
+    let kova = false;
+    let kovb = false;
+    let skoba = 0;
+    let skobb = 0;
+    let prob = false;
+    let arg = '';
     if (value) {
-      let someJson = value.substring(value.indexOf("\["), value.lastIndexOf("\]") + 1);
-      let cutStr = value.slice(0, value.indexOf("\[")).trim();
-      let cutStrAfter = value.slice(value.indexOf("\]") + 1, value.length).trim();
-      let val = [];
-      if (someJson) {
-
-        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
-          val = cutStr.split("\"");
-        else
-          val = cutStr.split("\'");
-        for (let i = 0; i < val.length; i++) {
-          if (val[i] && val[i] !== " ")
-            args.push(val[i]);
-        }
-        args.push(someJson);
-        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
-          val = cutStrAfter.split("\"");
-        else
-          val = cutStrAfter.split("\'");
-        for (let i = 0; i < val.length; i++) {
-          if (val[i] && val[i] !== " ")
-            args.push(val[i]);
-        }
-      }
-      else {
-        if (cutStr.indexOf("\"") > cutStr.indexOf("\'"))
-          val = cutStr.split("\"");
-        else
-          val = cutStr.split("\'");
-        for (let i = 0; i < val.length; i++) {
-          if (val[i] && val[i] !== " ")
-            args.push(val[i]);
-        }
+      for (let i = 0; i < value.length; i++) {
+        if (value[i] === '\'' && !kovb && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kova) {
+            kova = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            kova = true;
+          }
+        } else if (value[i] === '\"' && !kova && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kovb) {
+            kovb = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            kovb = true;
+          }
+        } else if (value[i] === '\[' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba++;
+          arg += value[i];
+        } else if (value[i] === '\]' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba--;
+          arg += value[i];
+          if (skoba === 0) {
+            try {
+              args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            } catch (e) {
+              args.push(arg.replace(/^\s/g, '').trim());
+            }
+            arg = '';
+          }
+        } else if (value[i] === '\{' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb++;
+          arg += value[i];
+        } else if (value[i] === '\}' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb--;
+          arg += value[i];
+          if (skobb === 0) {
+            args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            arg = '';
+          }
+        } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
+          if (prob && arg !== '') {
+            prob = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            prob = true;
+            if (arg !== '') {
+              args.push(arg.replace(/^\s/g, '').trim());
+              arg = '';
+            }
+          }
+        } else
+          arg += value[i];
       }
     }
+    if (arg !== '') {
+      args.push(arg.replace(/^\s/g, '').trim());
+    }
+    console.log(args);
     return args;
   }
 

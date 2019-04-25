@@ -57,5 +57,7 @@
   "Install Middleware": "Установить промежуточное программное обеспечение",
   "Uploaded WebApps": "Загруженные веб-приложения",
   "Uploaded Middlewares": "Загруженное промежуточное программное обеспечение",
-  "New Organizatoin": "Новая организация"
+  "New Organizatoin": "Новая организация",
+  "Endorsment policy": "Политика одобрения",
+  "Your json policy" : "Ваша json политика"
 }
