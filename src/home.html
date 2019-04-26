@@ -203,22 +203,78 @@
           <div class="col-10">
             <label for="initArgs" t="Arguments">Arguments</label>
             <textarea class="form-control" id="initArgs" type="text" value.bind="initArgs"
-                      placeholder="a 10 b 5"></textarea>
+                      placeholder="y 'o' u &rdquo;c&rdquo; 'a n' {&rdquo;write&rdquo;:1,&rdquo;like&rdquo;:&rdquo;this&rdquo;} [{exa},{mple}]"></textarea>
           </div>
         </div>
         <div class="form-row align-items-center">
           <div class="col-10">
-            <label for="policy" t="Policy">Policy</label>
-            <textarea class="form-control" style="height:225px" id="policy" type="text" value.bind="policy"
-                      placeholder="{
-  &quot;identities&quot;: [
+
+            <label t="Policy">Policy</label>
+            <div class="accordion" id="accordionExample">
+
+              <div class="card">
+                <div class="card-header" id="headingOne">
+                  <h2 class="mb-0">
+                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseOne"
+                            aria-expanded="true" aria-controls="collapseOne" click.delegate="select(true)"
+                            t="Endorsment policy">
+                      Endorsment policy
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne"
+                     data-parent="#accordionExample">
+                  <div class="card-body">
+
+
+                    <div repeat.for="o of policyType" class="form-check form-check-inline">
+                      <label>
+                        <input type="radio" value.bind="o" checked.bind='type'>
+                        ${o}
+                      </label>
+                    </div>
+
+
+                    <div repeat.for="o of orgList">
+                      <label class="mr-2">
+                        <input type="checkbox" value.bind="o" checked.bind="orgs">
+                        ${o}
+                      </label>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="${o}p" value.bind="o"
+                               checked.bind="selectedRoles">
+                        <label class="form-check-label" for="${o}p">admin</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="headingTwo">
+                  <h2 class="mb-0">
+                    <button class="btn collapsed" type="button" data-toggle="collapse"
+                            data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"
+                            click.delegate="select(false)" t="Your json policy">
+                      Your json policy
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                  <div class="card-body">
+                    <textarea class="form-control" style="height:225px" id="policy" type="text" value.bind="policy"
+                              placeholder="{
+    &quot;identities&quot;: [
             { &quot;role&quot;: { &quot;name&quot;: &quot;member&quot;, &quot;mspId&quot;: &quot;org1&quot; }},
             { &quot;role&quot;: { &quot;name&quot;: &quot;member&quot;, &quot;mspId&quot;: &quot;org2&quot; }}
-  ],
-  &quot;policy&quot;: {
+    ],
+    &quot;policy&quot;: {
             &quot;1-of&quot;: [{ &quot;signed-by&quot;: 0 }, { &quot;signed-by&quot;: 1 }]
-  }
+    }
 }"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-row align-items-center">
@@ -285,7 +341,7 @@
           <div class="col-10">
             <label for="invValue" t="Arguments">Value</label>
             <textarea class="form-control" id="invValue" type="text" value.bind="value"
-                      placeholder="&quot;account&quot; &quot;one two&quot; {JSON}"></textarea>
+                      placeholder="account 1 '{&rdquo;name&rdquo;:&rdquo;one&rdquo;}'"></textarea>
           </div>
         </div>
         <div class="form-row align-items-center">
@@ -326,7 +382,7 @@
           <div>
             ${creator}
             <pre id="${creator}"></pre>
-            <button type="submit" class="btn btn-xs" click.trigger="queryCert(creator, true)">
+            <button id="${creator}b" type="submit" class="btn btn-xs" click.trigger="queryCert(creator, true)">
               Show cert
             </button>
           </div>
@@ -334,7 +390,7 @@
           <div repeat.for="o of endorses">
             ${o}
             <pre id="${o}"></pre>
-            <button type="submit" class="btn btn-xs" click.trigger="queryCert(o)">
+            <button id="${o}b" type="submit" class="btn btn-xs" click.trigger="queryCert(o)">
               Show cert
             </button>
           </div>
