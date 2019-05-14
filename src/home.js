@@ -404,6 +404,9 @@ export class Home {
         }
       }
     }
+    if (args.length === 1) {
+      args = args[0];
+    }
     console.log(args);
     return args;
   }
