@@ -70,7 +70,7 @@ export class Home {
   loadJ = true;
   loadI = true;
 
-  type = 'none';
+  type = 'None';
   policyType = ['None', 'Any', 'All', 'Majority'];
   pol = true;
   selectedRoles = [];
@@ -374,7 +374,7 @@ export class Home {
           skobb--;
           arg += value[i];
           if (skobb === 0) {
-            args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            args.push(arg.replace(/^\s/g, '').trim());
             arg = '';
           }
         } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
@@ -409,9 +409,6 @@ export class Home {
       if (arg !== '') {
         args.push(arg.replace(/^\s/g, '').trim());
       }
-    }
-    if (args.length === 1) {
-      args = args[0];
     }
     console.log(args);
     return args;
