@@ -327,81 +327,87 @@ export class Home {
     let skoba = 0;
     let skobb = 0;
     let prob = false;
+    let comma = false;
     let arg = '';
-    let nextParam=true;
     if (value) {
-      while (nextParam) {
-        nextParam = false;
-        for (let i = 0; i < value.length; i++) {
-          if (value[i] === '\'' && !kovb && skoba === 0 && skobb === 0) {
-            prob = false;
-            if (kova) {
-              kova = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              kova = true;
-            }
-          } else if (value[i] === '\"' && !kova && skoba === 0 && skobb === 0) {
-            prob = false;
-            if (kovb) {
-              kovb = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              kovb = true;
-            }
-          } else if (value[i] === '\[' && !kova && !kovb && skobb === 0) {
-            prob = false;
-            skoba++;
-            arg += value[i];
-          } else if (value[i] === '\]' && !kova && !kovb && skobb === 0) {
-            prob = false;
-            skoba--;
-            arg += value[i];
-            if (skoba === 0) {
-              try {
-                args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
-              } catch (e) {
-                args.push(arg.replace(/^\s/g, '').trim());
-              }
-              arg = '';
-            }
-          } else if (value[i] === '\{' && !kova && !kovb && skoba === 0) {
-            prob = false;
-            skobb++;
-            arg += value[i];
-          } else if (value[i] === '\}' && !kova && !kovb && skoba === 0) {
-            prob = false;
-            skobb--;
-            arg += value[i];
-            if (skobb === 0) {
-              args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
-              arg = '';
-            }
-          } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
-            if (prob && arg !== '') {
-              prob = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              prob = true;
-              if (arg !== '') {
-                args.push(arg.replace(/^\s/g, '').trim());
-                arg = '';
-              }
-            }
-          } else if (value[i] === ',' && !kova && !kovb && skoba === 0 && skobb === 0) {// TODO: check if comma is a part of value
-            value = value.substring(i + 1);
-            nextParam = true;
-            break;
+      for (let i = 0; i < value.length; i++) {
+        if (value[i] === '\'' && !kovb && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kova) {
+            kova = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
           } else {
-            arg += value[i];
+            kova = true;
+          }
+        } else if (value[i] === '\"' && !kova && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kovb) {
+            kovb = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            kovb = true;
+          }
+        } else if (value[i] === '\[' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba++;
+          arg += value[i];
+        } else if (value[i] === '\]' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba--;
+          arg += value[i];
+          if (skoba === 0) {
+            try {
+              args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            } catch (e) {
+              args.push(arg.replace(/^\s/g, '').trim());
+            }
+            arg = '';
+          }
+        } else if (value[i] === '\{' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb++;
+          arg += value[i];
+        } else if (value[i] === '\}' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb--;
+          arg += value[i];
+          if (skobb === 0) {
+            args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            arg = '';
+          }
+        } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
+          if (prob && arg !== '') {
+            prob = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            prob = true;
+            if (arg !== '') {
+              args.push(arg.replace(/^\s/g, '').trim());
+              arg = '';
+            }
+          }
+        } else if (value[i] === ',' && !kova && !kovb && skoba === 0 && skobb === 0) {
+          if (comma && arg !== '') {
+            comma = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            comma = true;
+            if (arg !== '') {
+              args.push(arg.replace(/^\s/g, '').trim());
+              arg = '';
+            }
           }
         }
-        if (arg !== '') {
-          args.push(arg.replace(/^\s/g, '').trim());
+        else {
+          arg += value[i];
         }
+      }
+      if (arg !== '') {
+        args.push(arg.replace(/^\s/g, '').trim());
       }
     }
     if (args.length === 1) {
