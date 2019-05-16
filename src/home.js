@@ -309,7 +309,7 @@ export class Home {
     this.qu = false;
     this.alertService.info('Sent query');
     let args = this.parseArgs(this.value);
-    this.chaincodeService.query(this.channel, this.selectedChaincode.split(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
+    this.chaincodeService.query(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
       for (let i = 0; i < query.length; i++) {
         query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
