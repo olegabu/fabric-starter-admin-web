@@ -133,7 +133,7 @@ export class Home {
   joinChannel() {
     this.alertService.info('Sent join channel request');
     this.loadJ = false;
-    this.chaincodeService.joinChannel(this.channelJoin).then(j => {
+    this.chaincodeService.joinChannel(this.channelJoin).then(() => {
       this.loadJ = true;
     }).catch(() => {
       this.loadJ = true;
@@ -183,6 +183,7 @@ export class Home {
 
   upgradeChaincode() {
     if (this.selectedChain) {
+      this.loadI = false;
       let formData;
       try {
         formData = this.createUploadForm();
@@ -289,7 +290,7 @@ export class Home {
     this.show = true;
     let args = this.parseArgs(this.value);
     this.alertService.info('Sent invoke');
-    this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
+    this.chaincodeService.invoke(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
       this.block = invoke.blockNumber;
       this.qu = true;
@@ -308,7 +309,7 @@ export class Home {
     this.qu = false;
     this.alertService.info('Sent query');
     let args = this.parseArgs(this.value);
-    this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
+    this.chaincodeService.query(this.channel, this.selectedChaincode.split(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
       for (let i = 0; i < query.length; i++) {
         query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
