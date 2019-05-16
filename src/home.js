@@ -63,6 +63,8 @@ export class Home {
   block = null;
   show = false;
   qu = false;
+  logShow = true;
+  logger = [];
 
 //Load
   load = true;
@@ -76,7 +78,7 @@ export class Home {
   pol = true;
   selectedRoles = [];
   jsonPolicy = {};
-  logger = [];
+
   domain = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
@@ -167,6 +169,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
+        this.logger.push(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -187,6 +190,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
+        this.logger.push(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -217,10 +221,8 @@ export class Home {
     formData.append('waitForTransactionEvent', 'true');
     formData.append('chaincodeType', this.initLanguage);
     formData.append('chaincodeVersion', this.selectedChain.split(':')[1]);
-    if (this.initFcn) {
+    if (this.initFcn)
       formData.append('fcn', this.initFcn);
-      this.logger.push(this.initFcn);
-    }
     if (this.initArgs)
       formData.append('args', JSON.stringify(this.parseArgs(this.initArgs)));
     if (this.pol && this.type && this.type !== 'None')
@@ -305,7 +307,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     let args = this.parseArgs(this.value);
-    this.logger.push(this.fnc);
+    this.logger.push(`Invoke: Function: ${this.fnc} Arguments: ${args}`);
     this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
@@ -325,8 +327,8 @@ export class Home {
     this.show = true;
     this.qu = false;
     this.alertService.info('Sent query');
-    this.logger.push(this.fnc);
     let args = this.parseArgs(this.value);
+    this.logger.push(`Query: Function: ${this.fnc} Arguments: ${args}`);
     this.chaincodeService.query(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
       for (let i = 0; i < query.length; i++) {
@@ -340,7 +342,6 @@ export class Home {
   }
 
   parseArgs(value) {
-    this.logger.push(value);
     let args = [];
     let kova = false;
     let kovb = false;
@@ -639,5 +640,9 @@ export class Home {
 
   select(value) {
     this.pol = value;
+  }
+
+  hide() {
+    this.logShow = !this.logShow;
   }
 }

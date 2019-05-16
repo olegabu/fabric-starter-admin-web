@@ -155,7 +155,9 @@
         </div>
         <button type="submit" class="btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
-      <form>
+
+      <button type="button" class="btn-link" click.trigger="hide()">Show logger</button>
+      <form hide.bind="logShow">
         <h4 style="color: red">Logger:</h4>
         <ul>
           <li repeat.for="o of logger">${o}</li>
