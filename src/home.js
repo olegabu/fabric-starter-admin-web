@@ -72,12 +72,12 @@ export class Home {
 
   type = 'None';
   policyType = ['None', 'Any', 'All', 'Majority'];
+  policyBuilder = null;
   pol = true;
   selectedRoles = [];
-  jsonPolicy = {
-    identities: [],
-    policy: {}
-  };
+  jsonPolicy = {};
+  logger = [];
+  domain = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -213,37 +213,53 @@ export class Home {
       }
     }
     formData.append('channelId', this.channel);
-    formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
+    formData.append('chaincodeId', this.selectedChain.split(':')[0]);
     formData.append('waitForTransactionEvent', 'true');
-    formData.append('chaincodeType', this.initLanguage || 'node');
-    formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
-    if (this.initFcn)
-      formData.append('fcn', this.initFcn || 'init');
+    formData.append('chaincodeType', this.initLanguage);
+    formData.append('chaincodeVersion', this.selectedChain.split(':')[1]);
+    if (this.initFcn) {
+      formData.append('fcn', this.initFcn);
+      this.logger.push(this.initFcn);
+    }
     if (this.initArgs)
       formData.append('args', JSON.stringify(this.parseArgs(this.initArgs)));
-    if (this.pol && this.type && this.type !== 'None') {
-      let orgsLenght = this.orgs.length === 0 ? this.orgList : this.orgs;
-      if (this.type === 'Any')
-        this.jsonPolicy.policy["1-of"] = this.countOrgs(orgsLenght.length);
-      else if (this.type === 'All')
-        this.jsonPolicy.policy[orgsLenght.length + "-of"] = this.countOrgs(orgsLenght.length);
-      else {
-        if (parseInt((orgsLenght.length / 2), 10) + 1 > orgsLenght.length) {
-          throw Error('Majority bigger than orgs count')
-        }
-        this.jsonPolicy.policy[parseInt((orgsLenght.length / 2), 10) + 1 + "-of"] = this.countOrgs(orgsLenght.length);
-      }
-      for (let i = 0; i < orgsLenght.length; i++) {
-        if (this.selectedRoles.indexOf(orgsLenght[i]) !== -1)
-          this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: orgsLenght[i]}};
-        else
-          this.jsonPolicy.identities[i] = {role: {name: "member", mspId: orgsLenght[i]}};
-      }
-      formData.append('policy', JSON.stringify(this.jsonPolicy));
-    } else if (this.policy)
+    if (this.pol && this.type && this.type !== 'None')
+      formData.append('policy', this.policyBuilder);
+    else if (this.policy)
       formData.append('policy', this.policy.replace(/\s/g, '').trim());
-
     return formData;
+  }
+
+  policyBuild() {
+    this.jsonPolicy = {
+      identities: [],
+      policy: {}
+    };
+    this.policyBuilder = null;
+    Home.clear('policyBuilder');
+    if (this.type === 'None') {
+      document.getElementById('policyBuilder').value = '';
+      return;
+    }
+    let orgsLenght = this.orgs.length === 0 ? this.orgList : this.orgs;
+    if (this.type === 'Any')
+      this.jsonPolicy.policy["1-of"] = this.countOrgs(orgsLenght.length);
+    else if (this.type === 'All')
+      this.jsonPolicy.policy[orgsLenght.length + "-of"] = this.countOrgs(orgsLenght.length);
+    else {
+      if (parseInt((orgsLenght.length / 2), 10) + 1 > orgsLenght.length) {
+        throw Error('Majority bigger than orgs count')
+      }
+      this.jsonPolicy.policy[parseInt((orgsLenght.length / 2), 10) + 1 + "-of"] = this.countOrgs(orgsLenght.length);
+    }
+    for (let i = 0; i < orgsLenght.length; i++) {
+      if (this.selectedRoles.indexOf(orgsLenght[i]) !== -1)
+        this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: orgsLenght[i]}};
+      else
+        this.jsonPolicy.identities[i] = {role: {name: "member", mspId: orgsLenght[i]}};
+    }
+    this.policyBuilder = JSON.stringify(this.jsonPolicy);
+    document.getElementById('policyBuilder').value = this.policyBuilder;
   }
 
   countOrgs(num) {
@@ -289,6 +305,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     let args = this.parseArgs(this.value);
+    this.logger.push(this.fnc);
     this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(invoke => {
       this.lastTx = invoke.txid;
@@ -308,6 +325,7 @@ export class Home {
     this.show = true;
     this.qu = false;
     this.alertService.info('Sent query');
+    this.logger.push(this.fnc);
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(query => {
       this.lastTx = query;
@@ -322,6 +340,7 @@ export class Home {
   }
 
   parseArgs(value) {
+    this.logger.push(value);
     let args = [];
     let kova = false;
     let kovb = false;
