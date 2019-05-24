@@ -46,17 +46,16 @@ export class UtilService {
         });
       }
       promise.then(response => {
+        if (response.status === 401) {
+          this.alertService.info('session expired, logging you out');
+          this.identityService.logout();
+          reject(new Error('Session expired, logging you out'));
+        }
         response.json().then(j => {
           log.debug('fetch', j);
           if (!response.ok) {
             const msg = `${response.statusText} ${j}`;
-            if (response.status === 401) {
-              this.alertService.info('session expired, logging you out');
-              this.identityService.logout();
-            } else {
-              this.alertService.error(`${msg}. Status: ${response.status}`);
-            }
-
+            this.alertService.error(`${msg}. Status: ${response.status}`);
             reject(new Error(msg));
           } else {
             resolve(j);
@@ -85,6 +84,11 @@ export class UtilService {
       });
 
       promise.then(response => {
+        if (response.status === 401) {
+          this.alertService.info('session expired, logging you out');
+          this.identityService.logout();
+          reject(new Error('Session expired, logging you out'));
+        }
         if (! response || ! response.json) {
           return reject(response);
         }
@@ -93,13 +97,7 @@ export class UtilService {
 
           if (!response.ok) {
             const msg = `${response.statusText} ${j}`;
-            if (response.status === 401) {
-              this.alertService.info('session expired, logging you out');
-              this.identityService.logout();
-            } else {
-              this.alertService.error(msg);
-            }
-
+            this.alertService.error(`${msg}. Status: ${response.status}`);
             reject(new Error(msg));
           } else {
             resolve(j);
@@ -152,7 +150,7 @@ export class UtilService {
     });
   }
 
-  postWithoutFile(url, requestParams, resolve, reject) {
+  postWithoutFile(url, requestParams, resolve, reject, org, username) {
     this.fetch(url, requestParams, 'post', org, username).then(j => {
       resolve(j);
     }).catch(err => {

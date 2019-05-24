@@ -7,6 +7,7 @@ import {AlertService} from './services/alert-service';
 import {ConsortiumService} from './services/consortium-service';
 import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
+import {json} from "aurelia-fetch-client";
 
 let log = LogManager.getLogger('Home');
 
@@ -49,11 +50,11 @@ export class Home {
   middlewareFile = null;
 //Operation
   operation = false;
-  fnc = null;
+  fcn = null;
   args = null;
   value = null;
+  peers = [];
   targets = [];
-  targs = [];
 //Info
   lastTx = null;
   creator = null;
@@ -78,7 +79,12 @@ export class Home {
   pol = true;
   selectedRoles = [];
   jsonPolicy = {};
-
+  elements = ['info',
+    'json',
+    'input',
+    'reads',
+    'writes',
+    'res'];
   domain = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
@@ -102,7 +108,7 @@ export class Home {
       if (o.channel_id === this.channel)
         this.updateBlock();
       if (this.channel) {
-        this.queryChaincodes();
+        this.queryInstantiatedChaincodes();
         this.queryOrgs();
         this.queryPeers();
       }
@@ -114,16 +120,16 @@ export class Home {
   }
 
   queryChannels() {
-    this.chaincodeService.getChannels().then(channels => {
+    this.chaincodeService.queryChannels().then(channels => {
       this.channelList = channels;
       this.channelList.sort();
     });
   }
 
-  addChannel() {
+  createChannel() {
     this.alertService.info('Sent create channel request');
     this.loadAdd = false;
-    this.chaincodeService.addChannel(this.channelNew).then(() => {
+    this.chaincodeService.createChannel(this.buildProposal(true, this.channelNew)).then(() => {
       this.loadAdd = true;
     }).catch(() => {
       this.loadAdd = true;
@@ -135,7 +141,7 @@ export class Home {
   joinChannel() {
     this.alertService.info('Sent join channel request');
     this.loadJ = false;
-    this.chaincodeService.joinChannel(this.channelJoin).then(() => {
+    this.chaincodeService.joinChannel(this.channelJoin, this.buildProposal(true, this.channelJoin)).then(() => {
       this.loadJ = true;
     }).catch(() => {
       this.loadJ = true;
@@ -144,8 +150,8 @@ export class Home {
   }
 
   queryInstalledChaincodes() {
-    this.chaincodeService.getInstalledChaincodes().then(chain => {
-      this.installedChaincodes = chain;
+    this.chaincodeService.queryInstalledChaincodes().then(chaincodes => {
+      this.installedChaincodes = chaincodes;
     });
   }
 
@@ -154,13 +160,20 @@ export class Home {
     let formData = new FormData();
     for (let i = 0; i < this.chaincodeFile.length; i++) {
       formData.append('file', this.chaincodeFile[i]);
-      formData.append('targets', this.targs);
+      formData.append('targets', this.targets);
       formData.append('version', this.installVersion || '1.0');
       formData.append('language', this.installLanguage);
       this.chaincodeService.installChaincode(formData).then(() => {
         this.queryInstalledChaincodes();
       });
     }
+  }
+
+  queryInstantiatedChaincodes() {
+    this.show = false;
+    this.chaincodeService.queryInstantiatedChaincodes(this.channel).then(chaincodes => {
+      this.chaincodeList = chaincodes;
+    });
   }
 
   initChaincode() {
@@ -175,7 +188,7 @@ export class Home {
         return;
       }
       this.alertService.info('Sent instantiate request');
-      this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
+      this.chaincodeService.initChaincode(this.channel, formData).then(() => {
         this.loadI = true;
       }).catch(() => {
         this.loadI = true;
@@ -196,7 +209,7 @@ export class Home {
         return;
       }
       this.alertService.info('Sent upgrade request');
-      this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
+      this.chaincodeService.upgradeChaincode(this.channel, formData).then(() => {
         this.loadI = true;
       }).catch(() => {
         this.loadI = true;
@@ -272,44 +285,41 @@ export class Home {
     return array;
   }
 
-  queryChaincodes() {
-    this.show = false;
-    this.chaincodeService.getChaincodes(this.channel).then(chaincodes => {
-      this.chaincodeList = chaincodes;
-    });
-  }
-
-  queryPeers() {
-    this.targets = [];
-    this.chaincodeService.getPeersForOrgOnChannel(this.channel).then(peers => {
-      this.targets = peers;
-    });
-  }
-
   queryOrgs() {
-    this.chaincodeService.getOrgs(this.channel).then(orgs => {
+    this.chaincodeService.queryOrgs(this.channel).then(orgs => {
       this.orgList = orgs.sort();
       this.orgList.splice(orgs.indexOf('orderer'), 1);
     });
   }
 
+  queryPeers() {
+    this.peers = [];
+    this.chaincodeService.queryPeers(this.channel).then(peers => {
+      this.peers = peers;
+    });
+  }
+
   addOrgToChannel() {
     this.alertService.info('Sent invite');
-    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
+    const params = {
+      orgId: this.newOrg
+    };
+    this.chaincodeService.addOrgToChannel(this.channel, params);
     this.newOrg = null;
   }
 
-
-  getInvoke() {
+  invoke() {
     this.load = false;
     this.clearAll();
     this.qu = false;
     this.lastTx = null;
     this.show = true;
+    const chaincode = this.selectedChaincode.split(':')[0];
     let args = this.parseArgs(this.value);
-    this.logger.push(`Invoke: Function: ${this.fnc} Arguments: ${args}`);
+    this.logger.push(`Invoke: Function: ${this.fcn} Arguments: ${args}`);
     this.alertService.info('Sent invoke');
-    this.chaincodeService.invoke(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(invoke => {
+    this.chaincodeService.invoke(this.channel, chaincode,
+      this.buildProposal(true, this.channel, chaincode, this.fcn, args, this.targets)).then(invoke => {
       this.lastTx = invoke.txid;
       this.block = invoke.blockNumber;
       this.qu = true;
@@ -320,16 +330,17 @@ export class Home {
     });
   }
 
-  getQuery() {
+  query() {
     this.load = false;
     this.clearAll();
     this.lastTx = null;
     this.show = true;
     this.qu = false;
+    const chaincode = this.selectedChaincode.split(':')[0];
     this.alertService.info('Sent query');
     let args = this.parseArgs(this.value);
-    this.logger.push(`Query: Function: ${this.fnc} Arguments: ${args}`);
-    this.chaincodeService.query(this.channel, this.selectedChaincode.split(':')[0], this.fnc, args, this.targs).then(query => {
+    this.chaincodeService.query(this.channel, chaincode,
+      this.buildProposal(false, this.channel, chaincode, this.fcn, args, this.targets)).then(query => {
       this.lastTx = query;
       for (let i = 0; i < query.length; i++) {
         query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
@@ -422,8 +433,7 @@ export class Home {
               arg = '';
             }
           }
-        }
-        else {
+        } else {
           arg += value[i];
         }
       }
@@ -431,7 +441,6 @@ export class Home {
         args.push(arg.replace(/^\s/g, '').trim());
       }
     }
-    console.log(args);
     return args;
   }
 
@@ -439,11 +448,11 @@ export class Home {
     this.blocks = [];
     let bl = [];
     this.selectedChaincode = null;
-    this.chaincodeService.getLastBlock(this.channel).then(block => {
+    this.chaincodeService.queryLastBlock(this.channel).then(block => {
       for (let i = block - 5; i < block; i++) {
         if (i < 0)
           continue;
-        this.chaincodeService.getBlock(this.channel, i).then(block => {
+        this.chaincodeService.queryBlock(i, this.channel).then(block => {
           let txid = [];
           for (let j = 0; j < block.data.data.length; j++) {
             txid.push(block.data.data[j].payload.header.channel_header.tx_id);
@@ -462,8 +471,8 @@ export class Home {
   }
 
   updateBlock() {
-    this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
-      this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
+    this.chaincodeService.queryLastBlock(this.channel).then(lastBlock => {
+      this.chaincodeService.queryBlock(lastBlock - 1, this.channel).then(block => {
         let txid = [];
         if ((lastBlock - 1).toString() === this.block) {
           this.endorses = [];
@@ -501,9 +510,10 @@ export class Home {
   }
 
   decodeCert(cert) {
-    return this.chaincodeService.decodeCert(cert).then(o => {
-      return o;
-    });
+    const params = {
+      cert: cert
+    };
+    return this.chaincodeService.decodeCert(params);
   }
 
   hideTx() {
@@ -513,14 +523,15 @@ export class Home {
 
 
   queryConsortium() {
-    this.consortiumService.query().then((orgs) => {
+    this.consortiumService.queryOrgInconsortium().then((orgs) => {
+      console.log(consortiumMembersList);
       this.consortiumMembersList = orgs;
     });
   }
 
   addToConsortium() {
-    this.consortiumService.inviteByName(this.consortiumInviteeName).then((result) => {
-      // this.consortiumService.query()
+    const params = {orgId: this.consortiumInviteeName};
+    this.consortiumService.inviteByName(params).then((result) => {
       this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
       this.queryConsortium();
     });
@@ -571,17 +582,13 @@ export class Home {
 
   clearAll() {
     this.endorsesCert = [];
-    for (let i = 0; i < this.endorses.length; i++) {
-      let o = this.endorses[i];
-      Home.clear(o);
-    }
+    this.endorses.forEach(function (elements) {
+      Home.clear(elements);
+    });
     this.endorses = [];
-    Home.clear('info');
-    Home.clear('json');
-    Home.clear('input');
-    Home.clear('reads');
-    Home.clear('writes');
-    Home.clear('res');
+    this.elements.forEach(function (element) {
+      Home.clear(element);
+    });
   }
 
   static parseBlock(block) {
@@ -620,7 +627,7 @@ export class Home {
     Home.output(rwset, 'reads');
   }
 
-  queryCert(o, creator) {
+  showCert(o, creator) {
     let btn = document.getElementById(o + 'b').childNodes[0].nodeValue.replace(/^\s/g, '').trim();
     document.getElementById(o + 'b').childNodes[0].nodeValue = btn === 'Show cert' ? 'Hide cert' : 'Show cert';
     const el = document.getElementById(o);
@@ -644,5 +651,24 @@ export class Home {
 
   hide() {
     this.logShow = !this.logShow;
+  }
+
+  buildProposal(invoke, channel, chaincode, fcn, args, targets) {
+    let requestParams = {
+      channelId: channel
+    };
+    if (chaincode)
+      requestParams.chaincodeId = chaincode;
+    if (fcn)
+      requestParams.fcn = fcn.trim();
+    if (invoke) {
+      requestParams.waitForTransactionEvent = true;
+      requestParams.args = args;
+      requestParams.targets = targets;
+    } else {
+      requestParams.args = json(args);
+      requestParams.targets = json(targets);
+    }
+    return requestParams;
   }
 }

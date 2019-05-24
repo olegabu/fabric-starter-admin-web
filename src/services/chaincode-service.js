@@ -1,391 +1,125 @@
-import {LogManager} from 'aurelia-framework';
-import {inject} from 'aurelia-framework';
-import {HttpClient, json} from 'aurelia-fetch-client';
+import {inject, LogManager} from 'aurelia-framework';
+import {HttpClient} from 'aurelia-fetch-client';
 import {IdentityService} from './identity-service';
 import {AlertService} from './alert-service';
-import {Config} from '../config';
+import {UtilService} from './util-service';
 
-let log = LogManager.getLogger('ChaincodeService');
 
-const baseUrl = Config.getUrl('channels');
-
-@inject(HttpClient, IdentityService, AlertService)
+@inject(HttpClient, IdentityService, AlertService, UtilService)
 export class ChaincodeService {
 
-  constructor(http, identityService, alertService) {
+  constructor(http, identityService, alertService, utilService) {
     this.identityService = identityService;
     this.http = http;
     this.alertService = alertService;
+    this.utilService = utilService;
   }
 
-  fetch(url, params, method, org, username) {
-    log.debug('fetch', params);
-    log.debug(JSON.stringify(params));
-    return new Promise((resolve, reject) => {
-      const jwt = IdentityService.getJwt(org, username);
+  queryChannels() {
+    return this.utilService.getRequest('get Channels', 'channels', null, this.extractChannelId);
+  }
 
-      let promise;
+  createChannel(proposal) {
+    return this.utilService.postRequest('Create Channel', 'channels', proposal);
+  }
 
-      if (method === 'get') {
-        let query = '';
-        if (params) {
-          query = '?' + Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
-        }
+  joinChannel(channelJoin, proposal) {
+    return this.utilService.postRequest('Cannel join', `channels/${channelJoin}`, proposal);
+  }
 
-        promise = this.http.fetch(`${url}${query}`, {
-          headers: {
-            'Authorization': 'Bearer ' + jwt
-          }
-        });
-        promise.then(response => {
-          if (!response.ok) {
-            if (response.status === 401) {
-              this.identityService.logout();
-            } else {
-              this.alertService.error(`${response.statusText}. Status: ${response.status}`);
-            }
-            const msg = `${response.statusText}. Status: ${response.status}`;
-            reject(new Error(msg));
-          }
-        });
-      } else {
-        promise = this.http.fetch(url, {
-          method: method,
-          body: json(params),
-          headers: {
-            'Authorization': 'Bearer ' + jwt
-          }
-        });
-      }
-      promise.then(response => {
-        response.json().then(j => {
-          if (!response.ok) {
-            const msg = `${response.statusText} ${j}`;
-            if (response.status === 401) {
-              this.alertService.info('session expired, logging you out');
-              this.identityService.logout();
-            } else {
-              this.alertService.error(`${msg}. Status: ${response.status}`);
-            }
+  queryInstalledChaincodes() {
+    return this.utilService.getRequest('get Installed Chaincodes', 'chaincodes', null, this.extractChaincodes);
+  }
 
-            reject(new Error(msg));
-          } else {
-            resolve(j);
-          }
-        });
+  installChaincode(formData) {
+    return this.utilService.postRequest('Install chaincode', 'chaincodes', null, formData);
+  }
 
-      }).catch(err => {
-        this.alertService.error(`caught ${err}`);
-        reject(err);
+  queryInstantiatedChaincodes(channel) {
+    return this.utilService.getRequest('get Instantiated Chaincodes', `channels/${channel}/chaincodes`, null, this.extractChaincodes);
+  }
+
+  initChaincode(channel, formData) {
+    return this.utilService.postRequest('Instantiate chaincode', `channels/${channel}/chaincodes`, null, formData);
+  }
+
+  upgradeChaincode(channel, formData) {
+    return this.utilService.postRequest('Instantiate chaincode', `channels/${channel}/chaincodes/upgrade`, null, formData);
+  }
+
+  queryOrgs(channel) {
+    return this.utilService.getRequest('get Organizations On Channel', `channels/${channel}/orgs`, null, this.extractOrgs);
+  }
+
+  queryPeers(channel) {
+    return this.utilService.getRequest('get Organizations peers', `channels/${channel}/peers`);
+  }
+
+  addOrgToChannel(channel, params) {
+    return this.utilService.postRequest('add Org to Channel', `channels/${channel}/orgs`, params);
+  }
+
+  invoke(channel, chaincode, proposal) {
+    return this.utilService.postRequest('Invoke operation', `channels/${channel}/chaincodes/${chaincode}`,
+      proposal, null, this.extractInvoke);
+  }
+
+  query(channel, chaincode, proposal) {
+    return this.utilService.getRequest('Query operation', `channels/${channel}/chaincodes/${chaincode}`,
+      proposal);
+  }
+
+  queryLastBlock(channel) {
+    return this.utilService.getRequest('get Last Block', `channels/${channel}`, null, this.extractLastBlock);
+  }
+
+  queryBlock(num, channel) {
+    return this.utilService.getRequest(`get Block with num ${num}`, `channels/${channel}/blocks/${num}`);
+  }
+
+  decodeCert(params) {
+    return this.utilService.postRequest('get decoded certificate', 'cert', params, null)
+  }
+
+  getDomain() {
+    return this.utilService.getRequest('get Domain', 'domain');
+  }
+
+  extractChannelId(result) {
+    return result.map(o => {
+      return o.channel_id;
+    });
+  }
+
+  extractChaincodes(result) {
+    if (result.chaincodes) {
+      const chaincodes = result.chaincodes;
+      return chaincodes.map(o => {
+        return o.name + ':' + o.version;
       });
-    });
-  }
-
-  fetchForFile(url, file, method, org, username) {
-    return new Promise((resolve, reject) => {
-      const jwt = IdentityService.getJwt(org, username);
-
-      let promise;
-
-      promise = this.http.fetch(url, {
-        method: method,
-        body: file,
-        headers: {
-          'Authorization': 'Bearer ' + jwt
-        }
+    } else
+      return result.map(o => {
+        return o.name + ':' + o.version;
       });
+  }
 
-      promise.then(response => {
-        response.json().then(j => {
-          log.debug('fetch', j);
-
-          if (!response.ok) {
-            const msg = `${response.statusText} ${j}`;
-            if (response.status === 401) {
-              this.alertService.info('session expired, logging you out');
-              this.identityService.logout();
-            } else {
-              this.alertService.error(`${msg}. Status: ${response.status}`);
-            }
-
-            reject(new Error(msg));
-          } else {
-            resolve(j);
-          }
-        });
-
-      }).catch(err => {
-        this.alertService.error(`caught ${err}`);
-        reject(err);
-      });
+  extractOrgs(result) {
+    return result.map(o => {
+      return o.id;
     });
   }
 
-  getDomain(org, username) {
-    const url = Config.getUrl(`domain`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
+  extractLastBlock(result) {
+    const test = result.height;
+    return test.low;
   }
 
-  getLastBlock(channel, org, username) {
-    const url = Config.getUrl(`channels/${channel}`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        const test = j.height;
-        resolve(test.low);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
+  extractInvoke(result) {
+    if (result.badPeers && result.badPeers.length > 0) {
+      this.alertService.error(`Bad peers ${result.badPeers.join('; ')}`);
+    } else if (result.badPeers)
+      delete result.badPeers;
+    return result;
   }
 
-  addOrgToChannel(channel, newOrg, org, username) {
-    const url = Config.getUrl(`channels/${channel}/orgs`);
-    const params = {
-      orgId: newOrg
-    };
-    return new Promise((resolve, reject) => {
-      this.fetch(url, params, 'post', org, username).then(j => {
-        // this.alertService.success(j);
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getBlock(channel, num, org, username) {
-    log.debug(`getChannels ${org} ${username}`);
-    const url = Config.getUrl(`channels/${channel}/blocks/${num}`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getChannels(org, username) {
-    log.debug(`getChannels ${org} ${username}`);
-    const url = baseUrl;
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        const channels = j.map(o => {
-          return o.channel_id;
-        });
-        resolve(channels);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getPeersForOrgOnChannel(channel, org, username) {
-    const url = Config.getUrl(`channels/${channel}/peers`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getChaincodes(channel, org, username) {
-    log.debug(`getChaincodes ${org} ${username}`);
-    const url = Config.getUrl(`channels/${channel}/chaincodes`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        const test = j.chaincodes;
-        const chaincode = test.map(o => {
-          return o.name + ':' + o.version;
-        });
-        resolve(chaincode);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getInstalledChaincodes(org, username) {
-    log.debug(`getChaincodes ${org} ${username}`);
-    const url = Config.getUrl(`chaincodes`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        const allChannel = j.map(o => {
-          return o.name + ':' + o.version;
-        });
-        resolve(allChannel);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  getOrgs(channel, org, username) {
-    log.debug(`getOrgs ${org} ${username}`);
-    const url = Config.getUrl(`channels/${channel}/orgs`);
-    return new Promise((resolve, reject) => {
-      this.fetch(url, null, 'get', org, username).then(j => {
-        const orgs = j.map(o => {
-          return o.id;
-        });
-        resolve(orgs);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  addChannel(channel, org, username) {
-    log.debug(`invoke channel=${channel}`);
-    //const peerOrg = org ? org.name : this.identityService.org;
-    const url = Config.getUrl(`channels`);
-    const params = {
-      channelId: channel,
-    };
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        this.fetch(url, params, 'post', org, username).then(j => {
-          resolve(j);
-        })
-          .catch(err => {
-            reject(err);
-          });
-      },);
-    }, setTimeout(4000));
-  }
-
-  joinChannel(channelId, org, username) {
-    const url = Config.getUrl(`channels/${channelId}`);
-    const params = {
-      channelId: channelId,
-    };
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        this.fetch(url, params, 'post', org, username).then(j => {
-          resolve(j);
-        })
-          .catch(err => {
-            reject(err);
-          });
-      },);
-    }, setTimeout(4000));
-  }
-
-  installChaincode(file, org, username) {
-    const url = Config.getUrl(`chaincodes`);
-    return new Promise((resolve, reject) => {
-      this.fetchForFile(url, file, 'post', org, username).then(j => {
-        this.alertService.success(j);
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  upgradeChaincode(file, channel, org, username) {
-    log.debug(`getOrgs ${org} ${username}`);
-    const url = Config.getUrl(`channels/${channel}/chaincodes/upgrade`);
-    return new Promise((resolve, reject) => {
-      this.fetchForFile(url, file, 'post', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  instantiateChaincode(file, channel, org, username) {
-    log.debug(`getOrgs ${org} ${username}`);
-    const url = Config.getUrl(`channels/${channel}/chaincodes`);
-    return new Promise((resolve, reject) => {
-      this.fetchForFile(url, file, 'post', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
-
-  query(channel, chaincode, fcn, args, peers, org, username) {
-    log.debug(`query channel=${channel} chaincode=${chaincode} fcn=${fcn} ${org} ${username}`, args);
-    const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
-    const params = {
-      channelId: channel,
-      chaincodeId: chaincode,
-      fcn: fcn,
-      targets: json(peers),
-      args: json(args)
-    };
-    return new Promise((resolve, reject) => {
-      this.fetch(url, params, 'get', org, username).then(j => {
-        resolve(j);
-      }).catch(err => {
-        reject(err);
-      });
-    }, setTimeout(4000));
-  }
-
-  invoke(channel, chaincode, fcn, args, peers, org, username) {
-    log.debug(`invoke channel=${channel} chaincode=${chaincode} fcn=${fcn} ${org} ${username}`, args);
-    const url = Config.getUrl(`channels/${channel}/chaincodes/${chaincode}`);
-    const params = {
-      channelId: channel,
-      chaincodeId: chaincode,
-      targets: peers,
-      waitForTransactionEvent: true,
-      args: args
-    };
-    if (fcn)
-      params.fcn = fcn.trim();
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        this.fetch(url, params, 'post', org, username).then(j => {
-          if (j.badPeers && j.badPeers.length > 0) {
-            this.alertService.error(`Bad peers ${j.badPeers.join('; ')}`);
-          } else if (j.badPeers)
-            delete j.badPeers;
-          resolve(j);
-        })
-          .catch(err => {
-            reject(err);
-          });
-      },);
-    }, setTimeout(4000));
-  }
-
-  decodeCert(cert, org, username) {
-    const url = Config.getUrl(`cert`);
-    const params = {
-      cert: cert
-    };
-    return new Promise((resolve, reject) => {
-      this.fetch(url, params, 'post', org, username).then(j => {
-        resolve(j);
-      })
-        .catch(err => {
-          reject(err);
-        });
-    });
-  }
 }
