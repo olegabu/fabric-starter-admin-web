@@ -7,6 +7,7 @@ import {AlertService} from './services/alert-service';
 import {ConsortiumService} from './services/consortium-service';
 import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
+import {json} from "aurelia-fetch-client";
 
 let log = LogManager.getLogger('Home');
 
@@ -49,11 +50,11 @@ export class Home {
   middlewareFile = null;
 //Operation
   operation = false;
-  fnc = null;
+  fcn = null;
   args = null;
   value = null;
+  peers = [];
   targets = [];
-  targs = [];
 //Info
   lastTx = null;
   creator = null;
@@ -63,6 +64,7 @@ export class Home {
   block = null;
   show = false;
   qu = false;
+  logShow = true;
 
 //Load
   load = true;
@@ -70,14 +72,19 @@ export class Home {
   loadJ = true;
   loadI = true;
 
-  type = 'none';
+  type = 'None';
   policyType = ['None', 'Any', 'All', 'Majority'];
+  policyBuilder = null;
   pol = true;
   selectedRoles = [];
-  jsonPolicy = {
-    identities: [],
-    policy: {}
-  };
+  jsonPolicy = {};
+  elements = ['info',
+    'json',
+    'input',
+    'reads',
+    'writes',
+    'res'];
+  domain = null;
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
     this.identityService = identityService;
@@ -100,7 +107,7 @@ export class Home {
       if (o.channel_id === this.channel)
         this.updateBlock();
       if (this.channel) {
-        this.queryChaincodes();
+        this.queryInstantiatedChaincodes();
         this.queryOrgs();
         this.queryPeers();
       }
@@ -112,16 +119,16 @@ export class Home {
   }
 
   queryChannels() {
-    this.chaincodeService.getChannels().then(channels => {
+    this.chaincodeService.queryChannels().then(channels => {
       this.channelList = channels;
       this.channelList.sort();
     });
   }
 
-  addChannel() {
+  createChannel() {
     this.alertService.info('Sent create channel request');
     this.loadAdd = false;
-    this.chaincodeService.addChannel(this.channelNew).then(() => {
+    this.chaincodeService.createChannel(this.buildProposal(true, this.channelNew)).then(() => {
       this.loadAdd = true;
     }).catch(() => {
       this.loadAdd = true;
@@ -133,7 +140,7 @@ export class Home {
   joinChannel() {
     this.alertService.info('Sent join channel request');
     this.loadJ = false;
-    this.chaincodeService.joinChannel(this.channelJoin).then(j => {
+    this.chaincodeService.joinChannel(this.channelJoin, this.buildProposal(true, this.channelJoin)).then(() => {
       this.loadJ = true;
     }).catch(() => {
       this.loadJ = true;
@@ -142,8 +149,8 @@ export class Home {
   }
 
   queryInstalledChaincodes() {
-    this.chaincodeService.getInstalledChaincodes().then(chain => {
-      this.installedChaincodes = chain;
+    this.chaincodeService.queryInstalledChaincodes().then(chaincodes => {
+      this.installedChaincodes = chaincodes;
     });
   }
 
@@ -152,7 +159,7 @@ export class Home {
     let formData = new FormData();
     for (let i = 0; i < this.chaincodeFile.length; i++) {
       formData.append('file', this.chaincodeFile[i]);
-      formData.append('targets', this.targs);
+      formData.append('targets', this.targets);
       formData.append('version', this.installVersion || '1.0');
       formData.append('language', this.installLanguage);
       this.chaincodeService.installChaincode(formData).then(() => {
@@ -161,18 +168,26 @@ export class Home {
     }
   }
 
+  queryInstantiatedChaincodes() {
+    this.show = false;
+    this.chaincodeService.queryInstantiatedChaincodes(this.channel).then(chaincodes => {
+      this.chaincodeList = chaincodes;
+    });
+  }
+
   initChaincode() {
     if (this.selectedChain) {
       this.loadI = false;
       let formData;
       try {
         formData = this.createUploadForm();
+        this.logger(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
       }
       this.alertService.info('Sent instantiate request');
-      this.chaincodeService.instantiateChaincode(formData, this.channel).then(() => {
+      this.chaincodeService.initChaincode(this.channel, formData).then(() => {
         this.loadI = true;
       }).catch(() => {
         this.loadI = true;
@@ -183,15 +198,17 @@ export class Home {
 
   upgradeChaincode() {
     if (this.selectedChain) {
+      this.loadI = false;
       let formData;
       try {
         formData = this.createUploadForm();
+        this.logger(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
       }
       this.alertService.info('Sent upgrade request');
-      this.chaincodeService.upgradeChaincode(formData, this.channel).then(() => {
+      this.chaincodeService.upgradeChaincode(this.channel, formData).then(() => {
         this.loadI = true;
       }).catch(() => {
         this.loadI = true;
@@ -212,37 +229,51 @@ export class Home {
       }
     }
     formData.append('channelId', this.channel);
-    formData.append('chaincodeId', this.selectedChain.slice(0, this.selectedChain.indexOf(':')));
+    formData.append('chaincodeId', this.selectedChain.split(':')[0]);
     formData.append('waitForTransactionEvent', 'true');
-    formData.append('chaincodeType', this.initLanguage || 'node');
-    formData.append('chaincodeVersion', this.selectedChain.slice(this.selectedChain.indexOf(':') + 1, this.selectedChain.length));
+    formData.append('chaincodeType', this.initLanguage);
+    formData.append('chaincodeVersion', this.selectedChain.split(':')[1]);
     if (this.initFcn)
-      formData.append('fcn', this.initFcn || 'init');
+      formData.append('fcn', this.initFcn);
     if (this.initArgs)
       formData.append('args', JSON.stringify(this.parseArgs(this.initArgs)));
-    if (this.pol && this.type && this.type !== 'None') {
-      let orgsLenght = this.orgs.length === 0 ? this.orgList : this.orgs;
-      if (this.type === 'Any')
-        this.jsonPolicy.policy["1-of"] = this.countOrgs(orgsLenght.length);
-      else if (this.type === 'All')
-        this.jsonPolicy.policy[orgsLenght.length + "-of"] = this.countOrgs(orgsLenght.length);
-      else {
-        if (parseInt((orgsLenght.length / 2), 10) + 1 > orgsLenght.length) {
-          throw Error('Majority bigger than orgs count')
-        }
-        this.jsonPolicy.policy[parseInt((orgsLenght.length / 2), 10) + 1 + "-of"] = this.countOrgs(orgsLenght.length);
-      }
-      for (let i = 0; i < orgsLenght.length; i++) {
-        if (this.selectedRoles.indexOf(orgsLenght[i]) !== -1)
-          this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: orgsLenght[i]}};
-        else
-          this.jsonPolicy.identities[i] = {role: {name: "member", mspId: orgsLenght[i]}};
-      }
-      formData.append('policy', JSON.stringify(this.jsonPolicy));
-    } else if (this.policy)
+    if (this.pol && this.type && this.type !== 'None')
+      formData.append('policy', this.policyBuilder);
+    else if (this.policy)
       formData.append('policy', this.policy.replace(/\s/g, '').trim());
-
     return formData;
+  }
+
+  policyBuild() {
+    this.jsonPolicy = {
+      identities: [],
+      policy: {}
+    };
+    this.policyBuilder = null;
+    Home.clear('policyBuilder');
+    if (this.type === 'None') {
+      document.getElementById('policyBuilder').value = '';
+      return;
+    }
+    let orgsLenght = this.orgs.length === 0 ? this.orgList : this.orgs;
+    if (this.type === 'Any')
+      this.jsonPolicy.policy["1-of"] = this.countOrgs(orgsLenght.length);
+    else if (this.type === 'All')
+      this.jsonPolicy.policy[orgsLenght.length + "-of"] = this.countOrgs(orgsLenght.length);
+    else {
+      if (parseInt((orgsLenght.length / 2), 10) + 1 > orgsLenght.length) {
+        throw Error('Majority bigger than orgs count')
+      }
+      this.jsonPolicy.policy[parseInt((orgsLenght.length / 2), 10) + 1 + "-of"] = this.countOrgs(orgsLenght.length);
+    }
+    for (let i = 0; i < orgsLenght.length; i++) {
+      if (this.selectedRoles.indexOf(orgsLenght[i]) !== -1)
+        this.jsonPolicy.identities[i] = {role: {name: "admin", mspId: orgsLenght[i]}};
+      else
+        this.jsonPolicy.identities[i] = {role: {name: "member", mspId: orgsLenght[i]}};
+    }
+    this.policyBuilder = JSON.stringify(this.jsonPolicy);
+    document.getElementById('policyBuilder').value = this.policyBuilder;
   }
 
   countOrgs(num) {
@@ -253,43 +284,41 @@ export class Home {
     return array;
   }
 
-  queryChaincodes() {
-    this.show = false;
-    this.chaincodeService.getChaincodes(this.channel).then(chaincodes => {
-      this.chaincodeList = chaincodes;
-    });
-  }
-
-  queryPeers() {
-    this.targets = [];
-    this.chaincodeService.getPeersForOrgOnChannel(this.channel).then(peers => {
-      this.targets = peers;
-    });
-  }
-
   queryOrgs() {
-    this.chaincodeService.getOrgs(this.channel).then(orgs => {
+    this.chaincodeService.queryOrgs(this.channel).then(orgs => {
       this.orgList = orgs.sort();
       this.orgList.splice(orgs.indexOf('orderer'), 1);
     });
   }
 
+  queryPeers() {
+    this.peers = [];
+    this.chaincodeService.queryPeers(this.channel).then(peers => {
+      this.peers = peers;
+    });
+  }
+
   addOrgToChannel() {
     this.alertService.info('Sent invite');
-    this.chaincodeService.addOrgToChannel(this.channel, this.newOrg);
+    const params = {
+      orgId: this.newOrg
+    };
+    this.chaincodeService.addOrgToChannel(this.channel, params);
     this.newOrg = null;
   }
 
-
-  getInvoke() {
+  invoke() {
     this.load = false;
     this.clearAll();
     this.qu = false;
     this.lastTx = null;
     this.show = true;
+    const chaincode = this.selectedChaincode.split(':')[0];
+    this.logger(`Invoke: Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
     this.alertService.info('Sent invoke');
-    this.chaincodeService.invoke(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(invoke => {
+    this.chaincodeService.invoke(this.channel, chaincode,
+      this.buildProposal(true, this.channel, chaincode, this.fcn, args, this.targets)).then(invoke => {
       this.lastTx = invoke.txid;
       this.block = invoke.blockNumber;
       this.qu = true;
@@ -300,20 +329,20 @@ export class Home {
     });
   }
 
-  getQuery() {
+  query() {
     this.load = false;
     this.clearAll();
     this.lastTx = null;
     this.show = true;
     this.qu = false;
+    const chaincode = this.selectedChaincode.split(':')[0];
     this.alertService.info('Sent query');
+    this.logger(`Query: Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
-    this.chaincodeService.query(this.channel, this.selectedChaincode.slice(0, this.selectedChaincode.indexOf(':')), this.fnc, args, this.targs).then(query => {
+    this.chaincodeService.query(this.channel, chaincode,
+      this.buildProposal(false, this.channel, chaincode, this.fcn, args, this.targets)).then(query => {
       this.lastTx = query;
-      for (let i = 0; i < query.length; i++) {
-        query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
-      }
-      Home.output(query, 'res');
+      Home.output(JSON.parse(query), 'res');
       this.load = true;
     }).catch(() => {
       this.load = true;
@@ -327,87 +356,88 @@ export class Home {
     let skoba = 0;
     let skobb = 0;
     let prob = false;
+    let comma = false;
     let arg = '';
-    let nextParam=true;
     if (value) {
-      while (nextParam) {
-        nextParam = false;
-        for (let i = 0; i < value.length; i++) {
-          if (value[i] === '\'' && !kovb && skoba === 0 && skobb === 0) {
-            prob = false;
-            if (kova) {
-              kova = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              kova = true;
-            }
-          } else if (value[i] === '\"' && !kova && skoba === 0 && skobb === 0) {
-            prob = false;
-            if (kovb) {
-              kovb = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              kovb = true;
-            }
-          } else if (value[i] === '\[' && !kova && !kovb && skobb === 0) {
-            prob = false;
-            skoba++;
-            arg += value[i];
-          } else if (value[i] === '\]' && !kova && !kovb && skobb === 0) {
-            prob = false;
-            skoba--;
-            arg += value[i];
-            if (skoba === 0) {
-              try {
-                args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
-              } catch (e) {
-                args.push(arg.replace(/^\s/g, '').trim());
-              }
-              arg = '';
-            }
-          } else if (value[i] === '\{' && !kova && !kovb && skoba === 0) {
-            prob = false;
-            skobb++;
-            arg += value[i];
-          } else if (value[i] === '\}' && !kova && !kovb && skoba === 0) {
-            prob = false;
-            skobb--;
-            arg += value[i];
-            if (skobb === 0) {
-              args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
-              arg = '';
-            }
-          } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
-            if (prob && arg !== '') {
-              prob = false;
-              args.push(arg.replace(/^\s/g, '').trim());
-              arg = '';
-            } else {
-              prob = true;
-              if (arg !== '') {
-                args.push(arg.replace(/^\s/g, '').trim());
-                arg = '';
-              }
-            }
-          } else if (value[i] === ',' && !kova && !kovb && skoba === 0 && skobb === 0) {// TODO: check if comma is a part of value
-            value = value.substring(i + 1);
-            nextParam = true;
-            break;
+      for (let i = 0; i < value.length; i++) {
+        if (value[i] === '\'' && !kovb && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kova) {
+            kova = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
           } else {
-            arg += value[i];
+            kova = true;
           }
-        }
-        if (arg !== '') {
-          args.push(arg.replace(/^\s/g, '').trim());
+        } else if (value[i] === '\"' && !kova && skoba === 0 && skobb === 0) {
+          prob = false;
+          if (kovb) {
+            kovb = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            kovb = true;
+          }
+        } else if (value[i] === '\[' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba++;
+          arg += value[i];
+        } else if (value[i] === '\]' && !kova && !kovb && skobb === 0) {
+          prob = false;
+          skoba--;
+          arg += value[i];
+          if (skoba === 0) {
+            try {
+              args.push(JSON.parse(arg.replace(/^\s/g, '').trim()));
+            } catch (e) {
+              args.push(arg.replace(/^\s/g, '').trim());
+            }
+            arg = '';
+          }
+        } else if (value[i] === '\{' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb++;
+          arg += value[i];
+        } else if (value[i] === '\}' && !kova && !kovb && skoba === 0) {
+          prob = false;
+          skobb--;
+          arg += value[i];
+          if (skobb === 0) {
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          }
+        } else if (value[i] === ' ' && !kova && !kovb && skoba === 0 && skobb === 0) {
+          if (prob && arg !== '') {
+            prob = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            prob = true;
+            if (arg !== '') {
+              args.push(arg.replace(/^\s/g, '').trim());
+              arg = '';
+            }
+          }
+        } else if (value[i] === ',' && !kova && !kovb && skoba === 0 && skobb === 0) {
+          if (comma && arg !== '') {
+            comma = false;
+            args.push(arg.replace(/^\s/g, '').trim());
+            arg = '';
+          } else {
+            comma = true;
+            if (arg !== '') {
+              args.push(arg.replace(/^\s/g, '').trim());
+              arg = '';
+            }
+          }
+        } else {
+          arg += value[i];
         }
       }
+      if (arg !== '') {
+        args.push(arg.replace(/^\s/g, '').trim());
+      }
     }
-    if (args.length === 1) {
-      args = args[0];
-    }
-    console.log(args);
     return args;
   }
 
@@ -415,11 +445,11 @@ export class Home {
     this.blocks = [];
     let bl = [];
     this.selectedChaincode = null;
-    this.chaincodeService.getLastBlock(this.channel).then(block => {
+    this.chaincodeService.queryLastBlock(this.channel).then(block => {
       for (let i = block - 5; i < block; i++) {
         if (i < 0)
           continue;
-        this.chaincodeService.getBlock(this.channel, i).then(block => {
+        this.chaincodeService.queryBlock(i, this.channel).then(block => {
           let txid = [];
           for (let j = 0; j < block.data.data.length; j++) {
             txid.push(block.data.data[j].payload.header.channel_header.tx_id);
@@ -438,8 +468,8 @@ export class Home {
   }
 
   updateBlock() {
-    this.chaincodeService.getLastBlock(this.channel).then(lastBlock => {
-      this.chaincodeService.getBlock(this.channel, lastBlock - 1).then(block => {
+    this.chaincodeService.queryLastBlock(this.channel).then(lastBlock => {
+      this.chaincodeService.queryBlock(lastBlock - 1, this.channel).then(block => {
         let txid = [];
         if ((lastBlock - 1).toString() === this.block) {
           this.endorses = [];
@@ -477,9 +507,10 @@ export class Home {
   }
 
   decodeCert(cert) {
-    return this.chaincodeService.decodeCert(cert).then(o => {
-      return o;
-    });
+    const params = {
+      cert: cert
+    };
+    return this.chaincodeService.decodeCert(params);
   }
 
   hideTx() {
@@ -489,14 +520,15 @@ export class Home {
 
 
   queryConsortium() {
-    this.consortiumService.query().then((orgs) => {
+    this.consortiumService.queryOrgInconsortium().then((orgs) => {
+      console.log(consortiumMembersList);
       this.consortiumMembersList = orgs;
     });
   }
 
   addToConsortium() {
-    this.consortiumService.inviteByName(this.consortiumInviteeName).then((result) => {
-      // this.consortiumService.query()
+    const params = {orgId: this.consortiumInviteeName};
+    this.consortiumService.inviteByName(params).then((result) => {
       this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
       this.queryConsortium();
     });
@@ -547,17 +579,13 @@ export class Home {
 
   clearAll() {
     this.endorsesCert = [];
-    for (let i = 0; i < this.endorses.length; i++) {
-      let o = this.endorses[i];
-      Home.clear(o);
-    }
+    this.endorses.forEach(function (elements) {
+      Home.clear(elements);
+    });
     this.endorses = [];
-    Home.clear('info');
-    Home.clear('json');
-    Home.clear('input');
-    Home.clear('reads');
-    Home.clear('writes');
-    Home.clear('res');
+    this.elements.forEach(function (element) {
+      Home.clear(element);
+    });
   }
 
   static parseBlock(block) {
@@ -596,7 +624,7 @@ export class Home {
     Home.output(rwset, 'reads');
   }
 
-  queryCert(o, creator) {
+  showCert(o, creator) {
     let btn = document.getElementById(o + 'b').childNodes[0].nodeValue.replace(/^\s/g, '').trim();
     document.getElementById(o + 'b').childNodes[0].nodeValue = btn === 'Show cert' ? 'Hide cert' : 'Show cert';
     const el = document.getElementById(o);
@@ -616,5 +644,39 @@ export class Home {
 
   select(value) {
     this.pol = value;
+  }
+
+  hide() {
+    this.logShow = !this.logShow;
+  }
+
+  logger(args) {
+    const el = document.getElementById('log');
+    if (el)
+      el.appendChild(document.createTextNode(new Date().toISOString() + ' DEBUG: ' + args.toString()));
+    el.appendChild(document.createTextNode("\n"));
+  }
+
+  clearLog() {
+    Home.clear('log')
+  }
+
+  buildProposal(invoke, channel, chaincode, fcn, args, targets) {
+    let requestParams = {
+      channelId: channel
+    };
+    if (chaincode)
+      requestParams.chaincodeId = chaincode;
+    if (fcn)
+      requestParams.fcn = fcn.trim();
+    if (invoke) {
+      requestParams.waitForTransactionEvent = true;
+      requestParams.args = args;
+      requestParams.targets = targets;
+    } else {
+      requestParams.args = json(args);
+      requestParams.targets = json(targets);
+    }
+    return requestParams;
   }
 }

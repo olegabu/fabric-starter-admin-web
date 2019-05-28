@@ -35,13 +35,11 @@ export class App {
     this.username = this.identityService.username;
     this.org = this.identityService.org;
     this.socketService.subscribe();
-    this.chaincodeService.getDomain().then(domain => {
-      this.domain = domain;
-    });
+    this.getDomain();
   }
 
   getDomain() {
-    this.chaincodeService.getDomain().then(domain => {
+    this.chaincodeService.getDomain('get Domain', 'domain').then(domain => {
       this.domain = domain;
     });
   }
