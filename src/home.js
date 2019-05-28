@@ -97,7 +97,7 @@ export class Home {
   }
 
   attached() {
-    this.queryConsortium();
+    // this.queryConsortium();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();
@@ -563,7 +563,6 @@ export class Home {
   }
 
   static output(inp, id) {
-    console.log(inp);
     const formatter = new JSONFormatter(inp);
     const el = document.getElementById(id);
     if (el)

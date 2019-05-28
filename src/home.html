@@ -55,44 +55,44 @@
         </div>
       </form>
 
-      <form submit.delegate="addToConsortium()">
-        <h4 t="Consortium">Consortium</h4>
-        <div class="form-row align-items-center my-1">
-          <div class="col-10">
-            <table class="table table-bordered my-1">
-              <thead class="text-white" style="background-color: #000000">
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Ip</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr repeat.for="org of consortiumMembersList">
-                <td>${org}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+<!--      <form submit.delegate="addToConsortium()">-->
+      <!--        <h4 t="Consortium">Consortium</h4>-->
+      <!--        <div class="form-row align-items-center my-1">-->
+      <!--          <div class="col-10">-->
+      <!--            <table class="table table-bordered my-1">-->
+      <!--              <thead class="text-white" style="background-color: #000000">-->
+      <!--              <tr>-->
+      <!--                <th scope="col">Name</th>-->
+      <!--                <th scope="col">Ip</th>-->
+      <!--              </tr>-->
+      <!--              </thead>-->
+      <!--              <tbody>-->
+      <!--              <tr repeat.for="org of consortiumMembersList">-->
+      <!--                <td>${org}</td>-->
+      <!--              </tr>-->
+      <!--              </tbody>-->
+      <!--            </table>-->
+      <!--          </div>-->
+      <!--        </div>-->
 
-        <div class="form-row align-items-center my-1">
-          <div class="col-auto">
-            <label for="ip" t="IP">IP</label>
-            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"
-                   placeholder="IP address of org" autocomplete="off" required>
-          </div>
-          <div class="col-auto">
-            <label for="name" t="Name">Name</label>
-            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
-                   placeholder="Name of org" required>
-          </div>
-        </div>
-        <div class="form-row align-items-center my-1">
-          <div class="col-auto">
-            <button type="submit" class="btn " t="Invite">Invite</button>
-          </div>
-        </div>
-      </form>
+      <!--        <div class="form-row align-items-center my-1">-->
+      <!--          <div class="col-auto">-->
+      <!--            <label for="ip" t="IP">IP</label>-->
+      <!--            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"-->
+      <!--                   placeholder="IP address of org" autocomplete="off" required>-->
+      <!--          </div>-->
+      <!--          <div class="col-auto">-->
+      <!--            <label for="name" t="Name">Name</label>-->
+      <!--            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"-->
+      <!--                   placeholder="Name of org" required>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--        <div class="form-row align-items-center my-1">-->
+      <!--          <div class="col-auto">-->
+      <!--            <button type="submit" class="btn " t="Invite">Invite</button>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </form>-->
 
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
@@ -422,7 +422,7 @@
       <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
     </div>
 
-    <textarea wrap="off" class="form-control" id="log" readonly></textarea>
+    <textarea class="form-control" id="log" readonly></textarea>
   </nav>
 
 </template>
