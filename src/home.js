@@ -65,7 +65,6 @@ export class Home {
   show = false;
   qu = false;
   logShow = true;
-  logger = [];
 
 //Load
   load = true;
@@ -98,7 +97,7 @@ export class Home {
   }
 
   attached() {
-    // this.queryConsortium();
+    this.queryConsortium();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();
@@ -182,7 +181,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger.push(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -203,7 +202,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger.push(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -315,8 +314,8 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     const chaincode = this.selectedChaincode.split(':')[0];
+    this.logger(`Invoke: Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
-    this.logger.push(`Invoke: Function: ${this.fcn} Arguments: ${args}`);
     this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, chaincode,
       this.buildProposal(true, this.channel, chaincode, this.fcn, args, this.targets)).then(invoke => {
@@ -338,14 +337,12 @@ export class Home {
     this.qu = false;
     const chaincode = this.selectedChaincode.split(':')[0];
     this.alertService.info('Sent query');
+    this.logger(`Query: Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, chaincode,
       this.buildProposal(false, this.channel, chaincode, this.fcn, args, this.targets)).then(query => {
       this.lastTx = query;
-      for (let i = 0; i < query.length; i++) {
-        query[i] = JSON.parse(query[i].replace(/\\"/g, '\\'));
-      }
-      Home.output(query, 'res');
+      Home.output(JSON.parse(query), 'res');
       this.load = true;
     }).catch(() => {
       this.load = true;
@@ -566,6 +563,7 @@ export class Home {
   }
 
   static output(inp, id) {
+    console.log(inp);
     const formatter = new JSONFormatter(inp);
     const el = document.getElementById(id);
     if (el)
@@ -651,6 +649,17 @@ export class Home {
 
   hide() {
     this.logShow = !this.logShow;
+  }
+
+  logger(args) {
+    const el = document.getElementById('log');
+    if (el)
+      el.appendChild(document.createTextNode(new Date().toISOString() + ' DEBUG: ' + args.toString()));
+    el.appendChild(document.createTextNode("\n"));
+  }
+
+  clearLog() {
+    Home.clear('log')
   }
 
   buildProposal(invoke, channel, chaincode, fcn, args, targets) {

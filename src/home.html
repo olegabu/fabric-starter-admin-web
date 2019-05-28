@@ -55,44 +55,44 @@
         </div>
       </form>
 
-      <!--<form submit.delegate="addToConsortium()">-->
-      <!--<h4 t="Consortium">Consortium</h4>-->
-      <!--<div class="form-row align-items-center my-1">-->
-      <!--<div class="col-10">-->
-      <!--<table class="table table-bordered my-1">-->
-      <!--<thead class="text-white" style="background-color: #000000">-->
-      <!--<tr>-->
-      <!--<th scope="col">Name</th>-->
-      <!--<th scope="col">Ip</th>-->
-      <!--</tr>-->
-      <!--</thead>-->
-      <!--<tbody>-->
-      <!--<tr repeat.for="org of consortiumMembersList">-->
-      <!--<td>${org}</td>-->
-      <!--</tr>-->
-      <!--</tbody>-->
-      <!--</table>-->
-      <!--</div>-->
-      <!--</div>-->
+      <form submit.delegate="addToConsortium()">
+        <h4 t="Consortium">Consortium</h4>
+        <div class="form-row align-items-center my-1">
+          <div class="col-10">
+            <table class="table table-bordered my-1">
+              <thead class="text-white" style="background-color: #000000">
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Ip</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr repeat.for="org of consortiumMembersList">
+                <td>${org}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-      <!--<div class="form-row align-items-center my-1">-->
-      <!--<div class="col-auto">-->
-      <!--<label for="ip" t="IP">IP</label>-->
-      <!--<input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"-->
-      <!--placeholder="IP address of org" autocomplete="off" required>-->
-      <!--</div>-->
-      <!--<div class="col-auto">-->
-      <!--<label for="name" t="Name">Name</label>-->
-      <!--<input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"-->
-      <!--placeholder="Name of org" required>-->
-      <!--</div>-->
-      <!--</div>-->
-      <!--<div class="form-row align-items-center my-1">-->
-      <!--<div class="col-auto">-->
-      <!--<button type="submit" class="btn " t="Invite">Invite</button>-->
-      <!--</div>-->
-      <!--</div>-->
-      <!--</form>-->
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <label for="ip" t="IP">IP</label>
+            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"
+                   placeholder="IP address of org" autocomplete="off" required>
+          </div>
+          <div class="col-auto">
+            <label for="name" t="Name">Name</label>
+            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
+                   placeholder="Name of org" required>
+          </div>
+        </div>
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn " t="Invite">Invite</button>
+          </div>
+        </div>
+      </form>
 
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
@@ -156,13 +156,7 @@
         <button type="submit" class="btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
 
-      <!--<button type="button" class="btn-link" click.trigger="hide()">Show logger</button>-->
-      <!--<form hide.bind="logShow">-->
-        <!--<h4 style="color: red">Logger:</h4>-->
-        <!--<ul>-->
-          <!--<li repeat.for="o of logger">${o}</li>-->
-        <!--</ul>-->
-      <!--</form>-->
+      <button type="button" class="btn" click.trigger="hide()">Logger</button>
     </div>
 
     <div class="col-md-4" hide.bind="!channel">
@@ -376,13 +370,13 @@
       <div class="form-group mb-2" hide.bind="!lastTx">
         <h4 class="text" t="Transaction">Transaction</h4>
         <h5 class="text" t="Result">Result</h5>
-        <pre id="res" ref="res"></pre>
+        <pre id="res"></pre>
         <h5 class="text" t="Input" hide.bind="!qu">Input</h5>
-        <pre id="input" ref="input"></pre>
+        <pre id="input"></pre>
         <h5 class="text" t="ReadSet" hide.bind="!qu">ReadSet</h5>
-        <pre id="reads" ref="reads"></pre>
+        <pre id="reads"></pre>
         <h5 class="text" t="WriteSet" hide.bind="!qu">WriteSet</h5>
-        <pre id="writes" ref="writes"></pre>
+        <pre id="writes"></pre>
       </div>
 
       <div class="form-group mb-2" hide.bind="!qu">
@@ -409,9 +403,26 @@
 
       <div class="form-group mb-2" hide.bind="!qu">
         <h4 class="text" t="Block">Block</h4>
-        <pre id="json" ref="json"></pre>
+        <pre id="json"></pre>
       </div>
     </div>
   </div>
   <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <nav class="navbar fixed-bottom navbar-light bg-light" hide.bind="logShow">
+
+    <div class="col-auto">
+      <h5 class="text" t="Logger">Logger</h5>
+    </div>
+    <div class="col-auto my-1">
+      <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
+    </div>
+
+    <textarea wrap="off" class="form-control" id="log" readonly></textarea>
+  </nav>
+
 </template>

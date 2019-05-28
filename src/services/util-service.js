@@ -142,7 +142,6 @@ export class UtilService {
         this.alertService.error(j);
         reject(j);
       } else {
-        this.alertService.success(j);
         resolve(j);
       }
     }).catch(err => {
