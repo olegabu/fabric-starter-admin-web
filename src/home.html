@@ -1,6 +1,7 @@
 <template>
   <require from="css/style.css"></require>
-
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+        integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   <div class="my-1" style="height: 25px">
     <div class="d-inline p-2 text-white mr-1" id="block" style="background-color: #000000;" repeat.for="o of blocks"
          data-toggle="tooltip" data-placement="left" title="${o.txid}">
@@ -156,7 +157,6 @@
         <button type="submit" class="btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
 
-      <button type="button" class="btn" click.trigger="hide()">Logger</button>
     </div>
 
     <div class="col-md-4" hide.bind="!channel">
@@ -413,15 +413,20 @@
   <br>
   <br>
   <br>
+
+  <button type="button" class="btn float-right" style="background: white" click.trigger="hide()"><i
+    class="fas fa-caret-down "
+    style="font-size: 4em; color: black"></i></button>
   <nav class="navbar fixed-bottom navbar-light bg-light" hide.bind="logShow">
-
-    <div class="col-auto">
-      <h5 class="text" t="Logger">Logger</h5>
+    <div class="form-row align-items-center my-1">
+      <div class="col-auto">
+        <h5 class="text" t="Logger">Logger</h5>
+      </div>
+      <div class="col-auto">
+        <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
+      </div>
     </div>
-    <div class="col-auto my-1">
-      <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
-    </div>
-
+    <button type="button" class="btn" click.trigger="hide()">Hide logger</button>
     <textarea class="form-control" id="log" readonly></textarea>
   </nav>
 

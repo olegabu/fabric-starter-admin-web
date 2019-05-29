@@ -181,7 +181,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger(`Instantiate chaincode (${this.selectedChain}) on channel (${this.channel}): Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -202,7 +202,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger(`Upgrade chaincode (${this.selectedChain}) on channel (${this.channel}): Function: ${this.initFcn} Arguments: ${this.initArgs}`);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -314,7 +314,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     const chaincode = this.selectedChaincode.split(':')[0];
-    this.logger(`Invoke: Function: ${this.fcn} Arguments: ${this.value}`);
+    this.logger(`Invoke chaincode (${this.selectedChain}) on channel (${this.channel}): Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
     this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, chaincode,
@@ -337,7 +337,7 @@ export class Home {
     this.qu = false;
     const chaincode = this.selectedChaincode.split(':')[0];
     this.alertService.info('Sent query');
-    this.logger(`Query: Function: ${this.fcn} Arguments: ${this.value}`);
+    this.logger(`Query chaincode (${this.selectedChain}) on channel (${this.channel}): Function: ${this.fcn} Arguments: ${this.value}`);
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, chaincode,
       this.buildProposal(false, this.channel, chaincode, this.fcn, args, this.targets)).then(query => {
