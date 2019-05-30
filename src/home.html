@@ -56,7 +56,7 @@
         </div>
       </form>
 
-<!--      <form submit.delegate="addToConsortium()">-->
+      <!--      <form submit.delegate="addToConsortium()">-->
       <!--        <h4 t="Consortium">Consortium</h4>-->
       <!--        <div class="form-row align-items-center my-1">-->
       <!--          <div class="col-10">-->
@@ -321,6 +321,10 @@
               Channel
             </button>
           </div>
+          <div class="col-auto">
+            <button type="submit" class="btn " t="Register Org" click.trigger="invokeRegister()">Register Org
+            </button>
+          </div>
         </div>
       </form>
     </div>
@@ -410,24 +414,20 @@
   <br>
   <br>
   <br>
-  <br>
-  <br>
-  <br>
-
-  <button type="button" class="btn float-right" style="background: white" click.trigger="hide()"><i
-    class="fas fa-caret-down "
-    style="font-size: 4em; color: black"></i></button>
-  <nav class="navbar fixed-bottom navbar-light bg-light" hide.bind="logShow">
-    <div class="form-row align-items-center my-1">
+  <nav class="navbar fixed-bottom ">
+    <div class="form-row align-items-center">
       <div class="col-auto">
-        <h5 class="text" t="Logger">Logger</h5>
+        <h5 class="text" t="Logger" hide.bind="logShow">Logger</h5>
       </div>
       <div class="col-auto">
-        <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
+        <button type="button" class="btn " click.trigger="clearLog()" hide.bind="logShow">Clear</button>
       </div>
     </div>
-    <button type="button" class="btn" click.trigger="hide()">Hide logger</button>
-    <textarea class="form-control" id="log" readonly></textarea>
+    <button type="button" class="close">
+      <span aria-hidden="true"><i class="fas fa-caret-down "
+                                  style="font-size: 2em; color: black" click.trigger="hide()"></i></span>
+    </button>
+    <textarea class="form-control" id="log" readonly hide.bind="logShow"></textarea>
   </nav>
 
 </template>

@@ -304,7 +304,6 @@ export class Home {
       orgId: this.newOrg
     };
     this.chaincodeService.addOrgToChannel(this.channel, params);
-    this.newOrg = null;
   }
 
   invoke() {
@@ -678,5 +677,10 @@ export class Home {
       requestParams.targets = json(targets);
     }
     return requestParams;
+  }
+
+  invokeRegister(){
+    this.chaincodeService.invoke(this.channel, "dns",
+      this.buildProposal(true, this.channel, "dns", "registerOrg", this.newOrg))
   }
 }
