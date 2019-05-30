@@ -314,15 +314,18 @@
         </ul>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <input type="text" class="form-control" value.bind="newOrg" required t="[placeholder]New Organizatoin">
+            <label for="orgName" t="name">name</label>
+            <input type="text" id="orgName" class="form-control" value.bind="newOrg" required t="[placeholder]New Organizatoin">
           </div>
+          <div class="col-auto">
+            <label for="ip" t="IP">IP</label>
+            <input type="text" id="ip" class="form-control" value.bind="newOrgIp" t="[placeholder]New Organizatoin IP">
+          </div>
+        </div>
+        <div class="form-row align-items-center my-1">
           <div class="col-auto">
             <button type="submit" class="btn " t="Add Organization to Channel">Add Organization to
               Channel
-            </button>
-          </div>
-          <div class="col-auto">
-            <button type="submit" class="btn " t="Register Org" click.trigger="invokeRegister()">Register Org
             </button>
           </div>
         </div>
@@ -414,7 +417,9 @@
   <br>
   <br>
   <br>
-  <nav class="navbar fixed-bottom ">
+  <br>
+  <br>
+  <nav class="navbar fixed-bottom">
     <div class="form-row align-items-center">
       <div class="col-auto">
         <h5 class="text" t="Logger" hide.bind="logShow">Logger</h5>

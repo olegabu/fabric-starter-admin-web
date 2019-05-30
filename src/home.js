@@ -42,6 +42,7 @@ export class Home {
 //ADD orgs to channel
   orgList = [];
   newOrg = null;
+  newOrgIp = null;
 //Uploaded WebApps
   installedWebApps = [];
   webAppFile = null;
@@ -301,9 +302,12 @@ export class Home {
   addOrgToChannel() {
     this.alertService.info('Sent invite');
     const params = {
-      orgId: this.newOrg
+      orgId: this.newOrg,
+      orgIp: this.newOrgIp
     };
     this.chaincodeService.addOrgToChannel(this.channel, params);
+    this.newOrg = null;
+    this.newOrgIp = null;
   }
 
   invoke() {
@@ -677,10 +681,5 @@ export class Home {
       requestParams.targets = json(targets);
     }
     return requestParams;
-  }
-
-  invokeRegister(){
-    this.chaincodeService.invoke(this.channel, "dns",
-      this.buildProposal(true, this.channel, "dns", "registerOrg", this.newOrg))
   }
 }
