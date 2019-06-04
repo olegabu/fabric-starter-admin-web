@@ -24,7 +24,7 @@ export class SocketService {
       this.socket.on('chainblock', o => {
         log.debug('chainblock', o);
 
-        this.alertService.success(`new block ${o.number} on ${o.channel_id}`);
+        this.alertService.success(`new block ${o.number || (o.header.number)} on ${o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id)}`);
         this.eventAggregator.publish('block', o);
       });
     }
