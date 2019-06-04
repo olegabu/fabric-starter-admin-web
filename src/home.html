@@ -8,8 +8,7 @@
       ${o.blockNumber}
     </div>
   </div>
-
-  <div class="row">
+  <div class="row align-items-start">
 
     <div class="col-md-4">
 
@@ -248,7 +247,8 @@
                         <label class="form-check-label" for="${o}p">admin</label>
                       </div>
                     </div>
-                    <textarea class="form-control" id="policyBuilder" ref="policyFormBuilder" value.bind="policyBuilder"
+                    <textarea class="form-control" id="policyBuilder" ref="policyFormBuilder"
+                              value.bind="policyBuilder"
                               type="text"></textarea>
                   </div>
                 </div>
@@ -320,7 +320,8 @@
           </div>
           <div class="col-auto">
             <label for="ip" t="IP">IP</label>
-            <input type="text" id="ip" class="form-control" value.bind="newOrgIp" t="[placeholder]New Organizatoin IP">
+            <input type="text" id="ip" class="form-control" value.bind="newOrgIp"
+                   t="[placeholder]New Organizatoin IP">
           </div>
         </div>
         <div class="form-row align-items-center my-1">
@@ -416,7 +417,11 @@
       </div>
     </div>
   </div>
-
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
   <div class="row">
     <div class="col-md-4">
       <form class="fixed-bottom">
@@ -428,7 +433,7 @@
             <button type="button" class="btn custom-btn " click.trigger="clearLog()" hide.bind="logShow">Clear</button>
           </div>
           <button type="button" id="fixedButton" class="btn">
-            <span aria-hidden="true"><i class="fas fa-caret-down "
+            <span aria-hidden="true"><i class="fas fa-caret-down"
                                         style="font-size: 2em" click.trigger="hide()"></i></span>
           </button>
         </div>
