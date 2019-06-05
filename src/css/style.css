@@ -28,11 +28,3 @@
   border-radius: .2rem;
 }
 
-#fixedButton {
-  position: fixed;
-  right: 0;
-}
-
-#fixedLogger {
-  margin-top: 10%;
-}

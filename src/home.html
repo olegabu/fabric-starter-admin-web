@@ -418,24 +418,17 @@
     </div>
   </div>
 
-  <div id="fixedLogger" class="row">
-    <div class="col-md-4">
-      <form class="fixed-bottom">
-        <div class="form-row align-items-center mb-2">
-          <div class="col-auto">
-            <h5 class="text" t="Logger" hide.bind="logShow">Logger</h5>
-          </div>
-          <div class="col-auto">
-            <button type="button" class="btn custom-btn " click.trigger="clearLog()" hide.bind="logShow">Clear</button>
-          </div>
-          <button type="button" id="fixedButton" class="btn">
+  <div class="col">
+    <form class="form-inline">
+      <button id="fixedButton" type="button" class="btn float-right">
             <span aria-hidden="true"><i class="fas  ${logShow ? 'fa-caret-up' : 'fa-caret-down'}"
                                         style="font-size: 2em" click.trigger="hide()"></i></span>
-          </button>
-        </div>
-        <textarea class="form-control" id="log" readonly hide.bind="logShow"></textarea>
-      </form>
-    </div>
+      </button>
+      <h5 class="text mx-sm-3" t="Logger" hide.bind="logShow">Logger</h5>
+      <button type="button" class="btn custom-btn" click.trigger="clearLog()" hide.bind="logShow">Clear</button>
+    </form>
+
+    <textarea class="form-control" id="log" readonly hide.bind="logShow"></textarea>
   </div>
 
 </template>
