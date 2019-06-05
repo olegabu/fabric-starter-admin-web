@@ -19,7 +19,7 @@
   "delete": "Delete",
   "id": "id",
   "key": "key",
-  "name": "name",
+  "Name": "Name",
   "Version": "Version",
   "Language": "Language",
   "Install chaincode": "Install chaincode",
