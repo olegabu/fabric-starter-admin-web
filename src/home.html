@@ -418,16 +418,15 @@
     </div>
   </div>
 
-  <div class="col">
+  <div class="row align-items-end">
     <form class="form-inline">
-      <button id="fixedButton" type="button" class="btn float-right">
-            <span aria-hidden="true"><i class="fas  ${logShow ? 'fa-caret-up' : 'fa-caret-down'}"
-                                        style="font-size: 2em" click.trigger="hide()"></i></span>
+      <button id="fixedbutton" type="button" class="btn">
+            <span><i class="fas  ${logShow ? 'fa-caret-up' : 'fa-caret-down'}"
+                     style="font-size: 2em" click.trigger="hide()"></i></span>
       </button>
       <h5 class="text mx-sm-3" t="Logger" hide.bind="logShow">Logger</h5>
       <button type="button" class="btn custom-btn" click.trigger="clearLog()" hide.bind="logShow">Clear</button>
     </form>
-
     <textarea class="form-control" id="log" readonly hide.bind="logShow"></textarea>
   </div>
 
