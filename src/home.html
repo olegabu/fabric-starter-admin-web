@@ -395,7 +395,7 @@
           <div>
             ${creator}
             <pre id="${creator}"></pre>
-            <button id="${creator}b" type="submit" class="btn custom-btn custom-btn-xs"
+            <button id="${creator}b" type="submit" class="btn btn-link btn-xs"
                     click.trigger="showCert(creator, true)">
               Show cert
             </button>
@@ -404,7 +404,7 @@
           <div repeat.for="o of endorses">
             ${o}
             <pre id="${o}"></pre>
-            <button id="${o}b" type="submit" class="btn custom-btn-xs" click.trigger="showCert(o)">
+            <button id="${o}b" type="submit" class="btn btn-link btn-xs" click.trigger="showCert(o)">
               Show cert
             </button>
           </div>
