@@ -163,7 +163,8 @@ export class Home {
       formData.append('targets', this.targets);
       formData.append('version', this.installVersion || '1.0');
       formData.append('language', this.installLanguage);
-      this.chaincodeService.installChaincode(formData).then(() => {
+      this.chaincodeService.installChaincode(formData).then(res => {
+        this.alertService.success(res);
         this.queryInstalledChaincodes();
       });
     }
