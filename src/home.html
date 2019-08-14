@@ -313,15 +313,20 @@
           <li repeat.for="o of orgList">${o}</li>
         </ul>
         <div class="form-row align-items-center">
-          <div class="col-auto">
-            <label for="orgName" t="Name">Name</label>
+          <div class="col-4">
+            <label for="orgName" t="Organization name">Name</label>
             <input type="text" id="orgName" class="form-control" value.bind="newOrg" required
-                   t="[placeholder]New Organizatoin">
+                   t="[placeholder]Name">
           </div>
-          <div class="col-auto">
+          <div class="col-4">
             <label for="ip" t="IP">IP</label>
             <input type="text" id="ip" class="form-control" value.bind="newOrgIp"
-                   t="[placeholder]New Organizatoin IP">
+                   t="[placeholder]IP">
+          </div>
+          <div class="col-3">
+            <label for="anchorPeerPort" t="Anchor peer port">Anchor peer port</label>
+            <input type="text" id="anchorPeerPort" class="form-control" value.bind="anchorPeerPort"
+                   t="[placeholder]Port">
           </div>
         </div>
         <div class="form-row align-items-center my-1">
