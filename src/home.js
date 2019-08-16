@@ -42,6 +42,7 @@ export class Home {
 //ADD orgs to channel
   orgList = [];
   newOrg = null;
+  newOrgIp = null;
 //Uploaded WebApps
   installedWebApps = [];
   webAppFile = null;
@@ -104,7 +105,7 @@ export class Home {
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
-      if (o.channel_id === this.channel)
+      if (this.channel && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel))
         this.updateBlock();
       if (this.channel) {
         this.queryInstantiatedChaincodes();
@@ -181,7 +182,7 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger(`Instantiate chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger('Instantiate chaincode', this.selectedChain, this.channel, this.initFcn, this.initArgs);
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -202,7 +203,8 @@ export class Home {
       let formData;
       try {
         formData = this.createUploadForm();
-        this.logger(`Upgrade chaincode: Function: ${this.initFcn} Arguments: ${this.initArgs}`);
+        this.logger('Upgrade chaincode', this.selectedChain, this.channel, this.initFcn, this.initArgs);
+
       } catch (e) {
         this.alertService.error(e);
         return;
@@ -301,10 +303,13 @@ export class Home {
   addOrgToChannel() {
     this.alertService.info('Sent invite');
     const params = {
-      orgId: this.newOrg
+      orgId: this.newOrg,
+      orgIp: this.newOrgIp
     };
+    this.logger('Add org to channel', 'none', this.channel, 'none', [this.newOrg, this.newOrgIp].join(' '));
     this.chaincodeService.addOrgToChannel(this.channel, params);
     this.newOrg = null;
+    this.newOrgIp = null;
   }
 
   invoke() {
@@ -314,7 +319,7 @@ export class Home {
     this.lastTx = null;
     this.show = true;
     const chaincode = this.selectedChaincode.split(':')[0];
-    this.logger(`Invoke: Function: ${this.fcn} Arguments: ${this.value}`);
+    this.logger('Invoke chaincode', this.selectedChain, this.channel, this.fcn, this.value);
     let args = this.parseArgs(this.value);
     this.alertService.info('Sent invoke');
     this.chaincodeService.invoke(this.channel, chaincode,
@@ -337,7 +342,7 @@ export class Home {
     this.qu = false;
     const chaincode = this.selectedChaincode.split(':')[0];
     this.alertService.info('Sent query');
-    this.logger(`Query: Function: ${this.fcn} Arguments: ${this.value}`);
+    this.logger('Query chaincode', this.selectedChain, this.channel, this.fcn, this.value);
     let args = this.parseArgs(this.value);
     this.chaincodeService.query(this.channel, chaincode,
       this.buildProposal(false, this.channel, chaincode, this.fcn, args, this.targets)).then(query => {
@@ -650,10 +655,10 @@ export class Home {
     this.logShow = !this.logShow;
   }
 
-  logger(args) {
+  logger(operation, chaincode, channel, fcn, args) {
     const el = document.getElementById('log');
     if (el)
-      el.appendChild(document.createTextNode(new Date().toISOString() + ' DEBUG: ' + args.toString()));
+      el.appendChild(document.createTextNode(`[${new Date().toISOString()}] - DEBUG: Operation[${operation}] chaincode[${chaincode}] channel[${channel}] function[${fcn}] arguments[${args}] `));
     el.appendChild(document.createTextNode("\n"));
   }
 

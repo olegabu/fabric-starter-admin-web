@@ -1,14 +1,14 @@
 <template>
   <require from="css/style.css"></require>
-
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+        integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   <div class="my-1" style="height: 25px">
     <div class="d-inline p-2 text-white mr-1" id="block" style="background-color: #000000;" repeat.for="o of blocks"
          data-toggle="tooltip" data-placement="left" title="${o.txid}">
       ${o.blockNumber}
     </div>
   </div>
-
-  <div class="row">
+  <div class="row align-items-start">
 
     <div class="col-md-4">
 
@@ -29,7 +29,7 @@
             <input type="text" class="form-control" value.bind="channelNew" required t="[placeholder]New channel">
           </div>
           <div class="col-auto my-1">
-            <button type="submit" class="btn" t="Add channel">Add channel</button>
+            <button type="submit" class="btn custom-btn" t="Add channel">Add channel</button>
           </div>
           <div class="col-auto my-1" hide.bind="loadAdd">
             <div class="spinner-grow" role="status">
@@ -45,7 +45,7 @@
             <input type="text" class="form-control" value.bind="channelJoin" required t="[placeholder]Join channel">
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn " t="Join channel">Join channel</button>
+            <button type="submit" class="btn custom-btn " t="Join channel">Join channel</button>
           </div>
           <div class="col-auto my-1" hide.bind="loadJ">
             <div class="spinner-grow" role="status">
@@ -55,7 +55,7 @@
         </div>
       </form>
 
-<!--      <form submit.delegate="addToConsortium()">-->
+      <!--      <form submit.delegate="addToConsortium()">-->
       <!--        <h4 t="Consortium">Consortium</h4>-->
       <!--        <div class="form-row align-items-center my-1">-->
       <!--          <div class="col-10">-->
@@ -89,7 +89,7 @@
       <!--        </div>-->
       <!--        <div class="form-row align-items-center my-1">-->
       <!--          <div class="col-auto">-->
-      <!--            <button type="submit" class="btn " t="Invite">Invite</button>-->
+      <!--            <button type="submit" class="btn custom-btn " t="Invite">Invite</button>-->
       <!--          </div>-->
       <!--        </div>-->
       <!--      </form>-->
@@ -123,7 +123,7 @@
         </div>
         <div class="form-row align-items-center my-1">
           <div class="col-auto">
-            <button type="submit" class="btn " t="Install chaincode">Install chaincode</button>
+            <button type="submit" class="btn custom-btn " t="Install chaincode">Install chaincode</button>
           </div>
         </div>
       </form>
@@ -139,7 +139,7 @@
                    name="webAppFile" files.bind="webAppFile" required accept="application/zip">
           </div>
         </div>
-        <button type="submit" class="btn  my-1" t="Install Web App">Install Web App</button>
+        <button type="submit" class="btn custom-btn  my-1" t="Install Web App">Install Web App</button>
       </form>
 
       <form submit.delegate="installMiddleware()">
@@ -153,10 +153,9 @@
                    name="middlewareFile" files.bind="middlewareFile" required accept="text/javascript">
           </div>
         </div>
-        <button type="submit" class="btn my-1" t="Install Middleware">Install Middleware</button>
+        <button type="submit" class="btn custom-btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
 
-      <button type="button" class="btn" click.trigger="hide()">Logger</button>
     </div>
 
     <div class="col-md-4" hide.bind="!channel">
@@ -217,7 +216,7 @@
               <div class="card">
                 <div class="card-header" id="headingOne">
                   <h2 class="mb-0">
-                    <button class="btn" type="button" data-toggle="collapse" data-target="#collapseOne"
+                    <button class="btn custom-btn" type="button" data-toggle="collapse" data-target="#collapseOne"
                             aria-expanded="true" aria-controls="collapseOne" click.delegate="select(true)"
                             t="Endorsment policy">
                       Endorsment policy
@@ -248,7 +247,8 @@
                         <label class="form-check-label" for="${o}p">admin</label>
                       </div>
                     </div>
-                    <textarea class="form-control" id="policyBuilder" ref="policyFormBuilder" value.bind="policyBuilder"
+                    <textarea class="form-control" id="policyBuilder" ref="policyFormBuilder"
+                              value.bind="policyBuilder"
                               type="text"></textarea>
                   </div>
                 </div>
@@ -256,7 +256,7 @@
               <div class="card">
                 <div class="card-header" id="headingTwo">
                   <h2 class="mb-0">
-                    <button class="btn collapsed" type="button" data-toggle="collapse"
+                    <button class="btn custom-btn collapsed" type="button" data-toggle="collapse"
                             data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo"
                             click.delegate="select(false)" t="Your json policy">
                       Your json policy
@@ -290,12 +290,12 @@
         </div>
         <div class="form-row align-items-center my-1">
           <div class="col-auto">
-            <button type="submit" class="btn " t="Instantiate chaincode" click.trigger="initChaincode()">
+            <button type="submit" class="btn custom-btn " t="Instantiate chaincode" click.trigger="initChaincode()">
               Instantiate Chaincode
             </button>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn " t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
+            <button type="submit" class="btn custom-btn " t="Upgrade Chaincode" click.trigger="upgradeChaincode()">
               Upgrade Chaincode
             </button>
           </div>
@@ -314,10 +314,19 @@
         </ul>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <input type="text" class="form-control" value.bind="newOrg" required t="[placeholder]New Organizatoin">
+            <label for="orgName" t="Name">Name</label>
+            <input type="text" id="orgName" class="form-control" value.bind="newOrg" required
+                   t="[placeholder]New Organizatoin">
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn " t="Add Organization to Channel">Add Organization to
+            <label for="ip" t="IP">IP</label>
+            <input type="text" id="ip" class="form-control" value.bind="newOrgIp"
+                   t="[placeholder]New Organizatoin IP">
+          </div>
+        </div>
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn custom-btn " t="Add Organization to Channel">Add Organization to
               Channel
             </button>
           </div>
@@ -350,12 +359,12 @@
         </div>
         <div class="form-row align-items-center">
           <div class="col-auto">
-            <button type="submit" class="btn  mb-2" click.trigger="invoke()">
+            <button type="submit" class="btn custom-btn  mb-2" click.trigger="invoke()">
               Invoke
             </button>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn  mb-2" click.trigger="query()">
+            <button type="submit" class="btn custom-btn  mb-2" click.trigger="query()">
               Query
             </button>
           </div>
@@ -386,7 +395,8 @@
           <div>
             ${creator}
             <pre id="${creator}"></pre>
-            <button id="${creator}b" type="submit" class="btn btn-xs" click.trigger="showCert(creator, true)">
+            <button id="${creator}b" type="submit" class="btn custom-btn custom-btn-xs"
+                    click.trigger="showCert(creator, true)">
               Show cert
             </button>
           </div>
@@ -394,7 +404,7 @@
           <div repeat.for="o of endorses">
             ${o}
             <pre id="${o}"></pre>
-            <button id="${o}b" type="submit" class="btn btn-xs" click.trigger="showCert(o)">
+            <button id="${o}b" type="submit" class="btn custom-btn-xs" click.trigger="showCert(o)">
               Show cert
             </button>
           </div>
@@ -407,22 +417,17 @@
       </div>
     </div>
   </div>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <nav class="navbar fixed-bottom navbar-light bg-light" hide.bind="logShow">
 
-    <div class="col-auto">
-      <h5 class="text" t="Logger">Logger</h5>
-    </div>
-    <div class="col-auto my-1">
-      <button type="button" class="btn" click.trigger="clearLog()">Clear</button>
-    </div>
-
-    <textarea class="form-control" id="log" readonly></textarea>
-  </nav>
+  <div class="row align-items-end">
+    <form class="form-inline">
+      <button id="fixedbutton" type="button" class="btn">
+            <span><i class="fas  ${logShow ? 'fa-caret-up' : 'fa-caret-down'}"
+                     style="font-size: 2em" click.trigger="hide()"></i></span>
+      </button>
+      <h5 class="text mx-sm-3" t="Logger" hide.bind="logShow">Logger</h5>
+      <button type="button" class="btn custom-btn" click.trigger="clearLog()" hide.bind="logShow">Clear</button>
+    </form>
+    <textarea class="form-control" id="log" readonly hide.bind="logShow" style="height: 200px"></textarea>
+  </div>
 
 </template>

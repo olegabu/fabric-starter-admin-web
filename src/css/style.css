@@ -16,14 +16,22 @@
   height: 20px;
 }
 
-.btn{
+.custom-btn {
   background-color: #000000;
   color: white;
 }
 
-.btn-xs {
+.custom-btn-xs {
   padding: .25rem .4rem;
   font-size: .875rem;
   line-height: .5;
   border-radius: .2rem;
 }
+
+/*#fixedbutton {*/
+  /*position: absolute;*/
+  /*position: fixed;*/
+  /*right: 0;*/
+  /*bottom: 0;*/
+/*}*/
+
