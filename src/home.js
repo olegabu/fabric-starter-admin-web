@@ -43,6 +43,7 @@ export class Home {
   orgList = [];
   newOrg = null;
   newOrgIp = null;
+  anchorPeerPort = null;
 //Uploaded WebApps
   installedWebApps = [];
   webAppFile = null;
@@ -163,7 +164,8 @@ export class Home {
       formData.append('targets', this.targets);
       formData.append('version', this.installVersion || '1.0');
       formData.append('language', this.installLanguage);
-      this.chaincodeService.installChaincode(formData).then(() => {
+      this.chaincodeService.installChaincode(formData).then(res => {
+        this.alertService.success(res);
         this.queryInstalledChaincodes();
       });
     }
@@ -287,9 +289,8 @@ export class Home {
   }
 
   queryOrgs() {
-    this.chaincodeService.queryOrgs(this.channel).then(orgs => {
+    this.chaincodeService.queryOrgs(this.channel, {filter:true}).then(orgs => {
       this.orgList = orgs.sort();
-      this.orgList.splice(orgs.indexOf('orderer'), 1);
     });
   }
 
@@ -304,12 +305,11 @@ export class Home {
     this.alertService.info('Sent invite');
     const params = {
       orgId: this.newOrg,
-      orgIp: this.newOrgIp
+      orgIp: this.newOrgIp,
+      peerPort: this.anchorPeerPort
     };
     this.logger('Add org to channel', 'none', this.channel, 'none', [this.newOrg, this.newOrgIp].join(' '));
     this.chaincodeService.addOrgToChannel(this.channel, params);
-    this.newOrg = null;
-    this.newOrgIp = null;
   }
 
   invoke() {
@@ -605,6 +605,7 @@ export class Home {
         }
         rwset.push(str);
       }
+      Home.clear('input');
       Home.output(rwset, 'input');
     }
     rwset = [];
@@ -616,6 +617,7 @@ export class Home {
         }
       }
     }
+    Home.clear('writes');
     Home.output(rwset, 'writes');
     rwset = [];
     for (let i = 0; i < action.length; i++) {
@@ -626,6 +628,7 @@ export class Home {
         }
       }
     }
+    Home.clear('reads');
     Home.output(rwset, 'reads');
   }
 
@@ -637,10 +640,12 @@ export class Home {
       while (el.firstChild)
         el.removeChild(el.firstChild);
     } else if (creator) {
+      Home.clear(o);
       Home.output(this.creatorCert, o);
     } else {
       for (let i = 0; i < this.endorsesCert.length; i++) {
         if (this.endorsesCert[i].subject.commonName === o) {
+          Home.clear(o);
           Home.output(this.endorsesCert[i], o);
         }
       }

@@ -57,8 +57,10 @@
   "Install Middleware": "Установить промежуточное программное обеспечение",
   "Uploaded WebApps": "Загруженные веб-приложения",
   "Uploaded Middlewares": "Загруженное промежуточное программное обеспечение",
-  "New Organizatoin": "Новая организация",
+  "Organization name": "Название организации",
   "Endorsment policy": "Политика одобрения",
   "Your json policy": "Ваша json политика",
   "Register Org": "Регистрация организации",
+  "Anchor peer port": "Порт главного пира",
+  "Port": "Порт"
 }

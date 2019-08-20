@@ -47,8 +47,8 @@ export class ChaincodeService {
     return this.utilService.postRequest('Instantiate chaincode', `channels/${channel}/chaincodes/upgrade`, null, formData);
   }
 
-  queryOrgs(channel) {
-    return this.utilService.getRequest('get Organizations On Channel', `channels/${channel}/orgs`, null, this.extractOrgs);
+  queryOrgs(channel, proposal) {
+    return this.utilService.getRequest('get Organizations On Channel', `channels/${channel}/orgs`, proposal, this.extractOrgs);
   }
 
   queryPeers(channel) {

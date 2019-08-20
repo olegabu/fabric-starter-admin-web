@@ -45,9 +45,11 @@
   "Uploaded Chaincodes": "Uploaded Chaincodes",
   "orgList": "Organizations",
   "Targets": "Targets",
-  "New Organizatoin": "New Organizatoin",
+  "Organization name": "Organization name",
   "Endorsment policy": "Endorsment policy",
   "Your json policy": "Your json policy",
   "Register Org": "Register Org",
-  "IP": "IP"
+  "IP": "IP",
+  "Anchor peer port": "Anchor peer port",
+  "Port": "Port"
 }
