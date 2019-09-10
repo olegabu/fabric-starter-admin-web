@@ -55,45 +55,6 @@
         </div>
       </form>
 
-      <!--      <form submit.delegate="addToConsortium()">-->
-      <!--        <h4 t="Consortium">Consortium</h4>-->
-      <!--        <div class="form-row align-items-center my-1">-->
-      <!--          <div class="col-10">-->
-      <!--            <table class="table table-bordered my-1">-->
-      <!--              <thead class="text-white" style="background-color: #000000">-->
-      <!--              <tr>-->
-      <!--                <th scope="col">Name</th>-->
-      <!--                <th scope="col">Ip</th>-->
-      <!--              </tr>-->
-      <!--              </thead>-->
-      <!--              <tbody>-->
-      <!--              <tr repeat.for="org of consortiumMembersList">-->
-      <!--                <td>${org}</td>-->
-      <!--              </tr>-->
-      <!--              </tbody>-->
-      <!--            </table>-->
-      <!--          </div>-->
-      <!--        </div>-->
-
-      <!--        <div class="form-row align-items-center my-1">-->
-      <!--          <div class="col-auto">-->
-      <!--            <label for="ip" t="IP">IP</label>-->
-      <!--            <input type="text" id="ip" readonly class="form-control" value.bind="consortiumInviteeIP"-->
-      <!--                   placeholder="IP address of org" autocomplete="off" required>-->
-      <!--          </div>-->
-      <!--          <div class="col-auto">-->
-      <!--            <label for="name" t="Name">Name</label>-->
-      <!--            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"-->
-      <!--                   placeholder="Name of org" required>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--        <div class="form-row align-items-center my-1">-->
-      <!--          <div class="col-auto">-->
-      <!--            <button type="submit" class="btn custom-btn " t="Invite">Invite</button>-->
-      <!--          </div>-->
-      <!--        </div>-->
-      <!--      </form>-->
-
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
         <ul>
@@ -155,6 +116,53 @@
         </div>
         <button type="submit" class="btn custom-btn my-1" t="Install Middleware">Install Middleware</button>
       </form>
+
+      <form submit.delegate="addToConsortium()">
+        <h4 t="Consortium">Consortium</h4>
+
+        <div class="form-row align-items-center my-1">
+          <div class="col-10">
+            <table class="table table-bordered my-1">
+              <thead class="text-white" style="background-color: #000000">
+              <tr>
+                <th scope="col">Name</th>
+<!--                <th scope="col">Ip</th>-->
+              </tr>
+              </thead>
+              <tbody>
+              <tr repeat.for="org of consortiumMembersList">
+                <td>${org}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="form-row align-items-center my-1">
+          <div class="col-md-4">
+            <label for="name" t="Name">Name</label>
+            <input type="text" id="name" class="form-control" value.bind="consortiumInviteeName"
+                   placeholder="Name of org" required>
+          </div>
+          <div class="col-md-3">
+            <label for="consOrgIp" t="IP">IP</label>
+            <input type="text" id="consOrgIp" class="form-control" value.bind="consortiumInviteeIP"
+                   placeholder="IP address" autocomplete="off">
+          </div>
+          <div class="col-md-3">
+            <label for="consOrgWWWPort" t="WWW Port">WWW Port</label>
+            <input type="text" id="consOrgWWWPort" class="form-control" value.bind="consortiumWWWPort"
+                   placeholder="80" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="form-row align-items-center my-1">
+          <div class="col-auto">
+            <button type="submit" class="btn custom-btn " t="Invite to Consortium">Invite to Consortium</button>
+          </div>
+        </div>
+      </form>
+
 
     </div>
 
@@ -318,15 +326,22 @@
             <input type="text" id="orgName" class="form-control" value.bind="newOrg" required
                    t="[placeholder]Name">
           </div>
+          <div class="col-3">
+            <label for="anchorPeerPort" t="Anchor Peer Port">Anchor peer port</label>
+            <input type="text" id="anchorPeerPort" class="form-control" value.bind="anchorPeerPort"
+                   t="[placeholder]Port">
+          </div>
+        </div>
+        <div class="form-row align-items-center">
           <div class="col-4">
             <label for="ip" t="IP">IP</label>
             <input type="text" id="ip" class="form-control" value.bind="newOrgIp"
                    t="[placeholder]IP">
           </div>
           <div class="col-3">
-            <label for="anchorPeerPort" t="Anchor peer port">Anchor peer port</label>
-            <input type="text" id="anchorPeerPort" class="form-control" value.bind="anchorPeerPort"
-                   t="[placeholder]Port">
+            <label for="channelWWWPort" t="WWW Port">WWW port</label>
+            <input type="text" id="channelWWWPort" class="form-control" value.bind="channelWWWPort"
+                   t="[placeholder]80">
           </div>
         </div>
         <div class="form-row align-items-center my-1">
