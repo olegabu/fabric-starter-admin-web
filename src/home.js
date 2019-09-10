@@ -23,6 +23,7 @@ export class Home {
 //Consortium
   consortiumInviteeIP = null;
   consortiumInviteeName = null;
+  consortiumWWWPort = null;
   consortiumMembersList = [];
 //Install Chaincode
   installLanguage = 'node';
@@ -44,6 +45,7 @@ export class Home {
   newOrg = null;
   newOrgIp = null;
   anchorPeerPort = null;
+  channelWWWPort = null;
 //Uploaded WebApps
   installedWebApps = [];
   webAppFile = null;
@@ -99,10 +101,9 @@ export class Home {
   }
 
   attached() {
-    // this.queryConsortium();
-    this.queryChannels();
-    this.queryInstalledChaincodes();
-    this.queryInstalledWebApps();
+    this.readNodeConfig();
+    setTimeout(()=>this.readNodeConfig(), 5000);
+    setTimeout(()=>this.readNodeConfig(), 15000);
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
@@ -114,6 +115,13 @@ export class Home {
         this.queryPeers();
       }
     });
+  }
+
+  readNodeConfig() {
+    this.queryChannels();
+    this.queryInstalledChaincodes();
+    this.queryInstalledWebApps();
+    this.queryConsortium();
   }
 
   detached() {
@@ -306,7 +314,8 @@ export class Home {
     const params = {
       orgId: this.newOrg,
       orgIp: this.newOrgIp,
-      peerPort: this.anchorPeerPort
+      peerPort: this.anchorPeerPort,
+      wwwPort: this.channelWWWPort
     };
     this.logger('Add org to channel', 'none', this.channel, 'none', [this.newOrg, this.newOrgIp].join(' '));
     this.chaincodeService.addOrgToChannel(this.channel, params);
@@ -525,18 +534,18 @@ export class Home {
 
 
   queryConsortium() {
-    this.consortiumService.queryOrgInconsortium().then((orgs) => {
+    this.consortiumService.queryOrgInconsortium().then((consortiumMembersList) => {
       console.log(consortiumMembersList);
-      this.consortiumMembersList = orgs;
+      this.consortiumMembersList = consortiumMembersList;
     });
   }
 
   addToConsortium() {
-    const params = {orgId: this.consortiumInviteeName};
+    const params = {orgId: this.consortiumInviteeName, orgIp: this.consortiumInviteeIP, wwwPort: this.consortiumWWWPort};
     this.consortiumService.inviteByName(params).then((result) => {
       this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
       this.queryConsortium();
-    });
+    }).catch(this.alertService.error);
   }
 
   queryInstalledWebApps() {
