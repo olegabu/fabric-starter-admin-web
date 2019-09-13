@@ -539,7 +539,7 @@ export class Home {
     this.consortiumService.queryOrgInconsortium().then((consortiumMembersList) => {
       console.log(consortiumMembersList);
       this.consortiumMembersList = consortiumMembersList;
-    });
+    }).catch(console.log);
   }
 
   addToConsortium() {
