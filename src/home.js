@@ -107,12 +107,14 @@ export class Home {
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryChannels();
-      if (this.channel && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel))
-        this.updateBlock();
       if (this.channel) {
+        if (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel) {
+          this.updateBlock();
+        }
         this.queryInstantiatedChaincodes();
         this.queryOrgs();
         this.queryPeers();
+        this.queryConsortium();
       }
     });
   }
