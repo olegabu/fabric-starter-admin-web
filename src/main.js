@@ -1,5 +1,6 @@
 import environment from './environment';
 import {Backend, TCustomAttribute} from 'aurelia-i18n';
+import {PLATFORM} from 'aurelia-pal';
 
 // import {TCustomAttribute} from 'aurelia-i18n';
 // import Backend from 'i18next-xhr-backend';
@@ -29,6 +30,7 @@ export function configure(aurelia) {
     })
     .plugin('aurelia-table')
     .plugin('aurelia-validation')
+    .plugin(PLATFORM.moduleName('aurelia-dialog'))
     .feature('resources');
 
   if (environment.debug) {

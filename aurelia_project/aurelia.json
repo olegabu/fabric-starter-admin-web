@@ -141,7 +141,13 @@
             "name": "i18next-xhr-backend",
             "path": "../node_modules/i18next-xhr-backend/dist/umd",
             "main": "i18nextXHRBackend"
+          },
+          {
+            "name": "aurelia-dialog",
+            "path": "../node_modules/aurelia-dialog/dist/umd",
+            "main": "aurelia-dialog"
           }
+
         ]
       }
     ],

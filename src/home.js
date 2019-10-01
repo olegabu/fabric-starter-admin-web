@@ -8,12 +8,16 @@ import {ConsortiumService} from './services/consortium-service';
 import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 import {json} from "aurelia-fetch-client";
+import {DialogService} from 'aurelia-dialog';
+import {EditOrderer} from './edit-orderer';
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, DialogService)
 export class Home {
 //Blocks
+  osn=null;
+  osnList=[];
   blocks = []; // list of blocks
 //Channels
   channelList = []; // list of channels
@@ -90,7 +94,7 @@ export class Home {
     'res'];
   domain = null;
 
-  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, dialogService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
@@ -98,17 +102,30 @@ export class Home {
     this.alertService = alertService;
     this.consortiumService = consortiumService;
     this.webAppService = webAppService;
+    this.dialogService = dialogService;
   }
 
   attached() {
+    // this.dialogService.open({ viewModel: EditOrderer, model: this.osn , lock: false });
+    // .then(openDialogResult => {
+    //   // Note you get here when the dialog is opened, and you are able to close dialog
+    //   setTimeout(() => {
+    //     openDialogResult.controller.cancel('canceled outside after 3 sec')
+    //   }, 3000);
+    //
+    //   // Promise for the result is stored in openDialogResult.closeResult property
+    //   console.log(openDialogResult.closeResult);
+    // });
+
     this.readNodeConfig();
     setTimeout(()=>this.readNodeConfig(), 5000);
     setTimeout(()=>this.readNodeConfig(), 15000);
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
+      this.queryOSNs();
       this.queryChannels();
       if (this.channel) {
-        if (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel) {
+        if (o && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel)) {
           this.updateBlock();
         }
         this.queryInstantiatedChaincodes();
@@ -120,6 +137,7 @@ export class Home {
   }
 
   readNodeConfig() {
+    this.queryOSNs();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();
@@ -128,6 +146,13 @@ export class Home {
 
   detached() {
     this.subscriberBlock.dispose();
+  }
+
+  queryOSNs() {
+    this.chaincodeService.queryOSNs().then(osns => {
+      this.osnList = osns;
+      this.osnList.sort();
+    });
   }
 
   queryChannels() {
@@ -699,5 +724,8 @@ export class Home {
       requestParams.targets = json(targets);
     }
     return requestParams;
+  }
+
+  noop(){
   }
 }

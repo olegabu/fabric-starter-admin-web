@@ -19,6 +19,10 @@ export class ChaincodeService {
     return this.utilService.getRequest('get Channels', 'channels', null, this.extractChannelId);
   }
 
+  queryOSNs() {
+    return this.utilService.getRequest('get OSNs', 'osns', null);
+  }
+
   createChannel(proposal) {
     return this.utilService.postRequest('Create Channel', 'channels', proposal);
   }
