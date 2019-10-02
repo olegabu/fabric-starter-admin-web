@@ -1,5 +1,7 @@
 <template>
   <require from="css/style.css"></require>
+  <require from="./components/orderer/orderers-block"></require>
+
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
         integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
   <div class="my-1" style="height: 25px">
@@ -9,40 +11,7 @@
     </div>
   </div>
 
-  <div style=" border-style:solid">
-    <div class="row align-items-start">
-      <div class="col-md-12">
-        <h6 style="font-weight: bold">${editOrderer.firstName}</h6>
-        <h4 t="Ordering Network Services">Ordering Network Services</h4>
-      </div>
-    </div>
-    <div class="row align-items-start">
-      <div class="col-md-11">
-        <div class="row align-items-start">
-
-          <div class="col-md-3" repeat.for="osn of osnList">
-            <h6 style="font-weight: bold">${osn.name}</h6>
-            <div repeat.for="orderer of osn.orderers">
-
-              <input type="radio" name="orderer" value.bind="selectedOrderer" autocomplete="off"
-                     checked.bind='selectedOrderer'
-              >
-              ${orderer.addr}
-            </div>
-          </div>
-          <div class="row align-items-start">
-            <div class="col-md-1">
-              <button id="addOSN" type="button" class="btn">
-            <span><i class="fa fa-plus-circle"
-                     style="font-size: 2em" click.trigger="createOSN()"></i></span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+<orderers-block></orderers-block>
 
   <div class="row align-items-start">
 

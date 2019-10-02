@@ -8,16 +8,14 @@ import {ConsortiumService} from './services/consortium-service';
 import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 import {json} from "aurelia-fetch-client";
-import {DialogService} from 'aurelia-dialog';
-import {EditOrderer} from './edit-orderer';
+
+import {OrderersBlock} from "./components/orderer/orderers-block";
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, DialogService)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, OrderersBlock)
 export class Home {
 //Blocks
-  osn=null;
-  osnList=[];
   blocks = []; // list of blocks
 //Channels
   channelList = []; // list of channels
@@ -94,7 +92,7 @@ export class Home {
     'res'];
   domain = null;
 
-  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, dialogService) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, orderersBlock) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
@@ -102,27 +100,16 @@ export class Home {
     this.alertService = alertService;
     this.consortiumService = consortiumService;
     this.webAppService = webAppService;
-    this.dialogService = dialogService;
+    this.orderersBlock = orderersBlock;
   }
 
   attached() {
-    // this.dialogService.open({ viewModel: EditOrderer, model: this.osn , lock: false });
-    // .then(openDialogResult => {
-    //   // Note you get here when the dialog is opened, and you are able to close dialog
-    //   setTimeout(() => {
-    //     openDialogResult.controller.cancel('canceled outside after 3 sec')
-    //   }, 3000);
-    //
-    //   // Promise for the result is stored in openDialogResult.closeResult property
-    //   console.log(openDialogResult.closeResult);
-    // });
-
     this.readNodeConfig();
     setTimeout(()=>this.readNodeConfig(), 5000);
     setTimeout(()=>this.readNodeConfig(), 15000);
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
-      this.queryOSNs();
+      // this.orderersBlock.queryOSNs();
       this.queryChannels();
       if (this.channel) {
         if (o && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel)) {
@@ -137,7 +124,7 @@ export class Home {
   }
 
   readNodeConfig() {
-    this.queryOSNs();
+    // this.orderersBlock.queryOSNs();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();

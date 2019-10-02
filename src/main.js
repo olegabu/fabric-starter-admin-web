@@ -9,6 +9,7 @@ export function configure(aurelia) {
 
   aurelia.use
     .standardConfiguration()
+    .defaultResources()
     .plugin('aurelia-i18n', (instance) => {
       let aliases = ['t', 'i18n'];
       // add aliases for 't' attribute
@@ -31,7 +32,9 @@ export function configure(aurelia) {
     .plugin('aurelia-table')
     .plugin('aurelia-validation')
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
-    .feature('resources');
+    .feature('components')
+    .feature('resources')
+    .globalResources('components/orderer/orderers-block');
 
   if (environment.debug) {
     aurelia.use.developmentLogging();

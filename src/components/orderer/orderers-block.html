@@ -1,0 +1,34 @@
+<template>
+  <div style="border-style:solid">
+    <div class="row align-items-start">
+      <div class="col-md-12">
+        <h4 t="Ordering Network Services">Ordering Network Services</h4>
+      </div>
+    </div>
+    <div class="row align-items-start">
+      <div class="col-md-11">
+        <div class="row align-items-start">
+
+          <div class="col-md-3" repeat.for="o of osnList">
+            <h6 style="font-weight: bold">${o.name}</h6>
+            <div repeat.for="orderer of o.orderers">
+
+              <input type="radio" name="orderer" value.bind="selectedOrderer" autocomplete="off"
+                     checked.bind='selectedOrderer'
+              >
+              ${orderer.addr}
+            </div>
+          </div>
+          <div class="row align-items-start">
+            <div class="col-md-1">
+              <button id="addOSN" type="button" class="btn">
+            <span><i class="fa fa-plus-circle"
+                     style="font-size: 2em" click.trigger="createOSN()"></i></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
