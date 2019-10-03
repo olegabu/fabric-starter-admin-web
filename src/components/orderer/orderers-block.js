@@ -1,35 +1,40 @@
 import {inject} from "aurelia-dependency-injection";
 import {customElement, bindable} from 'aurelia-framework';
-import {IdentityService} from "../../services/identity-service";
+import {DialogService} from 'aurelia-dialog';
 import {EventAggregator} from "aurelia-event-aggregator";
+
+import {IdentityService} from "../../services/identity-service";
 import {ChaincodeService} from "../../services/chaincode-service";
 import {ConfigService} from "../../services/config-service";
 import {AlertService} from "../../services/alert-service";
 import {ConsortiumService} from "../../services/consortium-service";
 import {WebAppService} from "../../services/webapp-service";
-import {DialogService} from 'aurelia-dialog';
 import {EditOrderer} from './edit-orderer';
 
 
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, DialogService)
-@customElement('orderers-block')
 export class OrderersBlock {
-  osnList = []; // list of OSNs
 
+  @bindable osnList; // list of OSNs
+
+  osn={};
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, dialogService) {
     this.chaincodeService = chaincodeService;
+    this.dialogService = dialogService;
   }
 
   attached() {
-    this.queryOSNs()
   }
 
 
-  queryOSNs() {
-    this.chaincodeService.queryOSNs().then(osns => {
-      this.osnList = osns;
-      this.osnList.sort();
+  createOSN() {
+    this.dialogService.open({ viewModel: EditOrderer, model: this.osn, lock: false }).whenClosed(response => {
+      if (!response.wasCancelled) {
+        console.log(this.osn);
+      } else {
+        console.log('cancelled');
+      }
     });
   }
 

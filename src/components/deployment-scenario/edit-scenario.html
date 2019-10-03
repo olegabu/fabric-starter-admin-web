@@ -3,6 +3,23 @@
 
     <ux-dialog-body style="width:600px">
 
+      <div class="container">
+        <div class="row header">
+          <div class="col-hd-3">Step</div>
+          <div class="col-hd-3">Action</div>
+          <div class="col-hd-3">Auto Approve</div>
+        </div>
+
+        <div repeat.for="step of scenario.steps">
+          <div class="row">
+            <div class="col-md-3">step.name</div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3"><input type="checkbox" checked.bind="step.auto"> Memory</label></div>
+          </div>
+        </div>
+      </div>
+
+
       <h5>Select type</h5>
       <div class="row align-items-start">
         <div class="col-md-3" repeat.for="type of ordererTypes">
@@ -27,4 +44,3 @@
     </ux-dialog-footer>
   </ux-dialog>
 </template>
-

@@ -9,12 +9,13 @@ import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 import {json} from "aurelia-fetch-client";
 
-import {OrderersBlock} from "./components/orderer/orderers-block";
+// import {__orderersBlock} from "./components/orderer/orderers-block";
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, OrderersBlock)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
 export class Home {
+  osnList=[]
 //Blocks
   blocks = []; // list of blocks
 //Channels
@@ -101,6 +102,7 @@ export class Home {
     this.consortiumService = consortiumService;
     this.webAppService = webAppService;
     this.orderersBlock = orderersBlock;
+    this.osnList=[]
   }
 
   attached() {
@@ -109,7 +111,7 @@ export class Home {
     setTimeout(()=>this.readNodeConfig(), 15000);
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
-      // this.orderersBlock.queryOSNs();
+      this.queryOSNs();
       this.queryChannels();
       if (this.channel) {
         if (o && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel)) {
@@ -124,7 +126,7 @@ export class Home {
   }
 
   readNodeConfig() {
-    // this.orderersBlock.queryOSNs();
+    this.queryOSNs();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();

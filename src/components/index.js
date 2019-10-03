@@ -1,3 +1,4 @@
 export function configure(config) {
-  // config.globalResources([]);
+  config.globalResources(['./form-element/form-field.html']);
+  config.globalResources(['./deployment-scenario/deployment-scenario']);
 }
