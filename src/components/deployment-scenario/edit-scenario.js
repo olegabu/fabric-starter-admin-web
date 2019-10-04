@@ -4,7 +4,7 @@ import {customElement, bindable} from 'aurelia-framework';
 export class EditScenario {
   static inject = [DialogController];
 
-  @bindable scenarion = {};
+  @bindable scenario = {};
   ordererTypes = [{id: 'solo', name: 'Solo'}, {id: 'etcdraft', name: 'RAFT'}, {id: 'bft', name: 'BFT'}];
 
   orderer = {
@@ -17,8 +17,12 @@ export class EditScenario {
     this.controller = controller;
   }
 
-  activate(orderer) {
-    this.orderer = orderer;
+  activate(scenario) {
+    this.scenario = scenario;
+  }
+
+  scenarioKeys(stepNum) {
+    return this.scenario.steps[stepNum].params && Object.keys(this.scenario.steps[stepNum].params);
   }
 
 }

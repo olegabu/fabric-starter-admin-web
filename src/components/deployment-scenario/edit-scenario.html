@@ -1,41 +1,39 @@
 <template>
   <ux-dialog>
 
-    <ux-dialog-body style="width:600px">
+    <ux-dialog-body style="width:1100px">
 
-      <div class="container">
+      <div class="container scenario">
         <div class="row header">
-          <div class="col-hd-3">Step</div>
-          <div class="col-hd-3">Action</div>
-          <div class="col-hd-3">Auto Approve</div>
+          <div class="col-md-1">Step</div>
+          <div class="col-md-3">Name</div>
+          <div class="col-md-2">Auto Approve</div>
+          <div class="col-md-6">Parameters</div>
         </div>
 
-        <div repeat.for="step of scenario.steps">
-          <div class="row">
-            <div class="col-md-3">step.name</div>
-            <div class="col-md-3"></div>
-            <div class="col-md-3"><input type="checkbox" checked.bind="step.auto"> Memory</label></div>
+        <div class="row" repeat.for="step of scenario.steps">
+          <div class="col-md-1">${step.step}</div>
+          <div class="col-md-3">${step.name}</div>
+          <div class="col-md-2" style="text-align: center"><input type="checkbox" checked.bind="step.auto"></label></div>
+          <div class="col-md-6">
+            <div class="container scenario-params">
+              <div class="row" repeat.for="param of scenarioKeys($index)">
+                <div class="col-md-12">
+                <form-field title="param" field.two-way="step.params[param]"></form-field>
+              </div>
+<!--
+                <div class="col-md-4" style="font-weight: bold">
+                  ${param}:
+                </div>
+                <div class="col-md-8">
+                  <input type="text"
+                         ${step.params[param]}
+                </div>
+-->
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-
-      <h5>Select type</h5>
-      <div class="row align-items-start">
-        <div class="col-md-3" repeat.for="type of ordererTypes">
-          <input type="radio" name="orderer" value.bind="type.id" autocomplete="off"
-                 checked.bind='orderer.type'>
-          ${type.name}
-        </div>
-
-      </div>
-
-      <form-field title="Orderer name" field.two-way="orderer.name"></form-field>
-      <form-field title="Orderer domain" field.two-way="orderer.domain"></form-field>
-      <form-field title="Orderer port" field.two-way="orderer.port"></form-field>
-      <form-field title="Orderer www port" field.two-way="orderer.wwwPort"></form-field>
-
-
     </ux-dialog-body>
 
     <ux-dialog-footer>

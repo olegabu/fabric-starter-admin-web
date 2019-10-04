@@ -28,10 +28,35 @@
   border-radius: .2rem;
 }
 
+.header div[class*="col-md-"]{
+  font-weight: bold;
+  text-align: center;
+}
+
+.scenario .row div[class*="col-md-"] {
+  padding: 4px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: darkgray;
+}
+
+.scenario-params .row div[class*="col-md-"] {
+  padding: 4px;
+  border-style: solid;
+  border-width: 1px 0 0 0;
+}
+
+.scenario-params .row:first-child div[class*="col-md-"] {
+  padding: 4px;
+  border-style: none;
+}
+
+
+
 /*#fixedbutton {*/
-  /*position: absolute;*/
-  /*position: fixed;*/
-  /*right: 0;*/
-  /*bottom: 0;*/
+/*position: absolute;*/
+/*position: fixed;*/
+/*right: 0;*/
+/*bottom: 0;*/
 /*}*/
 

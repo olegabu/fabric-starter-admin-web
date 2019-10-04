@@ -25,7 +25,7 @@ export class DeploymentScenario {
       {
         step: "2",
         name: 'Start RAFT node',
-        param: {ordererName: 'raft2', genesisBlockPath: "configtx/genesis.pb"},
+        params: {ordererName: 'raft2', genesisBlockPath: "configtx/genesis.pb"},
         auto: 'true',
       },
       {
@@ -79,7 +79,7 @@ export class DeploymentScenario {
   }
 
   createScenario() {
-    this.dialogService.open({viewModel: EditScenario, model: this.osn, lock: false}).whenClosed(response => {
+    this.dialogService.open({viewModel: EditScenario, model: this.scenario, lock: false}).whenClosed(response => {
       if (!response.wasCancelled) {
         console.log(this.osn);
       } else {
