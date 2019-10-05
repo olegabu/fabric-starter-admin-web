@@ -14,26 +14,28 @@
         <div class="row" repeat.for="step of scenario.steps">
           <div class="col-md-1">${step.step}</div>
           <div class="col-md-3">${step.name}</div>
-          <div class="col-md-2" style="text-align: center"><input type="checkbox" checked.bind="step.auto"></label></div>
+          <div class="col-md-2" style="text-align: center"><input type="checkbox" checked.bind="step.auto"></label>
+          </div>
           <div class="col-md-6">
             <div class="container scenario-params">
               <div class="row" repeat.for="param of scenarioKeys($index)">
                 <div class="col-md-12">
-                <form-field title="param" field.two-way="step.params[param]"></form-field>
-              </div>
-<!--
-                <div class="col-md-4" style="font-weight: bold">
-                  ${param}:
+                  <form-field title.bind="param" field.two-way="step.params[param]"></form-field>
                 </div>
-                <div class="col-md-8">
-                  <input type="text"
-                         ${step.params[param]}
-                </div>
--->
               </div>
+              <!--
+                              <div class="col-md-4" style="font-weight: bold">
+                                ${param}:
+                              </div>
+                              <div class="col-md-8">
+                                <input type="text"
+                                       ${step.params[param]}
+                              </div>
+              -->
             </div>
           </div>
         </div>
+      </div>
     </ux-dialog-body>
 
     <ux-dialog-footer>
