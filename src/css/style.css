@@ -28,16 +28,22 @@
   border-radius: .2rem;
 }
 
-.header div[class*="col-md-"]{
+.header div[class*="col-lg-"]{
   font-weight: bold;
   text-align: center;
 }
 
-.scenario .row div[class*="col-md-"] {
+.border{
+  border-style: solid;
+  border-color: darkgray;
+  border-width: 1px;
+}
+
+.scenario .row div[class*="col-lg-"] {
   padding: 4px;
   border-style: solid;
-  border-width: 1px;
   border-color: darkgray;
+  border-width: 1px;
 }
 
 .scenario-params .row div[class*="col-md-"] {
@@ -50,8 +56,6 @@
   padding: 4px;
   border-style: none;
 }
-
-
 
 /*#fixedbutton {*/
 /*position: absolute;*/

@@ -1,44 +1,100 @@
 <template>
   <ux-dialog>
 
-    <ux-dialog-body style="width:1100px">
+    <ux-dialog-header style="width:1600px">
+    </ux-dialog-header>
+    <ux-dialog-body style="width:1600px; height:600px">
 
-      <div class="container scenario">
-        <div class="row header">
-          <div class="col-md-1">Step</div>
-          <div class="col-md-3">Name</div>
-          <div class="col-md-2">Auto Approve</div>
-          <div class="col-md-6">Parameters</div>
-        </div>
-
-        <div class="row" repeat.for="step of scenario.steps">
-          <div class="col-md-1">${step.step}</div>
-          <div class="col-md-3">${step.name}</div>
-          <div class="col-md-2" style="text-align: center"><input type="checkbox" checked.bind="step.auto"></label>
-          </div>
-          <div class="col-md-6">
-            <div class="container scenario-params">
-              <div class="row" repeat.for="param of scenarioKeys($index)">
-                <div class="col-md-12">
-                  <form-field title.bind="param" field.two-way="step.params[param]"></form-field>
+      <aup-tabs class="nav-tabs"
+                tabs.bind="[{id:'tasks', label:'Tasks'}, {active:true, id:'scenarios', label:'Deployments scenarios'}]"
+                translate="true"></aup-tabs>
+      <aup-tab-content>
+        <aup-tab-pane tab="tasks" class="active">
+          <div class="container-fluid border">
+            <div class="row header">
+              <div class="col-lg-3">Task Name</div>
+              <div class="col-lg-9">Parameters</div>
+            </div>
+            <div class="row pre-scrollable">
+              <div class="col-lg-12">
+                <div class="container-fluid scenario">
+                  <div class="row" repeat.for="task of objToArray(templates.tasks)">
+                    <div class="col-lg-3">${task.name}</div>
+                    <div class="col-lg-9">
+                      <div class="container-fluid scenario-params">
+                        <div class="row">
+                          <div class="col-md-3" repeat.for="param of objToArray(task.params)">
+                            ${param.id}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <!--
-                              <div class="col-md-4" style="font-weight: bold">
-                                ${param}:
-                              </div>
-                              <div class="col-md-8">
-                                <input type="text"
-                                       ${step.params[param]}
-                              </div>
-              -->
             </div>
           </div>
-        </div>
-      </div>
+        </aup-tab-pane>
+      </aup-tab-content>
+
+
+      <aup-tab-content style="height:100%">
+        <aup-tab-pane tab="scenarios" style="height:100%">
+          <div class="container-fluid" style="height:100%">
+            <div class="row" style="height:100%">
+              <div class="col-lg-12" style="height:500px">
+                <aup-tabs class="nav-pills" tabs.bind="scenarios" translate="true" style="height:100%"></aup-tabs>
+                <aup-tab-content style="height:100%">
+                  <aup-tab-pane tab="${scenario.id}" repeat.for="scenario of scenarios" style="height:100%">
+
+                    <div class="container-fluid" style="height:100%">
+                      <div class="row header">
+                        <div class="col-lg-1">Step</div>
+                        <div class="col-lg-3">Task</div>
+                        <div class="col-lg-2">Auto Approve</div>
+                        <div class="col-lg-6">Parameters</div>
+                      </div>
+
+                      <div class="row pre-scrollable" style="height:500px">
+                        <div class="col-lg-12" style="height:500px">
+                          <div class="container-fluid scenario" style="height:500px">
+                            <div class="row" repeat.for="step of scenario.steps">
+                              <div class="col-lg-1">${step.stepNum}</div>
+                              <div class="col-lg-3">${templates.tasks[step.task].name}</div>
+                              <div class="col-lg-2" style="text-align: center">
+                                <input type="checkbox" checked.bind="step.auto"></label>
+                              </div>
+                              <div class="col-lg-6">
+                                <div class="container scenario-params">
+                                  <div class="row" repeat.for="param of objToArray(step.params)">
+                                    <div class="col-lg-12">
+                                      <form-field title.bind="param.id" field.two-way="step.params[param.id]"></form-field>
+                                    </div>
+                                  </div>
+                                  <div class="row" repeat.for="param of objToArray(templates.tasks[step.task].params)">
+                                    <div class="col-lg-12">
+                                      <form-field title.bind="param.id" field.two-way="templates.tasks.params[param.id]"></form-field>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </aup-tab-pane>
+                </aup-tab-content>
+              </div>
+            </div>
+          </div>
+        </aup-tab-pane>
+      </aup-tab-content>
+
+
     </ux-dialog-body>
 
-    <ux-dialog-footer>
+    <ux-dialog-footer style="padding-right: 30px">
       <button click.trigger="controller.cancel()">Cancel</button>
       <button click.trigger="controller.ok(orderer)">Ok</button>
     </ux-dialog-footer>

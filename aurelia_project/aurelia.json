@@ -33,7 +33,8 @@
         "prepend": [
           "node_modules/bluebird/js/browser/bluebird.core.js",
           "node_modules/aurelia-cli/lib/resources/scripts/configure-bluebird.js",
-          "node_modules/requirejs/require.js"
+          "node_modules/requirejs/require.js",
+          "node_modules/babel-polyfill/dist/polyfill.min.js"
         ],
         "dependencies": [
           "aurelia-binding",
@@ -146,6 +147,11 @@
             "name": "aurelia-dialog",
             "path": "../node_modules/aurelia-dialog/dist/umd",
             "main": "aurelia-dialog"
+          },
+          {
+            "name": "aurelia-plugins-tabs",
+            "path": "../node_modules/aurelia-plugins-tabs/dist/amd",
+            "main": "aurelia-plugins-tabs"
           }
 
         ]

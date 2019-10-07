@@ -32,6 +32,8 @@ export function configure(aurelia) {
     .plugin('aurelia-table')
     .plugin('aurelia-validation')
     .plugin(PLATFORM.moduleName('aurelia-dialog'))
+    .plugin(PLATFORM.moduleName('aurelia-plugins-tabs'))
+    .plugin('aurelia-bootstrap')
     .feature('components')
     .feature('resources')
     .globalResources('components/orderer/orderers-block');
