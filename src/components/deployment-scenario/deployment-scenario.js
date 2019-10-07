@@ -80,6 +80,7 @@ export class DeploymentScenario {
     scenarios : {
       startRaftCluster: {
         name: "Start new RAFT ordering service",
+        params:[{name: 'ORDERER_NAMES', value:'raft1,raft2,raft3'}, {name: 'ORDERER_DOMAIN', value:'osn-${ORG}.${DOMAIN}'}],
         steps: [
           {
             step: "1",

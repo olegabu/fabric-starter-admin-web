@@ -110,8 +110,8 @@ export class UtilService {
     });
   }
 
-  getRequest(logmessage, path, requestParams, extractResultFn) {
-    log.debug(logmessage);
+  getRequest(logMessage, path, requestParams, extractResultFn) {
+    log.debug(logMessage);
     const url = Config.getUrl(path);
     return new Promise((resolve, reject) => {
       this.fetch(url, requestParams, 'get').then(j => {
@@ -123,7 +123,9 @@ export class UtilService {
     });
   }
 
-  postRequest(logmessage, path, requestParams, uploadFile, extractResultFn) {
+  postRequest(logMessage, path, requestParams, uploadFile, extractResultFn) {
+    log.debug(logMessage);
+
     const url = Config.getUrl(path);
 
     let resPromise = new Promise((resolve, reject) => {

@@ -1,12 +1,12 @@
 <template>
   <ux-dialog>
 
-    <ux-dialog-header style="width:1600px">
+    <ux-dialog-header style="width:1200px">
     </ux-dialog-header>
-    <ux-dialog-body style="width:1600px; height:600px">
+    <ux-dialog-body style="width:1200px; height:600px">
 
       <aup-tabs class="nav-tabs"
-                tabs.bind="[{id:'tasks', label:'Tasks'}, {active:true, id:'scenarios', label:'Deployments scenarios'}]"
+                tabs.bind="[{id:'tasks', label:'Tasks'}, {active:true, id:'scenarios', label:'Deployment scenarios'}]"
                 translate="true"></aup-tabs>
       <aup-tab-content>
         <aup-tab-pane tab="tasks" class="active">
@@ -43,10 +43,24 @@
           <div class="container-fluid" style="height:100%">
             <div class="row" style="height:100%">
               <div class="col-lg-12" style="height:500px">
-                <aup-tabs class="nav-pills" tabs.bind="scenarios" translate="true" style="height:100%"></aup-tabs>
+                <aup-tabs class="nav-tabs" tabs.bind="scenarios" translate="true" style="height:100%"></aup-tabs>
+                <!--TODO nav-pills-->
                 <aup-tab-content style="height:100%">
                   <aup-tab-pane tab="${scenario.id}" repeat.for="scenario of scenarios" style="height:100%">
 
+                    <form submit.delegate="launchScenario(scenario.id)" class="border">
+                      <div class="form-row align-items-center">
+                        <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px">
+                          <label for="formParam.name">${formParam.name}:</label>
+                          <input class="form-control" type="text" name="formParam.name" value.bind="formParam.value"
+                                 required>
+                        </div>
+                        <div class="col-auto align-items-center" style="padding-top:30px">
+                          <button type="submit" class="btn custom-btn " t="Launch Scenario">Install chaincode</button>
+                        </div>
+                      </div>
+                    </form>
+<hr/>
                     <div class="container-fluid" style="height:100%">
                       <div class="row header">
                         <div class="col-lg-1">Step</div>
@@ -68,12 +82,14 @@
                                 <div class="container scenario-params">
                                   <div class="row" repeat.for="param of objToArray(step.params)">
                                     <div class="col-lg-12">
-                                      <form-field title.bind="param.id" field.two-way="step.params[param.id]"></form-field>
+                                      <form-field title.bind="param.id"
+                                                  field.two-way="step.params[param.id]"></form-field>
                                     </div>
                                   </div>
                                   <div class="row" repeat.for="param of objToArray(templates.tasks[step.task].params)">
                                     <div class="col-lg-12">
-                                      <form-field title.bind="param.id" field.two-way="templates.tasks.params[param.id]"></form-field>
+                                      <form-field title.bind="param.id"
+                                                  field.two-way="templates.tasks.params[param.id]"></form-field>
                                     </div>
                                   </div>
                                 </div>
