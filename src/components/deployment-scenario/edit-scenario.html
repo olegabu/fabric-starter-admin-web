@@ -50,13 +50,13 @@
 
                     <form submit.delegate="launchScenario(scenario.id)" class="border">
                       <div class="form-row align-items-center">
-                        <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px">
+                        <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px" show.bind="formParam.visible!=='false'">
                           <label for="formParam.name">${formParam.name}:</label>
                           <input class="form-control" type="text" name="formParam.name" value.bind="formParam.value"
                                  required>
                         </div>
                         <div class="col-auto align-items-center" style="padding-top:30px">
-                          <button type="submit" class="btn custom-btn " t="Launch Scenario">Install chaincode</button>
+                          <button type="submit" class="btn custom-btn " t="Launch Scenario"></button>
                         </div>
                       </div>
                     </form>
