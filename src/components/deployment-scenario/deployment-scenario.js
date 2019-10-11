@@ -28,11 +28,11 @@ export class DeploymentScenario {
 
   createScenario() {
     this.utilService.getRequest("get tasks", "tasks").then(tasks=>{
-      this.templates.tasks=tasks.tasks;
+      this.templates.tasks=tasks;
     });
 
     this.utilService.getRequest("get scenarios", "scenarios").then(scenarios=>{
-      this.templates.scenarios=scenarios.scenarios;
+      this.templates.scenarios=scenarios;
     });
 
     this.dialogService.open({viewModel: EditScenario, model: this.templates, lock: true}).whenClosed(response => {
