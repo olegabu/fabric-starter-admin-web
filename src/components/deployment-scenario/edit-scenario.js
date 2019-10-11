@@ -30,7 +30,7 @@ export class EditScenario {
 
     this.templates = templates;
     this.scenarios = (templates && templates.scenarios && this.objToArray(templates.scenarios)) || [];
-    if (this.scenarios.length) this.scenarios[0].active = true;
+    if (this.scenarios.length) this.scenarios[this.scenarios.length-1].active = true;
 
     if (this.scenarios) {
       this.scenarios.forEach(scenario => {
@@ -62,14 +62,19 @@ export class EditScenario {
     }
   }
 
-  objToArray(obj) {
+  objToArray(obj, prop) {
+    if (prop && obj && obj[prop]){
+      obj=obj[prop];
+    }
+    if (Array.isArray(obj)) {
+      return obj;
+    }
     let arr = obj && Object.keys(obj).map(key => Object.assign({}, obj[key], {
       id: key,
       label: obj[key] ? obj[key].name : key
     }));
     return arr || [];
   }
-
 
   async launchScenario(scenarioId) {
     let scenario = this.templates.scenarios[scenarioId];

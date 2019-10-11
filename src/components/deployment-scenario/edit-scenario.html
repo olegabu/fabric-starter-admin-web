@@ -3,7 +3,7 @@
 
     <ux-dialog-header style="width:1200px">
     </ux-dialog-header>
-    <ux-dialog-body style="width:1200px; height:600px">
+    <ux-dialog-body style="width:1200px; ">
 
       <aup-tabs class="nav-tabs"
                 tabs.bind="[{id:'tasks', label:'Tasks'}, {active:true, id:'scenarios', label:'Deployment scenarios'}]"
@@ -42,7 +42,7 @@
         <aup-tab-pane tab="scenarios" style="height:100%">
           <div class="container-fluid" style="height:100%">
             <div class="row" style="height:100%">
-              <div class="col-lg-12" style="height:500px">
+              <div class="col-lg-12" style="height:100%">
                 <aup-tabs class="nav-tabs" tabs.bind="scenarios" translate="true" style="height:100%"></aup-tabs>
                 <!--TODO nav-pills-->
                 <aup-tab-content style="height:100%">
@@ -60,7 +60,7 @@
                         </div>
                       </div>
                     </form>
-<hr/>
+                    <hr/>
                     <div class="container-fluid" style="height:100%">
                       <div class="row header">
                         <div class="col-lg-1">Step</div>
@@ -75,30 +75,38 @@
                             <div class="row" repeat.for="step of scenario.steps">
                               <div class="col-lg-1">${step.stepNum}</div>
                               <div class="col-lg-3">${templates.tasks[step.task].name}</div>
-                              <div class="col-lg-2" style="text-align: center">
+                              <div class="col-lg-1" style="text-align: center">
                                 <input type="checkbox" checked.bind="step.auto"></label>
                               </div>
-                              <div class="col-lg-6">
+                              <div class="col-lg-7">
                                 <div class="container scenario-params">
                                   <div class="row" repeat.for="param of objToArray(step.params)">
                                     <div class="col-lg-12">
-                                      <form-field title.bind="param.id"
-                                                  field.two-way="step.params[param.id]"></form-field>
+                                      <form-field title.bind="param.name"
+                                                  field.two-way="param.value"></form-field>
+                                      <div class="row"
+                                           repeat.for="taskParam of objToArray(templates.tasks[step.task].params)">
+                                        <div class="col-lg-1" style="border-style: none"></div>
+                                        <div class="col-lg-11">
+                                          <form-field title.bind="taskParam.name"
+                                                      field.two-way="taskParam.value"></form-field>
+                                          <div class="row" repeat.for="valueTaskParam of objToArray(templates.tasks[param.value], 'params')">
+                                            <div class="col-lg-2" style="border-style: none"></div>
+                                            <div class="col-lg-9">
+                                              <form-field title.bind="valueTaskParam.name"
+                                                          field.two-way="valueTaskParam.value"></form-field>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
                                   </div>
-                                  <div class="row" repeat.for="param of objToArray(templates.tasks[step.task].params)">
-                                    <div class="col-lg-12">
-                                      <form-field title.bind="param.id"
-                                                  field.two-way="templates.tasks.params[param.id]"></form-field>
-                                    </div>
-                                  </div>
+
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
                   </aup-tab-pane>
                 </aup-tab-content>
               </div>

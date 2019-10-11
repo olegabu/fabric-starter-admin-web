@@ -14,12 +14,12 @@ export class DeploymentScenario {
 
   osn = {};
 
-  templates= {
+  templates = {
     tasks: {
       startRaftOrderingService3Nodes: {
         name: 'Start RAFT Cluster with 3 Nodes',
         params: {
-          ordererNames: 'raft1,raft2,raft3',
+          ordererNames: 'raft0,raft1,raft2',
           ordererDomain: "${ORDERER_DOMAIN}",
           configtxTemplate: '3-raft-node-template.yaml'
         }
@@ -35,7 +35,9 @@ export class DeploymentScenario {
       startRaft1Node: {
         name: 'Start one RAFT server',
         params: {
-          ordererName: "${ORDERER_NAME}", ordererDomain: "${ORDERER_DOMAIN}", configtxTemplate: 'raft-node-template.yaml'
+          ordererName: "${ORDERER_NAME}",
+          ordererDomain: "${ORDERER_DOMAIN}",
+          configtxTemplate: 'raft-node-template.yaml'
         }
       },
       addOrdererToRaftOrderingService: {
@@ -48,7 +50,7 @@ export class DeploymentScenario {
       },
       passTaskToOtherParty: {
         name: 'Pass task to Other Party',
-        params: {targetOrgAddress: "${OTHER_PARTY_ADDRESS}"}
+        params: [{name: 'url', value: '192.168.99.1:4000'}]
       },
       waitForOtherPartyOnEntrypoint: {
         name: 'Wait for other party complete and invoke entrypoint',
@@ -68,7 +70,7 @@ export class DeploymentScenario {
       },
       addOrgToChannel: {
         name: 'Add Org To Channel',
-        params: {channel: "${CHANNEL}", org: {mspId: "${ORG}", peer0Port: '${PEER0_PORT}', wwwPort: "${wwwPort}"}}
+        params: [{name: "channel", value: "${CHANNEL}"}, {name: 'org', value: "${ORG}"}, {name: 'orgIp',value: "${IP}"}]
       },
       joinChannel: {
         name: 'Join Channel',
@@ -77,10 +79,14 @@ export class DeploymentScenario {
     },
 
 
-    scenarios : {
+    scenarios: {
+/*
       startRaftCluster: {
         name: "Start new RAFT ordering service",
-        params:[{name: 'ORDERER_NAMES', value:'raft0,raft1,raft2'}, {name: 'ORDERER_DOMAIN', value:'osn-${ORG}.${DOMAIN}'}, {name:'ORDERER_PORTS', value:'7050,7150,7250'}],
+        params: [{name: 'ORDERER_NAMES', value: 'raft0,raft1,raft2'}, {
+          name: 'ORDERER_DOMAIN',
+          value: 'osn-${ORG}.${DOMAIN}'
+        }, {name: 'ORDERER_PORTS', value: '7050,7150,7250'}],
         steps: [
           {
             step: "1",
@@ -94,6 +100,8 @@ export class DeploymentScenario {
           },
         ]
       },
+*/
+/*
       inviteOrdererToRAFTCluster: {
         name: 'Invite orderer to RAFT ordering service',
         steps: [
@@ -112,6 +120,7 @@ export class DeploymentScenario {
           },
         ]
       },
+
       joinRaftOrderingService: {
         name: 'Join existing RAFT ordering service',
         params: ['ORDERER_NAME', 'ORDERER_DOMAIN', 'ORDERER_GENERAL_LISTENPORT', 'WWW_PORT'],
@@ -141,16 +150,14 @@ export class DeploymentScenario {
         }]
       },
 
+*/
       joinChannel: {
         name: "Join existing channel",
         params: ['CHANNEL_OWNER_ADDRESS', 'CHANNEL', 'NEWORG', 'PEER0_PORT', 'WWW_PORT'],
         steps: [
           {
             task: 'passTaskToOtherParty',
-            params: {
-              task: "addOrgToChannel",
-              params: {address: "${CHANNEL_OWNER_ADDRESS}", channel: "${CHANNEL}", org: {mspId: "${NEWORG}"}}
-            },
+            params: [{name: 'task', value: "addOrgToChannel", valueIsATask: true}],
             auto: true,
           },
           {
