@@ -1,15 +1,29 @@
 import 'bootstrap';
 import {inject} from "aurelia-dependency-injection";
 import {DialogController} from 'aurelia-dialog';
-import {customElement, bindable} from 'aurelia-framework';
+import {customElement, bindable, computedFrom} from 'aurelia-framework';
 import {UtilService} from '../../services/util-service';
 
 @inject(UtilService, DialogController)
 export class EditScenario {
   // static inject = [DialogController];
 
-  @bindable templates = null;
+  @bindable templates = {};
   ordererTypes = [{id: 'solo', name: 'Solo'}, {id: 'etcdraft', name: 'RAFT'}, {id: 'bft', name: 'BFT'}];
+
+  @computedFrom('templates')
+  get scenarios() {
+    let scenarios = (this.templates && this.templates.scenarios && this.objToArray(this.templates.scenarios)) || [];
+    if (scenarios.length) scenarios[scenarios.length-1].active = true;
+
+    if (scenarios) {
+      scenarios.forEach(scenario => {
+        this.stepsAutoNumbering(scenario);
+        this.evaluateDefaultParamValues(scenario, this.env);
+      })
+    }
+    return scenarios;
+  }
 
   orderer = {
     type: null,
@@ -29,20 +43,21 @@ export class EditScenario {
 
 
     this.templates = templates;
+/*
     this.scenarios = (templates && templates.scenarios && this.objToArray(templates.scenarios)) || [];
     if (this.scenarios.length) this.scenarios[this.scenarios.length-1].active = true;
 
     if (this.scenarios) {
       this.scenarios.forEach(scenario => {
-        this.stepsAutoNambering(scenario);
+        this.stepsAutoNumbering(scenario);
         this.evaluateDefaultParamValues(scenario, env);
 
       })
     }
+*/
   }
 
-
-  stepsAutoNambering(scenario) {
+  stepsAutoNumbering(scenario) {
     let i = 1;
     if (scenario.steps) scenario.steps.forEach(step => {
       step.stepNum = i++;
@@ -78,16 +93,26 @@ export class EditScenario {
 
   async launchScenario(scenarioId) {
     let scenario = this.templates.scenarios[scenarioId];
-    if (scenario && scenario.params && scenario.params.length) {
-      const paramsObject = scenario.params.reduce((result, param)=>{
-      if (param.name) {
-        result[param.name] = param.value;
-      }
-      return result;
-    }, {});
-    let launchResult = await this.utilService.postRequest("Request launch scenario", "deploy", paramsObject);
+    if (!scenario) {
+      return;
     }
+    let paramsObject = this.reduceParamsToKV(scenario.params);
 
+    let launchResult = await this.utilService.postRequest("Request launch scenario", `deploy/${scenarioId}`, paramsObject);
+
+  }
+
+  reduceParamsToKV(params) {
+    let result={};
+    if (params && params.length) {
+      result = params.reduce((result, param) => {
+        if (param.name) {
+          result[param.name] = param.value;
+        }
+        return result;
+      }, {});
+    }
+    return result;
   }
 }
 
