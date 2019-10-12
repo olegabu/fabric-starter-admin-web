@@ -6,25 +6,30 @@
     <ux-dialog-body style="width:1200px; ">
 
       <aup-tabs class="nav-tabs"
-                tabs.bind="[{id:'tasks', label:'Tasks'}, {active:true, id:'scenarios', label:'Deployment scenarios'}]"
+                tabs.bind="[{id:'tasks', label:'Tasks', active:true,}, {id:'scenarios', label:'Deployment scenarios'}]"
                 translate="true"></aup-tabs>
       <aup-tab-content>
         <aup-tab-pane tab="tasks" class="active">
-          <div class="container-fluid border">
-            <div class="row header">
-              <div class="col-lg-3">Task Name</div>
-              <div class="col-lg-9">Parameters</div>
-            </div>
-            <div class="row pre-scrollable">
-              <div class="col-lg-12">
-                <div class="container-fluid scenario">
-                  <div class="row" repeat.for="task of objToArray(templates.tasks)">
-                    <div class="col-lg-3">${task.name}</div>
-                    <div class="col-lg-9">
-                      <div class="container-fluid scenario-params">
-                        <div class="row">
-                          <div class="col-md-3" repeat.for="param of objToArray(task.params)">
-                            ${param.id}
+          <form submit.delegate="saveTaskSettings(templates.tasks)">
+            <div class="container-fluid border">
+              <div class="row header">
+                <div class="col-lg-3">Task Name</div>
+                <div class="col-lg-1">Auto-Accept</div>
+                <div class="col-lg-8">Parameters</div>
+              </div>
+              <div class="row pre-scrollable">
+                <div class="col-lg-12">
+                  <div class="container-fluid scenario">
+                    <div class="row" repeat.for="key of keys(templates.tasks)">
+                      <div class="col-lg-3">${templates.tasks[key].name}</div>
+                      <div class="col-lg-1" style="text-align: center"><input type="checkbox"
+                                                                              checked.bind="templates.tasks[key].auto"></label></div>
+                      <div class="col-lg-8">
+                        <div class="container-fluid scenario-params">
+                          <div class="row">
+                            <div class="col-md-1">
+<!--                              ${join(objToArray(templates.tasks[key].params))}-->
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -33,7 +38,12 @@
                 </div>
               </div>
             </div>
-          </div>
+            <div>
+              <div class="col-auto align-items-center" style="padding-top:30px">
+                <button type="submit" class="btn custom-btn " t="Save Task Settings"></button>
+              </div>
+            </div>
+          </form>
         </aup-tab-pane>
       </aup-tab-content>
 
@@ -50,7 +60,8 @@
 
                     <form submit.delegate="launchScenario(scenario.id)" class="border">
                       <div class="form-row align-items-center">
-                        <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px" show.bind="formParam.visible!=='false'">
+                        <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px"
+                             show.bind="formParam.visible!=='false'">
                           <label for="formParam.name">${formParam.name}:</label>
                           <input class="form-control" type="text" name="formParam.name" value.bind="formParam.value"
                                  required>
@@ -90,7 +101,8 @@
                                         <div class="col-lg-11">
                                           <form-field title.bind="taskParam.name"
                                                       field.two-way="taskParam.value"></form-field>
-                                          <div class="row" repeat.for="valueTaskParam of objToArray(templates.tasks[param.value], 'params')">
+                                          <div class="row"
+                                               repeat.for="valueTaskParam of objToArray(templates.tasks[param.value], 'params')">
                                             <div class="col-lg-2" style="border-style: none"></div>
                                             <div class="col-lg-9">
                                               <form-field title.bind="valueTaskParam.name"
@@ -107,6 +119,8 @@
                             </div>
                           </div>
                         </div>
+                      </div>
+                    </div>
                   </aup-tab-pane>
                 </aup-tab-content>
               </div>

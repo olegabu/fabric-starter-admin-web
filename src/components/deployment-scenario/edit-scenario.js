@@ -14,7 +14,6 @@ export class EditScenario {
   @computedFrom('templates')
   get scenarios() {
     let scenarios = (this.templates && this.templates.scenarios && this.objToArray(this.templates.scenarios)) || [];
-    if (scenarios.length) scenarios[scenarios.length-1].active = true;
 
     if (scenarios) {
       scenarios.forEach(scenario => {
@@ -36,25 +35,27 @@ export class EditScenario {
     this.utilService = utilService;
   }
 
-  async activate(templates) {
+  async attached() {
 
     let env = await this.utilService.getRequest('get Env', 'env');
     this.env = env;
 
+    this.utilService.getRequest("get tasks", "tasks").then(tasks=>{
+      this.utilService.getRequest("get tasks settigns", "settings/tasks").then(taskSettings=>{
+        Object.keys(tasks).forEach(k=>{
+          tasks[k].auto=taskSettings[k] && taskSettings[k].auto;
+        });
+        this.templates.tasks=tasks;
+      });
+    });
 
-    this.templates = templates;
-/*
-    this.scenarios = (templates && templates.scenarios && this.objToArray(templates.scenarios)) || [];
-    if (this.scenarios.length) this.scenarios[this.scenarios.length-1].active = true;
+    this.utilService.getRequest("get scenarios", "scenarios").then(templates=>{
+      this.templates=templates;
+    });
 
-    if (this.scenarios) {
-      this.scenarios.forEach(scenario => {
-        this.stepsAutoNumbering(scenario);
-        this.evaluateDefaultParamValues(scenario, env);
+  }
 
-      })
-    }
-*/
+  async activate(templates) {
   }
 
   stepsAutoNumbering(scenario) {
@@ -77,9 +78,13 @@ export class EditScenario {
     }
   }
 
+  keys(arr) {
+    return arr ? Object.keys(arr) : [];
+  }
+
   objToArray(obj, prop) {
-    if (prop && obj && obj[prop]){
-      obj=obj[prop];
+    if (prop && obj && obj[prop]) {
+      obj = obj[prop];
     }
     if (Array.isArray(obj)) {
       return obj;
@@ -91,19 +96,27 @@ export class EditScenario {
     return arr || [];
   }
 
+  join(arr) {
+    return arr ? arr.map(p => p.id).join(',') : '';
+  }
+
   async launchScenario(scenarioId) {
+
     let scenario = this.templates.scenarios[scenarioId];
     if (!scenario) {
       return;
     }
     let paramsObject = this.reduceParamsToKV(scenario.params);
 
-    let launchResult = await this.utilService.postRequest("Request launch scenario", `deploy/${scenarioId}`, paramsObject);
+    let launchResult = await this.utilService.postRequest("Request launch scenario", `deploy/scenario/${scenarioId}`, paramsObject);
+  }
 
+  async saveTaskSettings(tasks) {
+    let launchResult = await this.utilService.postRequest("Save tasks settings", `settings/tasks/`, tasks);
   }
 
   reduceParamsToKV(params) {
-    let result={};
+    let result = {};
     if (params && params.length) {
       result = params.reduce((result, param) => {
         if (param.name) {

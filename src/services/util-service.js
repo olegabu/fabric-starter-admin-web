@@ -112,9 +112,15 @@ export class UtilService {
 
   getRequest(logMessage, path, requestParams, extractResultFn) {
     log.debug(logMessage);
-    const url = Config.getUrl(path);
+    const urlPath = Config.getUrl(path);
+    return this.getRequestToUrlPath(logMessage, urlPath, requestParams, extractResultFn);
+  }
+
+  async getRequestToUrlPath(logMessage, urlPath, requestParams, extractResultFn) {
+
+    log.debug(logMessage);
     return new Promise((resolve, reject) => {
-      this.fetch(url, requestParams, 'get').then(j => {
+      this.fetch(urlPath, requestParams, 'get').then(j => {
         resolve(extractResultFn ? extractResultFn(j) : j);
       })
         .catch(err => {

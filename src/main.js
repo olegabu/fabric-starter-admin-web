@@ -36,7 +36,8 @@ export function configure(aurelia) {
     .plugin('aurelia-bootstrap')
     .feature('components')
     .feature('resources')
-    .globalResources('components/orderer/orderers-block');
+    .globalResources('components/orderer/orderers-block')
+    .globalResources('components/orderer/orgs-block');
 
   if (environment.debug) {
     aurelia.use.developmentLogging();

@@ -8,14 +8,15 @@ import {ConsortiumService} from './services/consortium-service';
 import {WebAppService} from './services/webapp-service';
 import JSONFormatter from '../node_modules/json-formatter-js/dist/json-formatter';
 import {json} from "aurelia-fetch-client";
+import {UtilService} from "./services/util-service";
 
-// import {__orderersBlock} from "./components/orderer/orderers-block";
 
 let log = LogManager.getLogger('Home');
 
-@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService)
+@inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, UtilService)
 export class Home {
-  osnList=[]
+  osnList = [];
+  staticOrgList = {};
 //Blocks
   blocks = []; // list of blocks
 //Channels
@@ -93,7 +94,7 @@ export class Home {
     'res'];
   domain = null;
 
-  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, orderersBlock) {
+  constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, webAppService, utilService) {
     this.identityService = identityService;
     this.eventAggregator = eventAggregator;
     this.chaincodeService = chaincodeService;
@@ -101,17 +102,18 @@ export class Home {
     this.alertService = alertService;
     this.consortiumService = consortiumService;
     this.webAppService = webAppService;
-    this.orderersBlock = orderersBlock;
-    this.osnList=[]
+    this.utilService = utilService;
+
   }
 
   attached() {
     this.readNodeConfig();
-    setTimeout(()=>this.readNodeConfig(), 5000);
-    setTimeout(()=>this.readNodeConfig(), 15000);
+    setTimeout(() => this.readNodeConfig(), 5000);
+    setTimeout(() => this.readNodeConfig(), 15000);
     this.subscriberBlock = this.eventAggregator.subscribe('block', o => {
       log.debug('block', o);
       this.queryOSNs();
+      this.queryStaticOrgs();
       this.queryChannels();
       if (this.channel) {
         if (o && (o.channel_id || (o.data.data[0] && o.data.data[0].payload.header.channel_header.channel_id) === this.channel)) {
@@ -127,6 +129,7 @@ export class Home {
 
   readNodeConfig() {
     this.queryOSNs();
+    this.queryStaticOrgs();
     this.queryChannels();
     this.queryInstalledChaincodes();
     this.queryInstalledWebApps();
@@ -142,6 +145,16 @@ export class Home {
       this.osnList = osns;
       this.osnList.sort();
     });
+  }
+
+  async queryStaticOrgs() {
+    let env = await this.utilService.getRequest('get Env', 'env');
+    if (env && env.BOOTSTRAP_IP) {
+      let host =`http://${env.BOOTSTRAP_IP}:4000`;
+      this.staticOrgList = await this.utilService.getRequestToUrlPath('get orgs', `${host}/settings/orgs`);
+    } else  {
+      this.staticOrgList = await this.utilService.getRequest('get orgs', 'settings/orgs');
+    }
   }
 
   queryChannels() {
@@ -313,7 +326,7 @@ export class Home {
   }
 
   queryOrgs() {
-    this.chaincodeService.queryOrgs(this.channel, {filter:true}).then(orgs => {
+    this.chaincodeService.queryOrgs(this.channel, {filter: true}).then(orgs => {
       this.orgList = orgs.sort();
     });
   }
@@ -557,7 +570,11 @@ export class Home {
   }
 
   addToConsortium() {
-    const params = {orgId: this.consortiumInviteeName, orgIp: this.consortiumInviteeIP, wwwPort: this.consortiumWWWPort};
+    const params = {
+      orgId: this.consortiumInviteeName,
+      orgIp: this.consortiumInviteeIP,
+      wwwPort: this.consortiumWWWPort
+    };
     this.consortiumService.inviteByName(params).then((result) => {
       this.alertService.success(`${this.consortiumInviteeName} added to the consortium`);
       this.queryConsortium();
@@ -715,6 +732,6 @@ export class Home {
     return requestParams;
   }
 
-  noop(){
+  noop() {
   }
 }
