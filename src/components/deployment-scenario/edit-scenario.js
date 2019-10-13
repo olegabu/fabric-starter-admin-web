@@ -8,7 +8,8 @@ import {UtilService} from '../../services/util-service';
 export class EditScenario {
   // static inject = [DialogController];
 
-  @bindable templates = {};
+  @bindable orgMap = {};
+  templates = {};
   ordererTypes = [{id: 'solo', name: 'Solo'}, {id: 'etcdraft', name: 'RAFT'}, {id: 'bft', name: 'BFT'}];
 
   @computedFrom('templates')
@@ -40,22 +41,23 @@ export class EditScenario {
     let env = await this.utilService.getRequest('get Env', 'env');
     this.env = env;
 
-    this.utilService.getRequest("get tasks", "tasks").then(tasks=>{
-      this.utilService.getRequest("get tasks settigns", "settings/tasks").then(taskSettings=>{
-        Object.keys(tasks).forEach(k=>{
-          tasks[k].auto=taskSettings[k] && taskSettings[k].auto;
+    this.utilService.getRequest("get tasks", "tasks").then(tasks => {
+      this.utilService.getRequest("get tasks settigns", "settings/tasks").then(taskSettings => {
+        Object.keys(tasks).forEach(k => {
+          tasks[k].auto = taskSettings[k] && taskSettings[k].auto;
         });
-        this.templates.tasks=tasks;
+        this.templates.tasks = tasks;
       });
     });
 
-    this.utilService.getRequest("get scenarios", "scenarios").then(templates=>{
-      this.templates=templates;
+    this.utilService.getRequest("get scenarios", "scenarios").then(templates => {
+      this.templates = templates;
     });
 
   }
 
-  async activate(templates) {
+  async activate(orgMap) {
+    this.orgMap = orgMap;
   }
 
   stepsAutoNumbering(scenario) {
@@ -107,6 +109,7 @@ export class EditScenario {
       return;
     }
     let paramsObject = this.reduceParamsToKV(scenario.params);
+    paramsObject.orgMap=this.orgMap;
 
     let launchResult = await this.utilService.postRequest("Request launch scenario", `deploy/scenario/${scenarioId}`, paramsObject);
   }

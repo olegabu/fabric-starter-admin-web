@@ -58,6 +58,10 @@
   border-style: none;
 }
 
+.orgbtn{
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 128, 0.25)
+}
+
 /*#fixedbutton {*/
 /*position: absolute;*/
 /*position: fixed;*/

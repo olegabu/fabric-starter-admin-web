@@ -2,6 +2,7 @@
   <ux-dialog>
 
     <ux-dialog-header style="width:1200px">
+      <span style="font-weight:bold;font-size:+1">${orgMap.orgDomain}</span> [ ${orgMap.org.ip} ] (Jwt Token: ${orgMap.org.jwt} )
     </ux-dialog-header>
     <ux-dialog-body style="width:1200px; ">
 
@@ -63,8 +64,7 @@
                         <div repeat.for="formParam of scenario.params" class="col-auto" style="width:250px"
                              show.bind="formParam.visible!=='false'">
                           <label for="formParam.name">${formParam.name}:</label>
-                          <input class="form-control" type="text" name="formParam.name" value.bind="formParam.value"
-                                 required>
+                          <input class="form-control" type="text" name="formParam.name" value.bind="formParam.value">
                         </div>
                         <div class="col-auto align-items-center" style="padding-top:30px">
                           <button type="submit" class="btn custom-btn " t="Launch Scenario"></button>

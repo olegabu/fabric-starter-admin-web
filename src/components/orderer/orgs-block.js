@@ -16,7 +16,7 @@ import {EditScenario} from "../deployment-scenario/edit-scenario";
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, UtilService, DialogService)
 export class OrgsBlock {
 
-  @bindable orgList; // list of OSNs
+  @bindable orgList={};
 
   constructor(identityService, eventAggregator, chaincodeService, configService, alertService, consortiumService, utilService, dialogService) {
     this.utilService = utilService;
@@ -28,8 +28,9 @@ export class OrgsBlock {
     return obj ? Object.keys(obj) : [];
   }
 
-  createScenario() {
-    this.dialogService.open({viewModel: EditScenario, model: this.templates, lock: false}).whenClosed(response => {
+  createScenario(orgKey) {
+    let orgMap = {orgDomain: orgKey, org: this.orgList[orgKey]};
+    this.dialogService.open({viewModel: EditScenario, model: orgMap, lock: false}).whenClosed(response => {
       if (!response.wasCancelled) {
         console.log(this.osn);
       } else {

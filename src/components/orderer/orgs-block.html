@@ -5,9 +5,9 @@
         <h4 t="Organizations"></h4>
       </div>
       <div class="col-md-2" repeat.for="k of keys(orgList)" >
-        <button id="deploymentScenario" type="button" class="btn">
+        <button id="deploymentScenario" type="button" class="btn orgbtn">
             <span>${k}&nbsp;[${orgList[k].ip}]&nbsp;<i class="fa fa-plus-square"
-                     style="font-size: 1em" click.trigger="createScenario()"></i></span>
+                     style="font-size: 1em" click.trigger="createScenario(k)"></i></span>
         </button>
       </div>
     </div>

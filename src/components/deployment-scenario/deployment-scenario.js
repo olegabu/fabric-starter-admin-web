@@ -40,7 +40,7 @@ export class DeploymentScenario {
       this.templates.scenarios=scenarios;
     });
 
-    this.dialogService.open({viewModel: EditScenario, model: this.templates, lock: false}).whenClosed(response => {
+    this.dialogService.open({viewModel: EditScenario, lock: false}).whenClosed(response => {
       if (!response.wasCancelled) {
         console.log(this.osn);
       } else {
