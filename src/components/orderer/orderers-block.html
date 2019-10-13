@@ -9,14 +9,15 @@
       <div class="col-md-11">
         <div class="row align-items-start">
 
-          <div class="col-md-3" repeat.for="o of osnList">
-            <h6 style="font-weight: bold">${o.name}</h6>
-            <div repeat.for="orderer of o.orderers">
+          <div class="col-md-3" repeat.for="osn of osnList">
+            <h6 style="font-weight: bold">${osn.name}</h6>
+            <div repeat.for="orderer of osn.orderers">
 
               <input type="radio" name="orderer" value.bind="selectedOrderer" autocomplete="off"
-                     checked.bind='selectedOrderer'
-              >
+                     checked.bind='selectedOrderer'>
               ${orderer.addr}
+
+
             </div>
           </div>
 <!--          <div class="row align-items-start">

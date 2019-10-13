@@ -8,7 +8,7 @@ import {UtilService} from '../../services/util-service';
 export class EditScenario {
   // static inject = [DialogController];
 
-  @bindable orgMap = {};
+  @bindable targetOrgMap = {};
   templates = {};
   ordererTypes = [{id: 'solo', name: 'Solo'}, {id: 'etcdraft', name: 'RAFT'}, {id: 'bft', name: 'BFT'}];
 
@@ -56,8 +56,8 @@ export class EditScenario {
 
   }
 
-  async activate(orgMap) {
-    this.orgMap = orgMap;
+  async activate(targetOrgMap) {
+    this.targetOrgMap = targetOrgMap;
   }
 
   stepsAutoNumbering(scenario) {
@@ -109,7 +109,7 @@ export class EditScenario {
       return;
     }
     let paramsObject = this.reduceParamsToKV(scenario.params);
-    paramsObject.orgMap=this.orgMap;
+    paramsObject.targetOrgMap=this.targetOrgMap;
 
     let launchResult = await this.utilService.postRequest("Request launch scenario", `deploy/scenario/${scenarioId}`, paramsObject);
   }

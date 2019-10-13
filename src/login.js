@@ -7,8 +7,8 @@ let log = LogManager.getLogger('Login');
 
 @inject(IdentityService, AlertService)
 export class Login {
-  password='p';
-  username='p';
+  username='user';
+  password='pass';
 
   constructor(identityService, alertService) {
     this.identityService = identityService;

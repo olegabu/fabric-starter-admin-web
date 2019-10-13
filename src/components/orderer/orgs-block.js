@@ -29,8 +29,8 @@ export class OrgsBlock {
   }
 
   createScenario(orgKey) {
-    let orgMap = {orgDomain: orgKey, org: this.orgList[orgKey]};
-    this.dialogService.open({viewModel: EditScenario, model: orgMap, lock: false}).whenClosed(response => {
+    let targetOrgMap = {orgDomain: orgKey, org: this.orgList[orgKey]};
+    this.dialogService.open({viewModel: EditScenario, model: targetOrgMap, lock: false}).whenClosed(response => {
       if (!response.wasCancelled) {
         console.log(this.osn);
       } else {

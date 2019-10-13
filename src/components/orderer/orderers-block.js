@@ -10,6 +10,7 @@ import {AlertService} from "../../services/alert-service";
 import {ConsortiumService} from "../../services/consortium-service";
 import {WebAppService} from "../../services/webapp-service";
 import {EditOrderer} from './edit-orderer';
+import {EditScenario} from "../deployment-scenario/edit-scenario";
 
 
 @inject(IdentityService, EventAggregator, ChaincodeService, ConfigService, AlertService, ConsortiumService, WebAppService, DialogService)
@@ -30,6 +31,17 @@ export class OrderersBlock {
 
   createOSN() {
     this.dialogService.open({ viewModel: EditOrderer, model: this.osn, lock: false }).whenClosed(response => {
+      if (!response.wasCancelled) {
+        console.log(this.osn);
+      } else {
+        console.log('cancelled');
+      }
+    });
+  }
+
+  createScenario(osn, orderer) {
+    let targetOrgMap = {osn: osn, orderer: orderer};
+    this.dialogService.open({viewModel: EditScenario, model: targetOrgMap, lock: false}).whenClosed(response => {
       if (!response.wasCancelled) {
         console.log(this.osn);
       } else {
