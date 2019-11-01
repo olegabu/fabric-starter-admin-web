@@ -150,7 +150,7 @@ export class Home {
   async queryStaticOrgs() {
     let env = await this.utilService.getRequest('get Env', 'env');
     if (env && env.BOOTSTRAP_IP) {
-      let host =`http://${env.BOOTSTRAP_IP}:4000`;
+      let host =`http://${env.BOOTSTRAP_IP}:${env.BOOTSTRAP_PORT || '4000'}`; //TODO
       this.staticOrgList = await this.utilService.getRequestToUrlPath('get orgs', `${host}/settings/orgs`);
     } else  {
       this.staticOrgList = await this.utilService.getRequest('get orgs', 'settings/orgs');
