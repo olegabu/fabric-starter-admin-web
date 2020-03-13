@@ -1,4 +1,6 @@
 # Web application for Hyperledger Fabric decentralized application 
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Folegabu%2Ffabric-starter-admin-web.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Folegabu%2Ffabric-starter-admin-web?ref=badge_shield)
+
 
 Starter application built with [Aurelia](https://aurelia.io/) to connect to 
 [REST API servers](https://github.com/olegabu/fabric-starter-rest) and transact on 
@@ -40,3 +42,7 @@ to the API server of org *a* [http://localhost:3000](http://localhost:3000).
 
 
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Folegabu%2Ffabric-starter-admin-web.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Folegabu%2Ffabric-starter-admin-web?ref=badge_large)
