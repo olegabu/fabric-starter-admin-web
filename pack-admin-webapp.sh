@@ -4,7 +4,7 @@ packageName=admin-webapp.tgz
 rm -f ${packageName}
 
 npm install
-au build --env prod
+npx au build --env prod
 echo "Built"
 
 tar -zcvf ${packageName} index.html scripts
