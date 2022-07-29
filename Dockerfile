@@ -13,15 +13,9 @@ COPY . .
 
 RUN rm -f ${PACKAGE_NAME} && \
     npm install && \
-    npx au build --env prod && \
-    tar -zcvf ${PACKAGE_NAME} index.html scripts
+    npx au build --env prod
 
-# use --target=export-stage just to export PACKAGE_NAME
 FROM scratch AS export-stage
 ARG PACKAGE_NAME
-COPY --from=node_base /BUILD/${PACKAGE_NAME} /
-
-FROM ${BASE_IMAGE} AS build-stage
-WORKDIR ./webapp
 COPY --from=node_base /BUILD/scripts ./scripts
 COPY --from=node_base /BUILD/index.html ./
