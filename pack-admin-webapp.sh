@@ -3,13 +3,14 @@
 copyToDir=${1}
 
 PACKAGE_NAME=${PACKAGE_NAME:-admin-webapp.tgz}
-rm -f ${packageName}
+rm -f ${PACKAGE_NAME}
 
 DOCKER_BUILDKIT=1 \
 docker build \
+--target=export-stage \
 --build-arg PACKAGE_NAME=${PACKAGE_NAME} \
 --no-cache --progress=plain --output ./ .
 
-if [ ! -z "$copyToDir" ]; then
+if [ -n "$copyToDir" ]; then
   cp -v ${PACKAGE_NAME} ${copyToDir}
 fi
