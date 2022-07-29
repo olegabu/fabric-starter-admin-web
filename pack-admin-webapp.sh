@@ -10,4 +10,6 @@ docker build \
 --build-arg PACKAGE_NAME=${PACKAGE_NAME} \
 --no-cache --progress=plain --output ./ .
 
-[ ! -z "$copyToDir" ] && cp -v ${PACKAGE_NAME} ${copyToDir}
+if [ ! -z "$copyToDir" ]; then
+  cp -v ${PACKAGE_NAME} ${copyToDir}
+fi
