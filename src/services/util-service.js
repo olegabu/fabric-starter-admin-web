@@ -92,7 +92,7 @@ export class UtilService {
         if (! response || ! response.json) {
           return reject(response);
         }
-        response.json().then(j => {
+        response.text().then(j => {
           log.debug('fetch', j);
 
           if (!response.ok) {
@@ -100,6 +100,11 @@ export class UtilService {
             this.alertService.error(`${msg}. Status: ${response.status}`);
             reject(new Error(msg));
           } else {
+            try {
+              j= JSON.parse(j)
+            } catch (e) {
+              log.debug('Not json', j)
+            }
             resolve(j);
           }
         }).catch(err => {
@@ -138,7 +143,7 @@ export class UtilService {
 
   postWithFile(url, uploadFile, reject, resolve, org, username ) {
     this.fetchForFile(url, uploadFile, 'post', org, username).then(j => {
-      if (!j || (j.startsWith && j.startsWith('Error'))) {
+      if (j && j.startsWith && j.startsWith('Error')) {
         this.alertService.error(j);
         reject(j);
       } else {
