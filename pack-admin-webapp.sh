@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
-packageName=admin-webapp.tgz
-rm -f ${packageName}
+copyToDir=${1}
 
-npm install
-npx au build --env prod
-echo "Built"
+PACKAGE_NAME=${PACKAGE_NAME:-admin-webapp.tgz}
+rm -rf ./scripts
 
-tar -zcvf ${packageName} index.html scripts
-echo "Package prepared"
+DOCKER_BUILDKIT=1 \
+docker build \
+--build-arg PACKAGE_NAME=${PACKAGE_NAME} \
+--no-cache --progress=plain --output ./ .
 
-cp -v ${packageName} ../fabric-starter-rest
+rm -f ${PACKAGE_NAME}
+tar -zcvf ${PACKAGE_NAME} index.html scripts
+
+if [ -n "$copyToDir" ]; then
+  cp -v ${PACKAGE_NAME} ${copyToDir}
+fi

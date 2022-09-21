@@ -247,6 +247,8 @@ export class Home {
     formData.append('waitForTransactionEvent', 'true');
     formData.append('chaincodeType', this.initLanguage);
     formData.append('chaincodeVersion', this.selectedChain.split(':')[1]);
+    formData.append('packageId', (this.installedChaincodes.find(ic => ic.idKey == this.selectedChain) || {}).packageId);
+
     if (this.initFcn)
       formData.append('fcn', this.initFcn);
     if (this.initArgs)
