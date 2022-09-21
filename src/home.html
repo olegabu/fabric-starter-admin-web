@@ -58,7 +58,7 @@
       <form submit.delegate="installChaincode()">
         <h4 t="Uploaded Chaincodes">Uploaded Chaincodes</h4>
         <ul>
-          <li repeat.for="o of installedChaincodes">${o}</li>
+          <li repeat.for="o of installedChaincodes">${o.name + ':' + o.version}</li>
         </ul>
         <div class="form-row align-items-center">
           <div class="col-auto">
@@ -186,7 +186,7 @@
             <label for="initChaincode" t="Chaincode for instantiate">Chaincode for instantiate</label>
             <select class="form-control" id="initChaincode" value.bind="selectedChain" required>
               <option repeat.for="chain of installedChaincodes">
-                ${chain}
+                ${chain.name + ':' + chain.version}
               </option>
             </select>
           </div>

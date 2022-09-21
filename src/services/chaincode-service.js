@@ -28,7 +28,8 @@ export class ChaincodeService {
   }
 
   queryInstalledChaincodes() {
-    return this.utilService.getRequest('get Installed Chaincodes', 'chaincodes', null, this.extractChaincodes);
+    return this.utilService.getRequest('get Installed Chaincodes', 'chaincodes', null,
+      cArr => (cArr.chaincodes || cArr).map(c => Object.assign({}, c, {idKey: c.name + ":" + c.version})));
   }
 
   installChaincode(formData) {
