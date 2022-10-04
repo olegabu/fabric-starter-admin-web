@@ -3374,8 +3374,8 @@ homedir-polyfill@^1.0.1:
     parse-passwd "^1.0.0"
 
 hosted-git-info@^2.1.4:
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.7.1.tgz#97f236977bd6e125408930ff6de3eec6281ec047"
+  version "2.8.9"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
 
 http-errors@1.6.3, http-errors@~1.6.2, http-errors@~1.6.3:
   version "1.6.3"
@@ -3877,9 +3877,9 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-json-formatter-js@^2.2.1:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/json-formatter-js/-/json-formatter-js-2.3.4.tgz#0b49b6facd0d54cb220eb65988157c0977a85c6f"
+json-formatter-js@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/json-formatter-js/-/json-formatter-js-2.2.1.tgz#b101d628e86f028dc9cf9a7e1c83c65e536c9f87"
 
 json-schema-traverse@^0.4.1:
   version "0.4.1"
