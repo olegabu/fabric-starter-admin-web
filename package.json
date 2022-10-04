@@ -30,7 +30,7 @@
   },
   "peerDependencies": {},
   "devDependencies": {
-    "aurelia-cli": "^0.35.1",
+    "aurelia-cli": "^3.0.1",
     "aurelia-testing": "^1.0.0",
     "aurelia-tools": "^2.0.0",
     "babel-eslint": "^6.0.4",
