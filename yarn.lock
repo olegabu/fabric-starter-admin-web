@@ -3877,9 +3877,9 @@ jsesc@~0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/jsesc/-/jsesc-0.5.0.tgz#e7dee66e35d6fc16f710fe91d5cf69f70f08911d"
 
-json-formatter-js@^2.2.1:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/json-formatter-js/-/json-formatter-js-2.3.4.tgz#0b49b6facd0d54cb220eb65988157c0977a85c6f"
+json-formatter-js@2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/json-formatter-js/-/json-formatter-js-2.2.1.tgz#b101d628e86f028dc9cf9a7e1c83c65e536c9f87"
 
 json-schema-traverse@^0.4.1:
   version "0.4.1"
@@ -4453,8 +4453,8 @@ mitt@^1.1.3:
   resolved "https://registry.yarnpkg.com/mitt/-/mitt-1.1.3.tgz#528c506238a05dce11cd914a741ea2cc332da9b8"
 
 mixin-deep@^1.2.0:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/mixin-deep/-/mixin-deep-1.3.1.tgz#a49e7268dce1a0d9698e45326c5626df3543d0fe"
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/mixin-deep/-/mixin-deep-1.3.2.tgz#1120b43dc359a785dce65b55b82e257ccf479566"
   dependencies:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
