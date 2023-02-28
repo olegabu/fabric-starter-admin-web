@@ -57,7 +57,7 @@
     "gulp-sourcemaps": "^2.0.0-alpha",
     "gulp-watch": "^4.3.11",
     "jasmine-core": "^2.4.1",
-    "karma": "^0.13.22",
+    "karma": "^6.4.1",
     "karma-babel-preprocessor": "^6.0.1",
     "karma-chrome-launcher": "^2.2.0",
     "karma-jasmine": "^1.0.2",
